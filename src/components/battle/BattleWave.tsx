@@ -33,7 +33,6 @@ export default function BattleWave({ audioUrl, entryId, isOwner }: BattleWavePro
       cursorWidth: 1,
       height: 60,
       barGap: 3,
-      responsive: true,
     })
 
     wavesurferRef.current = wavesurfer
@@ -73,7 +72,7 @@ export default function BattleWave({ audioUrl, entryId, isOwner }: BattleWavePro
   const toggleMute = () => {
     if (!wavesurferRef.current) return
 
-    wavesurferRef.current.toggleMute()
+    wavesurferRef.current.setMuted(!isMuted)
     setIsMuted(!isMuted)
   }
 

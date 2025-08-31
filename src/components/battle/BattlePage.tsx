@@ -15,9 +15,9 @@ interface BattlePageProps {
   battle: Battle
   entries: BattleEntry[]
   sponsors: {
-      hero: any[]
-  sidebar: any[]
-  footer: any[]
+      hero: React.ReactNode[]
+  sidebar: React.ReactNode[]
+  footer: React.ReactNode[]
   }
   hasVoted: boolean
   voteResults: Record<string, number>
@@ -265,10 +265,14 @@ export default function BattlePage({
       {/* Lyrics Modal */}
       {showLyrics && selectedEntry && (
         <LyricsPanel
-          entry={selectedEntry}
+          lyrics={selectedEntry.lyrics || ''}
           isOpen={showLyrics}
           onClose={() => setShowLyrics(false)}
           isOwner={currentUserId === selectedEntry.user_id}
+          onSave={async (lyrics: string) => {
+            // TODO: Implement save functionality
+            console.log('Saving lyrics:', lyrics)
+          }}
         />
       )}
     </div>

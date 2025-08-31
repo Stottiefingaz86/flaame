@@ -124,8 +124,13 @@ export default function ChatPanel() {
 
       // Load user's emojis
       const userEmojis = await chatService.getUserEmojis()
-      setAvailableEmojis(userEmojis.map(emoji => ({
-        ...emoji,
+      const flattenedEmojis = userEmojis.flat()
+      setAvailableEmojis(flattenedEmojis.map(emoji => ({
+        id: emoji.id,
+        emoji: emoji.emoji,
+        name: emoji.name,
+        cost: emoji.cost,
+        rarity: emoji.rarity,
         isUnlocked: true
       })))
     } catch (error) {
@@ -176,8 +181,13 @@ export default function ChatPanel() {
       await chatService.purchaseEmoji(emojiId)
       // Refresh emojis
       const userEmojis = await chatService.getUserEmojis()
-      setAvailableEmojis(userEmojis.map(emoji => ({
-        ...emoji,
+      const flattenedEmojis = userEmojis.flat()
+      setAvailableEmojis(flattenedEmojis.map(emoji => ({
+        id: emoji.id,
+        emoji: emoji.emoji,
+        name: emoji.name,
+        cost: emoji.cost,
+        rarity: emoji.rarity,
         isUnlocked: true
       })))
       setShowEmojiShop(false)
@@ -532,7 +542,7 @@ export default function ChatPanel() {
                                     {battle.beat && <div>Beat: {battle.beat.title}</div>}
                                     <div>Stakes: {battle.stakes} flames</div>
                                   </div>
-                                  {user && battle.opponent?.id === user.id && (
+                                  {user && battle.opponent_id === user.id && (
                                     <div className="flex gap-2 mt-3">
                                       <Button 
                                         size="sm" 

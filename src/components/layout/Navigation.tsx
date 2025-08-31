@@ -127,18 +127,11 @@ export default function Navigation() {
       <nav className="hidden lg:flex items-center justify-between w-full max-w-7xl mx-auto px-4 py-4">
         {/* Logo */}
         <Link href="/" className="flex items-center">
-          <span className="text-2xl font-bold text-white tracking-wide" style={{
-            fontFamily: 'Brush Script MT, cursive',
-            textShadow: '0 0 10px rgba(255, 255, 255, 0.3)',
-            transform: 'rotate(-1deg)',
-            position: 'relative'
-          }}>
-            Flaame
-            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-white rounded-full" style={{
-              transform: 'rotate(1deg)',
-              boxShadow: '0 0 5px rgba(255, 255, 255, 0.5)'
-            }}></div>
-          </span>
+          <img 
+            src="/flaame_logo.png" 
+            alt="Flaame" 
+            className="h-8"
+          />
         </Link>
 
         {/* Navigation Links */}
@@ -256,18 +249,11 @@ export default function Navigation() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className="text-xl font-bold text-white tracking-wide" style={{
-              fontFamily: 'Brush Script MT, cursive',
-              textShadow: '0 0 8px rgba(255, 255, 255, 0.3)',
-              transform: 'rotate(-1deg)',
-              position: 'relative'
-            }}>
-              Flaame
-              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-white rounded-full" style={{
-                transform: 'rotate(1deg)',
-                boxShadow: '0 0 4px rgba(255, 255, 255, 0.5)'
-              }}></div>
-            </span>
+            <img 
+              src="/flaame_logo.png" 
+              alt="Flaame" 
+              className="h-6"
+            />
           </Link>
 
           {/* Mobile Menu Button */}

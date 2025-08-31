@@ -34,18 +34,11 @@ export default function AuthPage() {
           {/* New Stylized Logo */}
           <div className="mb-8">
             <div className="mb-6">
-              <h1 className="text-6xl font-bold text-white tracking-wide" style={{
-                fontFamily: 'Brush Script MT, cursive',
-                textShadow: '0 0 20px rgba(255, 255, 255, 0.3)',
-                transform: 'rotate(-2deg)',
-                position: 'relative'
-              }}>
-                Flaame
-                <div className="absolute bottom-0 left-0 w-full h-1 bg-white rounded-full" style={{
-                  transform: 'rotate(2deg)',
-                  boxShadow: '0 0 10px rgba(255, 255, 255, 0.5)'
-                }}></div>
-              </h1>
+              <img 
+                src="/flaame_logo.png" 
+                alt="Flaame" 
+                className="h-24 mx-auto mb-4"
+              />
             </div>
             <p className="text-gray-300 text-lg">
               Join the battle. Connect with Instagram to start.

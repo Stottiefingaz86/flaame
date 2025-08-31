@@ -126,9 +126,9 @@ export default async function ProfileCustomizePage() {
                           : 'border-white/20 hover:border-white/40'
                       }`}
                     >
-                      <div className="text-3xl mb-2">{item.cosmetics?.value}</div>
+                      <div className="text-3xl mb-2">{item.cosmetics?.[0]?.value}</div>
                       <p className="text-white text-sm">
-                        {item.cosmetics?.label}
+                        {item.cosmetics?.[0]?.label}
                       </p>
                       {currentBadge?.item_id === item.item_id && (
                         <div className="absolute top-2 right-2 bg-orange-500 text-white p-1 rounded-full">
@@ -171,10 +171,10 @@ export default async function ProfileCustomizePage() {
                     >
                       <div
                         className="w-full h-16 rounded mb-2"
-                        style={{ backgroundColor: item.cosmetics?.value }}
+                        style={{ backgroundColor: item.cosmetics?.[0]?.value }}
                       />
                       <p className="text-white text-sm text-center">
-                        {item.cosmetics?.label}
+                        {item.cosmetics?.[0]?.label}
                       </p>
                       {currentTheme?.item_id === item.item_id && (
                         <div className="absolute top-2 right-2 bg-purple-500 text-white p-1 rounded-full">
@@ -203,7 +203,7 @@ export default async function ProfileCustomizePage() {
             <CardContent>
               <div className="flex items-center gap-4 p-4 rounded-lg bg-white/5">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center text-white font-bold text-xl">
-                  {currentBadge?.cosmetics?.value || profile?.username?.charAt(0).toUpperCase()}
+                  {currentBadge?.cosmetics?.[0]?.value || profile?.username?.charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <h3 className="text-white font-semibold">{profile?.username}</h3>

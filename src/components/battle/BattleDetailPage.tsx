@@ -301,9 +301,8 @@ export default function BattleDetailPage({ battle, user, hasVoted }: BattleDetai
                   <div className="bg-black/30 rounded-lg p-4">
                     <BattleWave 
                       audioUrl={entry.audioUrl}
-                      isPlaying={isPlaying === entry.id}
-                      onPlay={() => setIsPlaying(entry.id)}
-                      onPause={() => setIsPlaying(null)}
+                      entryId={entry.id}
+                      isOwner={user?.id === entry.rapper.id}
                     />
                   </div>
 

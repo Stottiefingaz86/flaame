@@ -81,13 +81,11 @@ export default async function ProfileCustomizePage() {
                           : 'border-white/20 hover:border-white/40'
                       }`}
                     >
-                      <img
-                        src={item.avatars?.image_url}
-                        alt={item.avatars?.name}
-                        className="w-full h-32 object-cover rounded"
-                      />
+                      <div className="w-full h-32 bg-gradient-to-r from-orange-500 to-red-500 rounded flex items-center justify-center">
+                        <span className="text-white text-2xl font-bold">{item.cosmetics?.[0]?.label?.[0] || 'A'}</span>
+                      </div>
                       <p className="text-white text-sm mt-2 text-center">
-                        {item.avatars?.name}
+                        {item.cosmetics?.[0]?.label || 'Avatar'}
                       </p>
                       {currentAvatar?.item_id === item.item_id && (
                         <div className="absolute top-2 right-2 bg-yellow-500 text-white p-1 rounded-full">

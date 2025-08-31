@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { Crown, Trophy, Medal, Star, Users, Target, TrendingUp, Award, Zap } from 'lucide-react'
+import { Crown, Trophy, Medal, Star, Target, TrendingUp, Award } from 'lucide-react'
 
 interface LeaderboardEntry {
   id: string
@@ -87,68 +87,6 @@ const mockLeaderboardData: LeaderboardEntry[] = [
     lost: 0,
     winRate: 66.7,
     season: 'Season 1'
-  },
-  {
-    id: '5',
-    rank: 1,
-    username: 'Kairo',
-    avatar: 'K',
-    isVerified: true,
-    rankTitle: 'Legendary',
-    points: 245,
-    played: 110,
-    won: 82,
-    drawn: 0,
-    lost: 28,
-    winRate: 74.5,
-    season: 'Season 2',
-    isChampion: true
-  },
-  {
-    id: '6',
-    rank: 2,
-    username: 'Flow Master',
-    avatar: 'F',
-    isVerified: true,
-    rankTitle: 'Legendary',
-    points: 198,
-    played: 85,
-    won: 66,
-    drawn: 0,
-    lost: 19,
-    winRate: 77.6,
-    season: 'Season 2'
-  },
-  {
-    id: '7',
-    rank: 1,
-    username: 'Beat Breaker',
-    avatar: 'B',
-    isVerified: true,
-    rankTitle: 'Legendary',
-    points: 289,
-    played: 95,
-    won: 96,
-    drawn: 0,
-    lost: 0,
-    winRate: 100.0,
-    season: 'Season 3',
-    isChampion: true
-  },
-  {
-    id: '8',
-    rank: 2,
-    username: 'Nova',
-    avatar: 'N',
-    isVerified: true,
-    rankTitle: 'Legendary',
-    points: 267,
-    played: 95,
-    won: 89,
-    drawn: 0,
-    lost: 6,
-    winRate: 93.7,
-    season: 'Season 3'
   },
   {
     id: '5',
@@ -304,8 +242,6 @@ export default function LeaderboardPage() {
     }
   }
 
-
-
   return (
     <div className="flex-1">
       <div className="container mx-auto px-4 py-8">
@@ -320,137 +256,57 @@ export default function LeaderboardPage() {
             <div className="p-3 rounded-full bg-gradient-to-r from-orange-500 to-red-500">
               <Trophy className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-5xl font-bold text-white">Leaderboard</h1>
+            <div>
+              <h1 className="text-4xl font-bold text-white mb-2">Leaderboard</h1>
+              <p className="text-gray-400">Track your progress and compete with the best</p>
+            </div>
           </div>
-          <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-            The ultimate ranking system. Earn points by winning battles: 3 points for a win, 1 for a draw, 0 for a loss.
-          </p>
         </motion.div>
 
-        {/* Stats Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
-        >
-          <Card className="bg-black/20 backdrop-blur-md border-white/10">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-full bg-yellow-500/20">
-                  <Crown className="w-6 h-6 text-yellow-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-white">1,247</p>
-                  <p className="text-gray-400 text-sm">Total Rappers</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-black/20 backdrop-blur-md border-white/10">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-full bg-orange-500/20">
-                  <Trophy className="w-6 h-6 text-orange-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-white">892</p>
-                  <p className="text-gray-400 text-sm">Battles Won</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-black/20 backdrop-blur-md border-white/10">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-full bg-green-500/20">
-                  <Target className="w-6 h-6 text-green-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-white">67.8%</p>
-                  <p className="text-gray-400 text-sm">Avg Win Rate</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-black/20 backdrop-blur-md border-white/10">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-full bg-blue-500/20">
-                  <TrendingUp className="w-6 h-6 text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-white">2,456</p>
-                  <p className="text-gray-400 text-sm">Total Battles</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Leaderboard Tabs */}
+        {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="flex items-center justify-center mb-8">
-            <TabsList className="rounded-2xl bg-black/20 backdrop-blur-md border border-white/10">
-              <TabsTrigger 
-                className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500" 
-                value="global"
-              >
-                <Trophy className="w-4 h-4 mr-2" />
-                Global Rankings
-              </TabsTrigger>
-              <TabsTrigger 
-                className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500" 
-                value="weekly"
-              >
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Weekly
-              </TabsTrigger>
-              <TabsTrigger 
-                className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500" 
-                value="tiers"
-              >
-                <Star className="w-4 h-4 mr-2" />
-                Tiers
-              </TabsTrigger>
-            </TabsList>
-          </div>
+          <TabsList className="grid w-full grid-cols-3 bg-black/20 backdrop-blur-md border-white/10">
+            <TabsTrigger value="global" className="text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500">
+              Global Rankings
+            </TabsTrigger>
+            <TabsTrigger value="weekly" className="text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500">
+              Weekly
+            </TabsTrigger>
+            <TabsTrigger value="tiers" className="text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500">
+              Tiers
+            </TabsTrigger>
+          </TabsList>
 
           <TabsContent value="global" className="mt-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
             >
               <Card className="bg-black/20 backdrop-blur-md border-white/10">
-                                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-white">Global Rankings</CardTitle>
-                      <div className="flex items-center gap-4">
-                        <select 
-                          value={selectedSeason} 
-                          onChange={(e) => setSelectedSeason(e.target.value)}
-                          className="bg-black/30 border border-white/20 rounded-lg px-3 py-1 text-white text-sm"
-                        >
-                          <option value="Season 1">Season 1</option>
-                          <option value="Season 2">Season 2</option>
-                          <option value="Season 3">Season 3</option>
-                        </select>
-                        <Button
-                          variant={showChampions ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setShowChampions(!showChampions)}
-                          className="text-xs"
-                        >
-                          <Crown className="w-3 h-3 mr-1" />
-                          {showChampions ? 'All Players' : 'Champions Only'}
-                        </Button>
-                      </div>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-white">Global Rankings</CardTitle>
+                    <div className="flex items-center gap-4">
+                      <select
+                        value={selectedSeason}
+                        onChange={(e) => setSelectedSeason(e.target.value)}
+                        className="bg-black/20 border border-white/10 text-white px-3 py-1 rounded-md text-sm"
+                      >
+                        <option value="Season 1">Season 1</option>
+                        <option value="Season 2">Season 2</option>
+                        <option value="Season 3">Season 3</option>
+                      </select>
+                      <Button
+                        variant={showChampions ? "default" : "outline"}
+                        onClick={() => setShowChampions(!showChampions)}
+                        className="text-sm"
+                      >
+                        {showChampions ? "Show All" : "Champions Only"}
+                      </Button>
                     </div>
-                  </CardHeader>
+                  </div>
+                </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto">
                     <table className="w-full">
@@ -462,9 +318,9 @@ export default function LeaderboardPage() {
                           <th className="text-center py-3 px-2 text-gray-400 font-medium">W</th>
                           <th className="text-center py-3 px-2 text-gray-400 font-medium">D</th>
                           <th className="text-center py-3 px-2 text-gray-400 font-medium">L</th>
-                          <th className="text-center py-3 px-2 text-gray-400 font-medium">GF</th>
-                          <th className="text-center py-3 px-2 text-gray-400 font-medium">GA</th>
-                          <th className="text-center py-3 px-2 text-gray-400 font-medium">GD</th>
+                          <th className="text-center py-3 px-2 text-gray-400 font-medium">WR%</th>
+                          <th className="text-center py-3 px-2 text-gray-400 font-medium">-</th>
+                          <th className="text-center py-3 px-2 text-gray-400 font-medium">-</th>
                           <th className="text-center py-3 px-2 text-gray-400 font-medium">Pts</th>
                         </tr>
                       </thead>
@@ -496,8 +352,8 @@ export default function LeaderboardPage() {
                                       </Badge>
                                     )}
                                   </div>
-                                  <div className={`text-xs ${getRankColor(entry.rank)}`}>
-                                    {entry.rank}
+                                  <div className={`text-xs ${getRankColor(entry.rankTitle)}`}>
+                                    {entry.rankTitle}
                                   </div>
                                 </div>
                               </div>
@@ -506,10 +362,10 @@ export default function LeaderboardPage() {
                             <td className="py-4 px-2 text-center text-green-400 font-semibold">{entry.won}</td>
                             <td className="py-4 px-2 text-center text-yellow-400">{entry.drawn}</td>
                             <td className="py-4 px-2 text-center text-red-400">{entry.lost}</td>
-                            <td className="py-4 px-2 text-center text-gray-300">{entry.goalsFor}</td>
-                            <td className="py-4 px-2 text-center text-gray-300">{entry.goalsAgainst}</td>
-                            <td className={`py-4 px-2 text-center font-semibold ${getGoalDifferenceColor(entry.goalDifference)}`}>
-                              {getGoalDifferenceSign(entry.goalDifference)}{entry.goalDifference}
+                            <td className="py-4 px-2 text-center text-gray-300">{entry.winRate}%</td>
+                            <td className="py-4 px-2 text-center text-gray-300">-</td>
+                            <td className="py-4 px-2 text-center font-semibold text-gray-300">
+                              -
                             </td>
                             <td className="py-4 px-2 text-center">
                               <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
@@ -547,9 +403,9 @@ export default function LeaderboardPage() {
                           <th className="text-center py-3 px-2 text-gray-400 font-medium">W</th>
                           <th className="text-center py-3 px-2 text-gray-400 font-medium">D</th>
                           <th className="text-center py-3 px-2 text-gray-400 font-medium">L</th>
-                          <th className="text-center py-3 px-2 text-gray-400 font-medium">GF</th>
-                          <th className="text-center py-3 px-2 text-gray-400 font-medium">GA</th>
-                          <th className="text-center py-3 px-2 text-gray-400 font-medium">GD</th>
+                          <th className="text-center py-3 px-2 text-gray-400 font-medium">WR%</th>
+                          <th className="text-center py-3 px-2 text-gray-400 font-medium">-</th>
+                          <th className="text-center py-3 px-2 text-gray-400 font-medium">-</th>
                           <th className="text-center py-3 px-2 text-gray-400 font-medium">Pts</th>
                         </tr>
                       </thead>
@@ -578,8 +434,8 @@ export default function LeaderboardPage() {
                                       </Badge>
                                     )}
                                   </div>
-                                  <div className={`text-xs ${getRankColor(entry.rank)}`}>
-                                    {entry.rank}
+                                  <div className={`text-xs ${getRankColor(entry.rankTitle)}`}>
+                                    {entry.rankTitle}
                                   </div>
                                 </div>
                               </div>
@@ -588,10 +444,10 @@ export default function LeaderboardPage() {
                             <td className="py-4 px-2 text-center text-green-400 font-semibold">{entry.won}</td>
                             <td className="py-4 px-2 text-center text-yellow-400">{entry.drawn}</td>
                             <td className="py-4 px-2 text-center text-red-400">{entry.lost}</td>
-                            <td className="py-4 px-2 text-center text-gray-300">{entry.goalsFor}</td>
-                            <td className="py-4 px-2 text-center text-gray-300">{entry.goalsAgainst}</td>
-                            <td className={`py-4 px-2 text-center font-semibold ${getGoalDifferenceColor(entry.goalDifference)}`}>
-                              {getGoalDifferenceSign(entry.goalDifference)}{entry.goalDifference}
+                            <td className="py-4 px-2 text-center text-gray-300">{entry.winRate}%</td>
+                            <td className="py-4 px-2 text-center text-gray-300">-</td>
+                            <td className="py-4 px-2 text-center font-semibold text-gray-300">
+                              -
                             </td>
                             <td className="py-4 px-2 text-center">
                               <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
@@ -625,7 +481,7 @@ export default function LeaderboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {mockLeaderboardData.filter(entry => entry.rank === 'Legendary').slice(0, 3).map((entry) => (
+                    {mockLeaderboardData.filter(entry => entry.rankTitle === 'Legendary').slice(0, 3).map((entry) => (
                       <div key={entry.id} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Avatar className="h-6 w-6">
@@ -653,7 +509,7 @@ export default function LeaderboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {mockLeaderboardData.filter(entry => entry.rank === 'Veteran').slice(0, 3).map((entry) => (
+                    {mockLeaderboardData.filter(entry => entry.rankTitle === 'Veteran').slice(0, 3).map((entry) => (
                       <div key={entry.id} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Avatar className="h-6 w-6">
@@ -681,7 +537,7 @@ export default function LeaderboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {mockLeaderboardData.filter(entry => entry.rank === 'Rising').slice(0, 3).map((entry) => (
+                    {mockLeaderboardData.filter(entry => entry.rankTitle === 'Rising').slice(0, 3).map((entry) => (
                       <div key={entry.id} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Avatar className="h-6 w-6">
@@ -709,7 +565,7 @@ export default function LeaderboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {mockLeaderboardData.filter(entry => entry.rank === 'Newcomer').slice(0, 3).map((entry) => (
+                    {mockLeaderboardData.filter(entry => entry.rankTitle === 'Newcomer').slice(0, 3).map((entry) => (
                       <div key={entry.id} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Avatar className="h-6 w-6">

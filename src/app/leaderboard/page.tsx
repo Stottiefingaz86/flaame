@@ -15,7 +15,7 @@ interface LeaderboardEntry {
   username: string
   avatar: string
   isVerified: boolean
-  rank: string
+  rankTitle: string
   points: number
   played: number
   won: number
@@ -33,7 +33,7 @@ const mockLeaderboardData: LeaderboardEntry[] = [
     username: 'Nova',
     avatar: 'N',
     isVerified: true,
-    rank: 'Legendary',
+    rankTitle: 'Legendary',
     points: 267,
     played: 120,
     won: 89,
@@ -49,7 +49,7 @@ const mockLeaderboardData: LeaderboardEntry[] = [
     username: 'Kairo',
     avatar: 'K',
     isVerified: true,
-    rank: 'Legendary',
+    rankTitle: 'Legendary',
     points: 229,
     played: 95,
     won: 67,
@@ -64,7 +64,7 @@ const mockLeaderboardData: LeaderboardEntry[] = [
     username: 'Flow Master',
     avatar: 'F',
     isVerified: true,
-    rank: 'Veteran',
+    rankTitle: 'Veteran',
     points: 186,
     played: 78,
     won: 54,
@@ -79,7 +79,7 @@ const mockLeaderboardData: LeaderboardEntry[] = [
     username: 'Rhyme King',
     avatar: 'R',
     isVerified: false,
-    rank: 'Veteran',
+    rankTitle: 'Veteran',
     points: 168,
     played: 72,
     won: 48,
@@ -94,7 +94,7 @@ const mockLeaderboardData: LeaderboardEntry[] = [
     username: 'Kairo',
     avatar: 'K',
     isVerified: true,
-    rank: 'Legendary',
+    rankTitle: 'Legendary',
     points: 245,
     played: 110,
     won: 82,
@@ -110,7 +110,7 @@ const mockLeaderboardData: LeaderboardEntry[] = [
     username: 'Flow Master',
     avatar: 'F',
     isVerified: true,
-    rank: 'Legendary',
+    rankTitle: 'Legendary',
     points: 198,
     played: 85,
     won: 66,
@@ -125,7 +125,7 @@ const mockLeaderboardData: LeaderboardEntry[] = [
     username: 'Beat Breaker',
     avatar: 'B',
     isVerified: true,
-    rank: 'Legendary',
+    rankTitle: 'Legendary',
     points: 289,
     played: 95,
     won: 96,
@@ -141,7 +141,7 @@ const mockLeaderboardData: LeaderboardEntry[] = [
     username: 'Nova',
     avatar: 'N',
     isVerified: true,
-    rank: 'Legendary',
+    rankTitle: 'Legendary',
     points: 267,
     played: 95,
     won: 89,
@@ -156,15 +156,12 @@ const mockLeaderboardData: LeaderboardEntry[] = [
     username: 'Beat Breaker',
     avatar: 'B',
     isVerified: true,
-    rank: 'Rising',
+    rankTitle: 'Rising',
     points: 156,
     played: 65,
     won: 42,
     drawn: 30,
     lost: 0,
-    goalsFor: 126,
-    goalsAgainst: 65,
-    goalDifference: 61,
     winRate: 64.6
   },
   {
@@ -173,15 +170,12 @@ const mockLeaderboardData: LeaderboardEntry[] = [
     username: 'Lyric Lord',
     avatar: 'L',
     isVerified: false,
-    rank: 'Rising',
+    rankTitle: 'Rising',
     points: 147,
     played: 58,
     won: 39,
     drawn: 30,
     lost: 0,
-    goalsFor: 117,
-    goalsAgainst: 58,
-    goalDifference: 59,
     winRate: 67.2
   },
   {
@@ -190,15 +184,12 @@ const mockLeaderboardData: LeaderboardEntry[] = [
     username: 'Mic Master',
     avatar: 'M',
     isVerified: true,
-    rank: 'Veteran',
+    rankTitle: 'Veteran',
     points: 135,
     played: 52,
     won: 36,
     drawn: 27,
     lost: 0,
-    goalsFor: 108,
-    goalsAgainst: 52,
-    goalDifference: 56,
     winRate: 69.2
   },
   {
@@ -207,15 +198,12 @@ const mockLeaderboardData: LeaderboardEntry[] = [
     username: 'Word Wizard',
     avatar: 'W',
     isVerified: false,
-    rank: 'Rising',
+    rankTitle: 'Rising',
     points: 123,
     played: 48,
     won: 33,
     drawn: 24,
     lost: 0,
-    goalsFor: 99,
-    goalsAgainst: 48,
-    goalDifference: 51,
     winRate: 68.8
   },
   {
@@ -224,15 +212,12 @@ const mockLeaderboardData: LeaderboardEntry[] = [
     username: 'Verse Vandal',
     avatar: 'V',
     isVerified: true,
-    rank: 'Newcomer',
+    rankTitle: 'Newcomer',
     points: 111,
     played: 42,
     won: 30,
     drawn: 21,
     lost: 0,
-    goalsFor: 90,
-    goalsAgainst: 42,
-    goalDifference: 48,
     winRate: 71.4
   },
   {
@@ -241,15 +226,12 @@ const mockLeaderboardData: LeaderboardEntry[] = [
     username: 'Bar Builder',
     avatar: 'B',
     isVerified: false,
-    rank: 'Newcomer',
+    rankTitle: 'Newcomer',
     points: 99,
     played: 38,
     won: 27,
     drawn: 18,
     lost: 0,
-    goalsFor: 81,
-    goalsAgainst: 38,
-    goalDifference: 43,
     winRate: 71.1
   }
 ]
@@ -261,15 +243,12 @@ const weeklyData: LeaderboardEntry[] = [
     username: 'Nova',
     avatar: 'N',
     isVerified: true,
-    rank: 'Legendary',
+    rankTitle: 'Legendary',
     points: 21,
     played: 7,
     won: 7,
     drawn: 0,
     lost: 0,
-    goalsFor: 21,
-    goalsAgainst: 0,
-    goalDifference: 21,
     winRate: 100
   },
   {
@@ -278,15 +257,12 @@ const weeklyData: LeaderboardEntry[] = [
     username: 'Flow Master',
     avatar: 'F',
     isVerified: true,
-    rank: 'Veteran',
+    rankTitle: 'Veteran',
     points: 18,
     played: 6,
     won: 6,
     drawn: 0,
     lost: 0,
-    goalsFor: 18,
-    goalsAgainst: 0,
-    goalDifference: 18,
     winRate: 100
   },
   {
@@ -295,15 +271,12 @@ const weeklyData: LeaderboardEntry[] = [
     username: 'Kairo',
     avatar: 'K',
     isVerified: true,
-    rank: 'Legendary',
+    rankTitle: 'Legendary',
     points: 15,
     played: 5,
     won: 5,
     drawn: 0,
     lost: 0,
-    goalsFor: 15,
-    goalsAgainst: 0,
-    goalDifference: 15,
     winRate: 100
   }
 ]

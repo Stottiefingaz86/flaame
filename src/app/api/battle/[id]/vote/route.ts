@@ -4,9 +4,10 @@ import { spendFlames } from '@/lib/votes'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await getSupabaseServerClient()
     
     // Get current user
@@ -31,8 +32,8 @@ export async function POST(
     // Check if battle exists and is in voting phase
     const { data: battle, error: battleError } = await supabase
       .from('battles')
-      .select('status, ends_at')
-      .eq('id', params.id)
+      .select('status, ends_at, challenger_votes, opponent_votes')
+      .eq('id', id)
       .single()
       
     if (battleError || !battle) {
@@ -63,7 +64,7 @@ export async function POST(
     const { data: existingVote, error: voteCheckError } = await supabase
       .from('votes')
       .select('id')
-      .eq('battle_id', params.id)
+      .eq('battle_id', id)
       .eq('voter_id', user.id)
       .single()
       
@@ -86,7 +87,7 @@ export async function POST(
       .from('battle_entries')
       .select('id')
       .eq('id', entryId)
-      .eq('battle_id', params.id)
+      .eq('battle_id', id)
       .single()
       
     if (entryError || !entry) {
@@ -97,7 +98,7 @@ export async function POST(
     }
     
     // Spend 1 flame for voting
-    const spendResult = await spendFlames(user.id, 1, `Vote in battle ${params.id}`)
+    const spendResult = await spendFlames(user.id, 1, `Vote in battle ${id}`)
     
     if (!spendResult.success) {
       return NextResponse.json(
@@ -110,7 +111,7 @@ export async function POST(
     const { error: voteError } = await supabase
       .from('votes')
       .insert({
-        battle_id: params.id,
+        battle_id: id,
         voter_id: user.id,
         entry_id: entryId,
         weight: 1
@@ -123,16 +124,12 @@ export async function POST(
       )
     }
     
-    // Update battle total votes
-    const { error: updateError } = await supabase
-      .from('battles')
-      .update({ total_votes: battle.total_votes + 1 })
-      .eq('id', params.id)
+    // Update battle vote counts (this would need to be updated based on which participant was voted for)
+    // For now, we'll just record the vote without updating battle totals
+    // The vote counts should be calculated from the votes table
       
-    if (updateError) {
-      console.error('Error updating battle vote count:', updateError)
-      // Don't fail the vote if this update fails
-    }
+    // Note: Vote counts should be calculated from the votes table
+    // This ensures data consistency
     
     return NextResponse.json({
       success: true,

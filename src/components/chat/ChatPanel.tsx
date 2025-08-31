@@ -30,6 +30,14 @@ import {
 import { chatService, ChatMessage, BattleChallenge } from '@/lib/chat'
 import { supabase } from '@/lib/supabase/client'
 
+interface User {
+  id: string
+  email?: string
+  username?: string
+  flames?: number
+  user_metadata?: Record<string, unknown>
+}
+
 interface Emoji {
   id: string
   emoji: string
@@ -42,7 +50,7 @@ interface Emoji {
 export default function ChatPanel() {
   const [isMinimized, setIsMinimized] = useState(false)
   const [message, setMessage] = useState('')
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'chat' | 'battles'>('chat')
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)

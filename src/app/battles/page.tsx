@@ -25,6 +25,14 @@ import {
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 
+interface User {
+  id: string
+  email?: string
+  username?: string
+  flames?: number
+  user_metadata?: Record<string, unknown>
+}
+
 interface Battle {
   id: string
   title: string
@@ -67,7 +75,7 @@ interface Battle {
 
 export default function BattlesPage() {
   const [battles, setBattles] = useState<Battle[]>([])
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('active')
   const [userVotes, setUserVotes] = useState<Record<string, string>>({})

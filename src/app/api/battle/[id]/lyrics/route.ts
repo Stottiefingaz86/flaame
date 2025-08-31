@@ -3,9 +3,10 @@ import { getSupabaseServerClient } from '@/lib/db'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await getSupabaseServerClient()
     
     // Get current user
@@ -32,7 +33,7 @@ export async function POST(
       .from('battle_entries')
       .select('id, user_id, battle_id')
       .eq('id', entryId)
-      .eq('battle_id', params.id)
+      .eq('battle_id', id)
       .single()
       
     if (entryError || !entry) {

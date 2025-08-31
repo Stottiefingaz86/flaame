@@ -15,9 +15,9 @@ interface BattlePageProps {
   battle: Battle
   entries: BattleEntry[]
   sponsors: {
-    hero: any[]
-    sidebar: any[]
-    footer: any[]
+      hero: React.ReactNode[]
+  sidebar: React.ReactNode[]
+  footer: React.ReactNode[]
   }
   hasVoted: boolean
   voteResults: Record<string, number>

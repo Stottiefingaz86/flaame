@@ -155,7 +155,7 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
           </div>
           <div className="flex items-center gap-2">
             {isOpen && <Badge className="rounded-full bg-green-500/20 text-green-300 border-green-500/30">Open</Badge>}
-            {isActive && (
+            {isActive && battle.endsAt && (
               <div className="flex items-center gap-2 text-xs text-gray-400">
                 <Timer className="h-3.5 w-3.5" /> {formatTimeLeft(battle.endsAt)} left
               </div>
@@ -180,7 +180,7 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
                 <Calendar className="h-3 w-3" />
                 {formatCreationTime(battle.createdAt)}
               </span>
-              {isActive && (
+              {isActive && battle.endsAt && (
                 <span className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
                   Ends {battle.endsAt.toLocaleDateString()}

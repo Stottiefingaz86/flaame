@@ -19,9 +19,19 @@ import {
   User,
   Star,
   Heart,
-  ShoppingCart
+  ShoppingCart,
+  Plus,
+  X
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
+
+interface User {
+  id: string
+  email?: string
+  username?: string
+  flames?: number
+  user_metadata?: Record<string, unknown>
+}
 
 interface Beat {
   id: string
@@ -50,7 +60,7 @@ interface Beat {
 
 export default function BeatsPage() {
   const [beats, setBeats] = useState<Beat[]>([])
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('free')
   const [searchQuery, setSearchQuery] = useState('')
@@ -211,7 +221,7 @@ export default function BeatsPage() {
         return
       }
 
-      if (user.flames < beat.price) {
+      if ((user.flames || 0) < beat.price) {
         alert('Not enough flames!')
         return
       }
@@ -232,7 +242,7 @@ export default function BeatsPage() {
         // Update user flames
         await supabase
           .from('profiles')
-          .update({ flames: user.flames - beat.price })
+          .update({ flames: (user.flames || 0) - beat.price })
           .eq('id', user.id)
 
         // Download the beat

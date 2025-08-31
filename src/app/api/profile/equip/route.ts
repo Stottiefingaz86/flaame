@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     const { avatarId, badgeIcon, themeColor } = await request.json()
     
     // Validate that user owns the items they're trying to equip
-    const updates: any = {}
+    const updates: Record<string, string> = {}
     
     if (avatarId) {
       // Check if user owns this avatar

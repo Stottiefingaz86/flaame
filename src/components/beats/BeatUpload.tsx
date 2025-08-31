@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 
 interface BeatUploadProps {
-  onUploadSuccess?: (beat: any) => void
+  onUploadSuccess?: (beat: { id: string; title: string }) => void
   onCancel?: () => void
 }
 

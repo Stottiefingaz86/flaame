@@ -1,19 +1,43 @@
 import { notFound } from 'next/navigation'
-import { createServerClient } from '@/lib/supabase/server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import BattleDetailPage from '@/components/battle/BattleDetailPage'
 
 interface BattlePageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function BattlePage({ params }: BattlePageProps) {
-  const supabase = createServerClient()
+  const { id } = await params
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
+      },
+    }
+  )
   
   // Mock battle data for now - replace with actual Supabase query
   const mockBattle = {
-    id: params.id,
+    id: id,
     title: "Nova vs Kairo - Midnight Flow",
     status: "active" as const,
     createdAt: new Date(Date.now() - 86400000), // 1 day ago

@@ -191,8 +191,8 @@ export default function AuthPage() {
             <div className="bg-black/20 backdrop-blur-md border border-white/10 rounded-xl p-6 max-w-2xl mx-auto">
               <h3 className="text-white font-semibold mb-2">Need Help?</h3>
               <p className="text-gray-400 text-sm mb-4">
-                If you're having trouble signing in with Instagram, make sure your Instagram account is public 
-                and you're logged into Instagram in your browser.
+                If you&apos;re having trouble signing in with Instagram, make sure your Instagram account is public 
+                and you&apos;re logged into Instagram in your browser.
               </p>
               <div className="flex items-center justify-center gap-6 text-sm">
                 <a href="#" className="text-orange-400 hover:text-orange-300">Help Center</a>

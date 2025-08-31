@@ -126,11 +126,19 @@ export default function Navigation() {
       {/* Desktop Navigation */}
       <nav className="hidden lg:flex items-center justify-between w-full max-w-7xl mx-auto px-4 py-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3">
-          <div className="p-2 rounded-full bg-gradient-to-r from-orange-500 to-red-500">
-            <Flame className="w-6 h-6 text-white" />
-          </div>
-                           <span className="text-xl font-bold text-white">Flaame</span>
+        <Link href="/" className="flex items-center">
+          <span className="text-2xl font-bold text-white tracking-wide" style={{
+            fontFamily: 'Brush Script MT, cursive',
+            textShadow: '0 0 10px rgba(255, 255, 255, 0.3)',
+            transform: 'rotate(-1deg)',
+            position: 'relative'
+          }}>
+            Flaame
+            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-white rounded-full" style={{
+              transform: 'rotate(1deg)',
+              boxShadow: '0 0 5px rgba(255, 255, 255, 0.5)'
+            }}></div>
+          </span>
         </Link>
 
         {/* Navigation Links */}
@@ -247,11 +255,19 @@ export default function Navigation() {
       <nav className="lg:hidden w-full px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="p-1.5 rounded-full bg-gradient-to-r from-orange-500 to-red-500">
-              <Flame className="w-5 h-5 text-white" />
-            </div>
-                               <span className="text-lg font-bold text-white">Flaame</span>
+          <Link href="/" className="flex items-center">
+            <span className="text-xl font-bold text-white tracking-wide" style={{
+              fontFamily: 'Brush Script MT, cursive',
+              textShadow: '0 0 8px rgba(255, 255, 255, 0.3)',
+              transform: 'rotate(-1deg)',
+              position: 'relative'
+            }}>
+              Flaame
+              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-white rounded-full" style={{
+                transform: 'rotate(1deg)',
+                boxShadow: '0 0 4px rgba(255, 255, 255, 0.5)'
+              }}></div>
+            </span>
           </Link>
 
           {/* Mobile Menu Button */}

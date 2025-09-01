@@ -1,6 +1,6 @@
 'use client'
 
-// Force deployment - updated styling changes
+// Force deployment - trigger new build
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'

@@ -498,9 +498,9 @@ export default function ArenaPage() {
           </div>
         </motion.div>
 
-        {/* Search and Filters */}
+        {/* Search, Tabs, and League Filter - All on One Line */}
         <div className="mb-6">
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex items-center gap-4">
             {/* Search Bar */}
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -512,6 +512,21 @@ export default function ArenaPage() {
                 className="w-full pl-10 pr-4 py-2 bg-black/20 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
               />
             </div>
+            
+            {/* Tabs */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
+              <TabsList className="rounded-2xl bg-black/20 backdrop-blur-md border border-white/10">
+                <TabsTrigger className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white" value="active">
+                  Active Battles
+                </TabsTrigger>
+                <TabsTrigger className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white" value="open">
+                  Open Challenges
+                </TabsTrigger>
+                <TabsTrigger className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white" value="finished">
+                  Finished
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
             
             {/* League Filter */}
             {leagues.length > 0 && (
@@ -551,19 +566,8 @@ export default function ArenaPage() {
             )}
           </div>
           
-          {/* Tabs */}
+          {/* Tabs Content */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="rounded-2xl bg-black/20 backdrop-blur-md border border-white/10">
-              <TabsTrigger className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white" value="active">
-                Active Battles
-              </TabsTrigger>
-              <TabsTrigger className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white" value="open">
-                Open Challenges
-              </TabsTrigger>
-              <TabsTrigger className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white" value="finished">
-                Finished
-              </TabsTrigger>
-            </TabsList>
 
             <TabsContent value="active" className="mt-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

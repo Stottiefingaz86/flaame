@@ -27,7 +27,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <main 
           className="flex-1 transition-all duration-300" 
           style={{ 
-            paddingRight: 'calc(var(--chat-width) - 20px)',
+            paddingRight: 'var(--chat-width)',
             paddingBottom: currentTrack ? '80px' : '0'
           }}
         >
@@ -42,7 +42,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <footer 
         className="border-t border-white/10 bg-black/20 backdrop-blur-xl transition-all duration-300"
         style={{ 
-          marginRight: 'calc(var(--chat-width) - 20px)'
+          marginRight: 'var(--chat-width)'
         }}
       >
         <div className="max-w-7xl mx-auto px-4 py-8">

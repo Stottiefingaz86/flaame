@@ -121,7 +121,7 @@ export default function Navigation() {
         </div>
 
                      {/* Right Side */}
-             <div className="flex items-center gap-3 transition-all duration-300" style={{ marginRight: 'var(--chat-width, 320px)' }}>
+             <div className="flex items-center gap-3 transition-all duration-300" style={{ marginRight: 'var(--chat-width, 400px)' }}>
                {!isLoading && (
                  <>
                    {user ? (

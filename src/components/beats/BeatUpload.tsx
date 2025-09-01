@@ -178,74 +178,41 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
             <div className="space-y-2">
               <Label htmlFor="audioFile" className="text-white">Audio File *</Label>
               <div className="border-2 border-dashed border-white/20 rounded-lg p-6 text-center hover:border-white/40 transition-colors">
-                <input
-                  ref={fileInputRef}
-                  id="audioFile"
-                  type="file"
-                  accept="audio/mpeg,audio/wav,audio/mp3,audio/aac,video/mp4,video/quicktime"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                  disabled={isUploading}
-                />
-                <div 
-                  className="cursor-pointer block"
-                  onClick={() => {
-                    console.log('Drop zone clicked!')
-                    if (fileInputRef.current) {
-                      console.log('File input ref found, clicking...')
-                      fileInputRef.current.click()
-                    } else {
-                      console.log('File input ref not found!')
-                    }
-                  }}
-                >
-                  {selectedFile ? (
+                {selectedFile ? (
+                  <div className="space-y-4">
                     <div className="space-y-2">
                       <FileAudio className="w-8 h-8 text-green-400 mx-auto" />
                       <div className="text-white font-medium">{selectedFile.name}</div>
                       <div className="text-gray-400 text-sm">{formatFileSize(selectedFile.size)}</div>
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        size="sm"
-                        className="mt-2 border-white/20 text-white hover:bg-white/10"
-                        onClick={() => {
-                          console.log('Change File button clicked!')
-                          if (fileInputRef.current) {
-                            console.log('File input ref found, clicking...')
-                            fileInputRef.current.click()
-                          } else {
-                            console.log('File input ref not found!')
-                          }
-                        }}
-                      >
-                        Change File
-                      </Button>
                     </div>
-                  ) : (
+                    <input
+                      ref={fileInputRef}
+                      id="audioFile"
+                      type="file"
+                      accept="audio/mpeg,audio/wav,audio/mp3,audio/aac,video/mp4,video/quicktime"
+                      onChange={handleFileSelect}
+                      className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600"
+                      disabled={isUploading}
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-4">
                     <div className="space-y-2">
                       <Upload className="w-8 h-8 text-gray-400 mx-auto" />
                       <div className="text-white">Drop your audio file here</div>
-                      <div className="text-gray-400 text-sm">or click to browse</div>
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        className="mt-2 border-white/20 text-white hover:bg-white/10"
-                        onClick={() => {
-                          console.log('Choose File button clicked!')
-                          if (fileInputRef.current) {
-                            console.log('File input ref found, clicking...')
-                            fileInputRef.current.click()
-                          } else {
-                            console.log('File input ref not found!')
-                          }
-                        }}
-                      >
-                        Choose File
-                      </Button>
+                      <div className="text-gray-400 text-sm">or use the file picker below</div>
                     </div>
-                  )}
-                </div>
+                    <input
+                      ref={fileInputRef}
+                      id="audioFile"
+                      type="file"
+                      accept="audio/mpeg,audio/wav,audio/mp3,audio/aac,video/mp4,video/quicktime"
+                      onChange={handleFileSelect}
+                      className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600"
+                      disabled={isUploading}
+                    />
+                  </div>
+                )}
               </div>
               {errors.file && (
                 <div className="flex items-center gap-2 text-red-400 text-sm">

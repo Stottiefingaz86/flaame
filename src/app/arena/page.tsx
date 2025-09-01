@@ -451,6 +451,7 @@ export default function ArenaPage() {
   const [showCreateBattleModal, setShowCreateBattleModal] = useState(false)
   const [battles, setBattles] = useState<Battle[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Load battles from database
@@ -769,16 +770,40 @@ export default function ArenaPage() {
         </Button>
       </motion.div>
 
+      {/* Success Message */}
+      {showSuccessMessage && (
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 50 }}
+          className="fixed top-6 right-6 z-50 bg-green-500/90 backdrop-blur-md border border-green-400/30 rounded-lg p-4 shadow-2xl"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-6 bg-green-400 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <p className="text-white font-medium">Battle Created!</p>
+              <p className="text-green-200 text-sm">Your battle is now live in the arena</p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* Create Battle Modal */}
-                <CreateBattleModal
-            isOpen={showCreateBattleModal}
-            onClose={() => setShowCreateBattleModal(false)}
-            onBattleCreated={() => {
-              // Refresh battles list
-              loadBattles()
-              console.log('Battle created successfully!')
-            }}
-          />
+      <CreateBattleModal
+        isOpen={showCreateBattleModal}
+        onClose={() => setShowCreateBattleModal(false)}
+        onBattleCreated={() => {
+          // Refresh battles list
+          loadBattles()
+          setShowSuccessMessage(true)
+          console.log('Battle created successfully!')
+          
+          // Hide success message after 5 seconds
+          setTimeout(() => setShowSuccessMessage(false), 5000)
+        }}
+      />
     </div>
   )
 }

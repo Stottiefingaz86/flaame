@@ -62,6 +62,8 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
   const [isLoading, setIsLoading] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
   const [isUploadingTrack, setIsUploadingTrack] = useState(false)
+  const [creationProgress, setCreationProgress] = useState(0)
+  const [creationStep, setCreationStep] = useState('')
 
   // Load beats and users
   useEffect(() => {
@@ -177,6 +179,31 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
     }
   }
 
+  const testStorageAccess = async () => {
+    try {
+      console.log('Testing storage access...')
+      const testFile = new Blob(['test'], { type: 'audio/mpeg' })
+      const testFileName = `test-${Date.now()}.mp3`
+      
+      const { error } = await supabase.storage
+        .from('audio')
+        .upload(`test/${testFileName}`, testFile)
+      
+      if (error) {
+        console.error('Storage test failed:', error)
+        return false
+      } else {
+        console.log('Storage test successful')
+        // Clean up test file
+        await supabase.storage.from('audio').remove([`test/${testFileName}`])
+        return true
+      }
+    } catch (error) {
+      console.error('Storage test error:', error)
+      return false
+    }
+  }
+
   const handleCreateBattle = async () => {
     if (!user) {
       alert('You must be logged in to create a battle.')
@@ -199,20 +226,42 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
     }
 
     setIsCreating(true)
+    setCreationProgress(0)
+    setCreationStep('Preparing battle data...')
     
     // Define battleData outside try block so it's accessible in catch
     let battleData: any = null
     
+    // Add timeout to prevent getting stuck
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Battle creation timed out after 30 seconds')), 30000)
+    })
+    
     try {
+      // Test storage access first
+      setCreationStep('Testing storage access...')
+      setCreationProgress(10)
+      
+      const storageWorks = await testStorageAccess()
+      if (!storageWorks) {
+        throw new Error('Storage access failed. Please check your Supabase storage policies.')
+      }
+      
       // Upload the battle track
+      setCreationStep('Uploading your track...')
+      setCreationProgress(25)
+      
       const fileExt = battleTrack.name.split('.').pop()
       const trackFileName = `${user.id}-${Date.now()}.${fileExt}`
       
       console.log('Uploading track:', trackFileName, 'Size:', battleTrack.size, 'Type:', battleTrack.type)
       
-      const { error: trackUploadError } = await supabase.storage
+      // Race between upload and timeout
+      const uploadPromise = supabase.storage
         .from('audio')
         .upload(`battles/${trackFileName}`, battleTrack)
+      
+      const { error: trackUploadError } = await Promise.race([uploadPromise, timeoutPromise])
       
       if (trackUploadError) {
         console.error('Track upload error details:', trackUploadError)
@@ -220,6 +269,8 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
       }
       
       console.log('Track uploaded successfully:', trackFileName)
+      setCreationProgress(50)
+      setCreationStep('Creating battle...')
 
       battleData = {
         title: title.trim(),
@@ -246,6 +297,11 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
       }
       
       console.log('Battle created successfully:', data)
+      setCreationProgress(100)
+      setCreationStep('Battle created successfully!')
+
+      // Small delay to show success
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
       onBattleCreated()
       onClose()
@@ -265,9 +321,19 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
         errorMessage = `Database error: ${error.code}`
       }
       
-      alert(`Error: ${errorMessage}`)
+      // Show more detailed error information
+      console.error('Full error details:', {
+        message: error?.message,
+        code: error?.code,
+        details: error?.details,
+        hint: error?.hint
+      })
+      
+      alert(`Error: ${errorMessage}\n\nCheck the browser console for more details.`)
     } finally {
       setIsCreating(false)
+      setCreationProgress(0)
+      setCreationStep('')
     }
   }
 
@@ -632,11 +698,31 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
                   </div>
                 </div>
 
+                {isCreating && (
+                  <div className="space-y-4">
+                    <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                        </div>
+                        <span className="text-orange-300 font-medium">{creationStep}</span>
+                      </div>
+                      <div className="w-full bg-white/10 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full transition-all duration-500"
+                          style={{ width: `${creationProgress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex justify-between">
                   <Button
                     variant="outline"
                     onClick={() => setStep(4)}
                     className="border-white/20 hover:bg-white/10"
+                    disabled={isCreating}
                   >
                     Back
                   </Button>

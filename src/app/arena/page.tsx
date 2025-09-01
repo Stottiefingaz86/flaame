@@ -33,6 +33,7 @@ import { useLeague } from '@/contexts/LeagueContext'
 import { useUser } from '@/contexts/UserContext'
 import Link from 'next/link'
 import CreateBattleModal from '@/components/battle/CreateBattleModal'
+import AcceptBattleModal from '@/components/battle/AcceptBattleModal'
 
 // Battle interface for real data
 interface Battle {
@@ -214,7 +215,8 @@ function BattleCard({ battle }: { battle: Battle }) {
       alert('You must be logged in to accept a battle')
       return
     }
-    setShowAcceptModal(true)
+    setSelectedBattle(battle)
+    setShowAcceptBattleModal(true)
   }
 
   return (
@@ -545,6 +547,8 @@ export default function ArenaPage() {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false)
   const [finishedFilter, setFinishedFilter] = useState('all') // 'all', '30days', 'season1', 'season2'
   const [showCreateBattleModal, setShowCreateBattleModal] = useState(false)
+  const [showAcceptBattleModal, setShowAcceptBattleModal] = useState(false)
+  const [selectedBattle, setSelectedBattle] = useState<Battle | null>(null)
   const [battles, setBattles] = useState<Battle[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
@@ -895,6 +899,25 @@ export default function ArenaPage() {
           loadBattles()
           setShowSuccessMessage(true)
           console.log('Battle created successfully!')
+          
+          // Hide success message after 5 seconds
+          setTimeout(() => setShowSuccessMessage(false), 5000)
+        }}
+      />
+
+      {/* Accept Battle Modal */}
+      <AcceptBattleModal
+        isOpen={showAcceptBattleModal}
+        onClose={() => {
+          setShowAcceptBattleModal(false)
+          setSelectedBattle(null)
+        }}
+        battle={selectedBattle}
+        onBattleAccepted={() => {
+          // Refresh battles list
+          loadBattles()
+          setShowSuccessMessage(true)
+          console.log('Battle accepted successfully!')
           
           // Hide success message after 5 seconds
           setTimeout(() => setShowSuccessMessage(false), 5000)

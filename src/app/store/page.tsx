@@ -83,7 +83,7 @@ const storeItems = {
       title: 'Flaame Hoodie',
       description: 'Premium black hoodie with Flaame logo',
       price: 45,
-      flames: 90,
+      flames: 900, // $45 = 900 flames (100 flames = $10)
       image: '/api/merch/hoodie.jpg',
       sizes: ['S', 'M', 'L', 'XL'],
       colors: ['Black', 'White', 'Orange'],
@@ -95,7 +95,7 @@ const storeItems = {
       title: 'Battle Cap',
       description: 'Snapback cap with embroidered logo',
       price: 25,
-      flames: 50,
+      flames: 500, // $25 = 500 flames
       image: '/api/merch/cap.jpg',
       sizes: ['One Size'],
       colors: ['Black', 'White'],
@@ -107,7 +107,7 @@ const storeItems = {
       title: 'Flaame T-Shirt',
       description: 'Classic cotton tee with battle graphics',
       price: 20,
-      flames: 40,
+      flames: 400, // $20 = 400 flames
       image: '/api/merch/tshirt.jpg',
       sizes: ['S', 'M', 'L', 'XL'],
       colors: ['Black', 'White', 'Orange'],
@@ -232,16 +232,16 @@ export default function StorePage() {
 
         {/* Store Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-black/40 backdrop-blur-xl border-white/10">
-            <TabsTrigger value="beats" className="flex items-center gap-2">
+          <TabsList className="rounded-2xl bg-black/20 backdrop-blur-md border border-white/10">
+            <TabsTrigger value="beats" className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white flex items-center gap-2">
               <Music className="w-4 h-4" />
               Beats
             </TabsTrigger>
-            <TabsTrigger value="merch" className="flex items-center gap-2">
+            <TabsTrigger value="merch" className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white flex items-center gap-2">
               <ShoppingBag className="w-4 h-4" />
               Merch
             </TabsTrigger>
-            <TabsTrigger value="flames" className="flex items-center gap-2">
+            <TabsTrigger value="flames" className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white flex items-center gap-2">
               <Zap className="w-4 h-4" />
               Buy Flames
             </TabsTrigger>

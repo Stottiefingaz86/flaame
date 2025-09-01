@@ -20,7 +20,8 @@ import {
   Calendar,
   Clock,
   ArrowRight,
-  ExternalLink
+  ExternalLink,
+  User
 } from 'lucide-react'
 
 export default function HomePage() {
@@ -141,7 +142,7 @@ export default function HomePage() {
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-4">Street Dreams vs Concrete Reality</h3>
                   <p className="text-gray-300 mb-6">
-                    Two rising stars clash in an epic battle over the beat "Street Dreams" by Stottie Fingaz. 
+                    Two rising stars clash in an epic battle over the beat &quot;Street Dreams&quot; by Stottie Fingaz. 
                     Watch as they trade bars about ambition, struggle, and the pursuit of success.
                   </p>
                   
@@ -223,13 +224,13 @@ export default function HomePage() {
                   <h3 className="text-3xl font-bold text-white mb-4">Fletchy</h3>
                   <p className="text-gray-300 mb-6 leading-relaxed">
                     North East rapper Fletchy brings authentic hip-hop that speaks to the essence of what the genre 
-                    has always been: escapism and the power of words. His latest album "Shangri-La" is a love letter 
+                    has always been: escapism and the power of words. His latest album &quot;Shangri-La&quot; is a love letter 
                     to hip-hop, featuring production from Stottie Fingaz.
                   </p>
                   
                   <div className="bg-black/30 border border-white/10 rounded-lg p-4 mb-6">
                     <p className="text-orange-400 font-semibold italic">
-                      "When I put my pen to the pad I'm subconsciously escaping, nothing else matters at that moment in time, it's pure bliss."
+                      &quot;When I put my pen to the pad I&apos;m subconsciously escaping, nothing else matters at that moment in time, it&apos;s pure bliss.&quot;
                     </p>
                     <cite className="text-gray-400 text-sm">— Fletchy</cite>
                   </div>

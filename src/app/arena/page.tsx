@@ -32,58 +32,36 @@ import { useUser } from '@/contexts/UserContext'
 import Link from 'next/link'
 import CreateBattleModal from '@/components/battle/CreateBattleModal'
 
-// Mock data with 6-day creation periods
-const mockBattles = [
-  {
-    id: '1',
-    title: 'Season 1 - Week 3',
-    status: 'ACTIVE',
-    challenger: { name: 'Nova', avatar: 'N', flames: 12450 },
-    opponent: { name: 'Kairo', avatar: 'K', flames: 9870 },
-    beat: { title: 'Midnight Flow', artist: 'Prod. Nova' },
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    endsAt: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), // 4 days from now
-    totalVotes: 2360,
-    progress: 52
-  },
-  {
-    id: '2',
-    title: 'Open Challenge',
-    status: 'OPEN',
-    challenger: { name: 'Lyricist', avatar: 'L', flames: 6890 },
-    opponent: null,
-    beat: { title: 'Street Dreams', artist: 'Prod. Beats' },
-    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-    endsAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
-    totalVotes: 0,
-    progress: 0
-  },
-  {
-    id: '3',
-    title: 'Season 1 - Week 2',
-    status: 'FINISHED',
-    challenger: { name: 'Flow Master', avatar: 'F', flames: 8230 },
-    opponent: { name: 'Rhyme King', avatar: 'R', flames: 7450 },
-    beat: { title: 'Urban Nights', artist: 'Prod. Urban', bpm: 95 },
-    createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000), // 8 days ago
-    endedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    totalVotes: 3900,
-    progress: 54,
-    winner: 'Flow Master'
-  },
-  {
-    id: '4',
-    title: 'Weekend Showdown',
-    status: 'ACTIVE',
-    challenger: { name: 'Beat Breaker', avatar: 'B', flames: 6230 },
-    opponent: { name: 'Word Smith', avatar: 'W', flames: 5670 },
-    beat: { title: 'Weekend Vibes', artist: 'Prod. Weekend', bpm: 90 },
-    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-    endsAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
-    totalVotes: 1850,
-    progress: 48
+// Battle interface for real data
+interface Battle {
+  id: string
+  title: string
+  status: 'pending' | 'active' | 'closed' | 'cancelled'
+  challenger_id: string
+  opponent_id?: string
+  beat_id: string
+  created_at: string
+  ends_at: string
+  challenger_votes: number
+  opponent_votes: number
+  challenger?: {
+    id: string
+    username: string
+    avatar_id?: string
+    flames: number
   }
-]
+  opponent?: {
+    id: string
+    username: string
+    avatar_id?: string
+    flames: number
+  }
+  beat?: {
+    id: string
+    title: string
+    artist: string
+  }
+}
 
 const wave = (
   <div className="flex items-end gap-0.5 h-12 w-full overflow-hidden">
@@ -122,16 +100,16 @@ function formatCreationTime(createdDate: Date): string {
   return `Created ${days} days ago`
 }
 
-function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
+function BattleCard({ battle }: { battle: Battle }) {
   const { user } = useUser()
   const [hasVoted, setHasVoted] = useState(false)
   const [isVoting, setIsVoting] = useState(false)
   const [voteAnimation, setVoteAnimation] = useState<string | null>(null)
   const [userVote, setUserVote] = useState<string | null>(null)
   const [timeLeft, setTimeLeft] = useState<string>('')
-  const isActive = battle.status === 'ACTIVE'
-  const isOpen = battle.status === 'OPEN'
-  const isFinished = battle.status === 'FINISHED'
+  const isActive = battle.status === 'active'
+  const isOpen = battle.status === 'pending'
+  const isFinished = battle.status === 'closed'
 
   // Check if user has already voted (in real app, this would come from database)
   useEffect(() => {
@@ -148,11 +126,11 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
 
   // Real-time countdown timer
   useEffect(() => {
-    if (!battle.endsAt || isFinished) return
+    if (!battle.ends_at || isFinished) return
 
     const updateTimer = () => {
       const now = new Date()
-      const endTime = new Date(battle.endsAt)
+      const endTime = new Date(battle.ends_at)
       const diff = endTime.getTime() - now.getTime()
 
       if (diff <= 0) {
@@ -180,7 +158,7 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
     const interval = setInterval(updateTimer, 60000)
 
     return () => clearInterval(interval)
-  }, [battle.endsAt, isFinished])
+  }, [battle.ends_at, isFinished])
 
   const handleVote = async (candidateId: string, candidateName: string) => {
     if (!user || isVoting || hasVoted) return
@@ -220,25 +198,25 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
         <CardHeader className="flex flex-row items-center justify-between py-4 px-5">
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={`https://i.pravatar.cc/100?img=${battle.challenger.avatar}`} />
+              <AvatarImage src={battle.challenger?.avatar_id ? `/api/avatars/${battle.challenger.avatar_id}` : undefined} />
               <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-                {battle.challenger.avatar}
+                {battle.challenger?.username?.charAt(0).toUpperCase() || 'U'}
               </AvatarFallback>
             </Avatar>
-            <Link href={`/profile/${battle.challenger.name.toLowerCase()}`} className="text-sm font-semibold text-white hover:text-orange-400 transition-colors">
-              {battle.challenger.name}
+            <Link href={`/profile/${battle.challenger?.username.toLowerCase()}`} className="text-sm font-semibold text-white hover:text-orange-400 transition-colors">
+              {battle.challenger?.username}
             </Link>
             <span className="text-xs text-gray-400">vs</span>
             {battle.opponent ? (
               <>
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={`https://i.pravatar.cc/100?img=${battle.opponent.avatar}`} />
+                  <AvatarImage src={battle.opponent?.avatar_id ? `/api/avatars/${battle.opponent.avatar_id}` : undefined} />
                   <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-                    {battle.opponent.avatar}
+                    {battle.opponent?.username?.charAt(0).toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
-                <Link href={`/profile/${battle.opponent.name.toLowerCase()}`} className="text-sm font-semibold text-white hover:text-orange-400 transition-colors">
-                  {battle.opponent.name}
+                <Link href={`/profile/${battle.opponent?.username.toLowerCase()}`} className="text-sm font-semibold text-white hover:text-orange-400 transition-colors">
+                  {battle.opponent?.username}
                 </Link>
               </>
             ) : (
@@ -267,16 +245,16 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
         <CardContent className="px-5 pb-4">
           <div className="mb-3">
             <h3 className="text-lg font-semibold text-white mb-1">{battle.title}</h3>
-            <p className="text-sm text-gray-400">{battle.beat.title} by {battle.beat.artist}</p>
+            <p className="text-sm text-gray-400">{battle.beat?.title} by {battle.beat?.artist}</p>
             <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
               <span className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
-                {formatCreationTime(battle.createdAt)}
+                {formatCreationTime(new Date(battle.created_at))}
               </span>
-              {isActive && battle.endsAt && (
+              {isActive && battle.ends_at && (
                 <span className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  Ends {battle.endsAt.toLocaleDateString()}
+                  Ends {new Date(battle.ends_at).toLocaleDateString()}
                 </span>
               )}
             </div>
@@ -290,10 +268,10 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
                   <div className="flex items-center gap-2">
                     <Avatar className="h-6 w-6">
                       <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
-                        {battle.challenger.avatar}
+                        {battle.challenger?.username?.charAt(0).toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm font-medium text-white">{battle.challenger.name}</span>
+                    <span className="text-sm font-medium text-white">{battle.challenger?.username}</span>
                   </div>
                   <Button variant="ghost" size="icon" className="rounded-full">
                     <Play className="h-4 w-4" />
@@ -314,10 +292,10 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
                   <div className="flex items-center gap-2">
                     <Avatar className="h-6 w-6">
                       <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
-                        {battle.opponent.avatar}
+                        {battle.opponent?.username?.charAt(0).toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm font-medium text-white">{battle.opponent.name}</span>
+                    <span className="text-sm font-medium text-white">{battle.opponent?.username}</span>
                   </div>
                   <Button variant="ghost" size="icon" className="rounded-full">
                     <Play className="h-4 w-4" />
@@ -338,8 +316,8 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
           {battle.opponent && user && hasVoted && (
             <div className="mb-4">
               <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-                <span>{battle.challenger.name}: {battle.challenger.flames} flames</span>
-                <span>{battle.opponent.name}: {battle.opponent.flames} flames</span>
+                <span>{battle.challenger?.username}: {battle.challenger?.flames} flames</span>
+                <span>{battle.opponent?.username}: {battle.opponent?.flames} flames</span>
               </div>
               <div className="w-full bg-white/10 rounded-full h-2">
                 <div 
@@ -377,7 +355,7 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
                       >
                         ✓
                       </motion.div>
-                      Vote submitted for {userVote === 'challenger' ? battle.challenger.name : battle.opponent?.name}!
+                      Vote submitted for {userVote === 'challenger' ? battle.challenger?.username : battle.opponent?.username}!
                     </motion.div>
                     <div className="text-xs text-gray-400">Thank you for voting</div>
                   </div>
@@ -395,7 +373,7 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
                           className={`w-full rounded-xl border-white/20 hover:bg-white/10 disabled:opacity-50 ${
                             voteAnimation === 'challenger' ? 'bg-green-500/20 border-green-500/50' : ''
                           }`}
-                          onClick={() => handleVote('challenger', battle.challenger.name)}
+                          onClick={() => handleVote('challenger', battle.challenger?.username || '')}
                           disabled={isVoting}
                         >
                           <motion.div
@@ -404,7 +382,7 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
                           >
                             <Flame className="h-4 w-4 mr-2" />
                           </motion.div>
-                          {isVoting && voteAnimation === 'challenger' ? 'Voting...' : `Vote for ${battle.challenger.name}`}
+                          {isVoting && voteAnimation === 'challenger' ? 'Voting...' : `Vote for ${battle.challenger?.username}`}
                         </Button>
                       </motion.div>
                       
@@ -418,7 +396,7 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
                           className={`w-full rounded-xl border-white/20 hover:bg-white/10 disabled:opacity-50 ${
                             voteAnimation === 'opponent' ? 'bg-green-500/20 border-green-500/50' : ''
                           }`}
-                          onClick={() => handleVote('opponent', battle.opponent?.name || 'Opponent')}
+                          onClick={() => handleVote('opponent', battle.opponent?.username || 'Opponent')}
                           disabled={isVoting}
                         >
                           <motion.div
@@ -427,7 +405,7 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
                           >
                             <Flame className="h-4 w-4 mr-2" />
                           </motion.div>
-                          {isVoting && voteAnimation === 'opponent' ? 'Voting...' : `Vote for ${battle.opponent?.name}`}
+                          {isVoting && voteAnimation === 'opponent' ? 'Voting...' : `Vote for ${battle.opponent?.username}`}
                         </Button>
                       </motion.div>
                     </div>
@@ -465,13 +443,46 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
 
 export default function ArenaPage() {
   const { currentLeague, leagues, setCurrentLeague } = useLeague()
+  const { user } = useUser()
   const [activeTab, setActiveTab] = useState('active')
   const [isLeagueDropdownOpen, setIsLeagueDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchExpanded, setIsSearchExpanded] = useState(false)
   const [finishedFilter, setFinishedFilter] = useState('all') // 'all', '30days', 'season1', 'season2'
   const [showCreateBattleModal, setShowCreateBattleModal] = useState(false)
+  const [battles, setBattles] = useState<Battle[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Load battles from database
+  useEffect(() => {
+    loadBattles()
+  }, [])
+
+  const loadBattles = async () => {
+    try {
+      setIsLoading(true)
+      
+      const { data, error } = await supabase
+        .from('battles')
+        .select(`
+          *,
+          challenger:profiles!battles_challenger_id_fkey(id, username, avatar_id, flames),
+          opponent:profiles!battles_opponent_id_fkey(id, username, avatar_id, flames),
+          beat:beats(id, title, artist)
+        `)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+
+      setBattles(data || [])
+    } catch (error) {
+      console.error('Error loading battles:', error)
+      setBattles([])
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -489,33 +500,33 @@ export default function ArenaPage() {
 
   // Filter battles by current league and search query
   const getFilteredBattles = () => {
-    let filtered = mockBattles
+    let filtered = battles
     
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter(battle => 
         battle.title.toLowerCase().includes(query) ||
-        battle.challenger.name.toLowerCase().includes(query) ||
-        battle.opponent?.name.toLowerCase().includes(query) ||
-        battle.beat.title.toLowerCase().includes(query) ||
-        battle.beat.artist.toLowerCase().includes(query)
+        battle.challenger?.username.toLowerCase().includes(query) ||
+        battle.opponent?.username.toLowerCase().includes(query) ||
+        battle.beat?.title.toLowerCase().includes(query) ||
+        battle.beat?.artist.toLowerCase().includes(query)
       )
     }
     
     // Filter by active tab
     switch (activeTab) {
       case 'active':
-        return filtered.filter(b => b.status === 'ACTIVE')
+        return filtered.filter(b => b.status === 'active')
       case 'open':
-        return filtered.filter(b => b.status === 'OPEN')
+        return filtered.filter(b => b.status === 'pending')
       case 'finished':
-        let finishedBattles = filtered.filter(b => b.status === 'FINISHED')
+        let finishedBattles = filtered.filter(b => b.status === 'closed')
         
         // Apply additional filters for finished battles
         if (finishedFilter === '30days') {
           const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-          finishedBattles = finishedBattles.filter(battle => new Date(battle.createdAt) >= thirtyDaysAgo)
+          finishedBattles = finishedBattles.filter(battle => new Date(battle.created_at) >= thirtyDaysAgo)
         } else if (finishedFilter === 'season1') {
           finishedBattles = finishedBattles.filter(battle => battle.title.includes('Season 1'))
         } else if (finishedFilter === 'season2') {
@@ -647,27 +658,45 @@ export default function ArenaPage() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
             <TabsContent value="active" className="mt-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {mockBattles.filter(b => b.status === 'ACTIVE').map((battle) => (
-                  <BattleCard key={battle.id} battle={battle} />
-                ))}
-              </div>
+              {isLoading ? (
+                <div className="text-center py-8 text-gray-400">
+                  Loading battles...
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {getFilteredBattles().map((battle) => (
+                    <BattleCard key={battle.id} battle={battle} />
+                  ))}
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="open" className="mt-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {mockBattles.filter(b => b.status === 'OPEN').map((battle) => (
-                  <BattleCard key={battle.id} battle={battle} />
-                ))}
-              </div>
+              {isLoading ? (
+                <div className="text-center py-8 text-gray-400">
+                  Loading battles...
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {getFilteredBattles().map((battle) => (
+                    <BattleCard key={battle.id} battle={battle} />
+                  ))}
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="finished" className="mt-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {mockBattles.filter(b => b.status === 'FINISHED').map((battle) => (
-                  <BattleCard key={battle.id} battle={battle} />
-                ))}
-              </div>
+              {isLoading ? (
+                <div className="text-center py-8 text-gray-400">
+                  Loading battles...
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {getFilteredBattles().map((battle) => (
+                    <BattleCard key={battle.id} battle={battle} />
+                  ))}
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </div>
@@ -690,14 +719,15 @@ export default function ArenaPage() {
       </motion.div>
 
       {/* Create Battle Modal */}
-      <CreateBattleModal
-        isOpen={showCreateBattleModal}
-        onClose={() => setShowCreateBattleModal(false)}
-        onBattleCreated={() => {
-          // Refresh battles or show success message
-          console.log('Battle created successfully!')
-        }}
-      />
+                <CreateBattleModal
+            isOpen={showCreateBattleModal}
+            onClose={() => setShowCreateBattleModal(false)}
+            onBattleCreated={() => {
+              // Refresh battles list
+              loadBattles()
+              console.log('Battle created successfully!')
+            }}
+          />
     </div>
   )
 }

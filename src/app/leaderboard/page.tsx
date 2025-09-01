@@ -297,7 +297,8 @@ export default function LeaderboardPage() {
                               </span>
                             </td>
                           </tr>
-                        ))}
+                        ))
+                        )}
                       </tbody>
                     </table>
                   </div>

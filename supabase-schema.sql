@@ -23,7 +23,7 @@ CREATE TABLE profiles (
     flames INTEGER DEFAULT 100,
     rank user_rank DEFAULT 'Newcomer',
     is_verified BOOLEAN DEFAULT FALSE,
-    avatar_id UUID,
+    avatar_id TEXT,
     profile_color TEXT DEFAULT '#ff6b35',
     profile_icon TEXT DEFAULT '🔥',
     bio TEXT,

@@ -129,18 +129,48 @@ export default function ProfilePage() {
 
     setIsUploading(true)
     try {
-      // Upload to Supabase Storage
+      // Generate a unique filename
       const fileExt = file.name.split('.').pop()
       const fileName = `${user.id}-${Date.now()}.${fileExt}`
       
+      console.log('Uploading avatar:', fileName)
+      
+      // Upload to Supabase Storage
       const { data, error } = await supabase.storage
         .from('avatars')
-        .upload(fileName, file)
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        })
 
       if (error) {
         console.error('Storage error:', error)
         if (error.message.includes('Bucket not found')) {
           alert('Avatar storage not set up yet. Please contact support or try again later.')
+        } else if (error.message.includes('already exists')) {
+          // Try with a different filename
+          const newFileName = `${user.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`
+          const { data: retryData, error: retryError } = await supabase.storage
+            .from('avatars')
+            .upload(newFileName, file, {
+              cacheControl: '3600',
+              upsert: false
+            })
+          
+          if (retryError) {
+            throw retryError
+          }
+          
+          // Update profile with new avatar filename
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ avatar_id: newFileName })
+            .eq('id', user.id)
+
+          if (updateError) {
+            console.error('Profile update error:', updateError)
+            throw updateError
+          }
         } else {
           throw error
         }
@@ -161,7 +191,7 @@ export default function ProfilePage() {
       // Refresh user data
       await refreshUser()
       alert('Avatar uploaded successfully!')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading avatar:', error)
       alert(`Failed to upload avatar: ${error.message || 'Please try again.'}`)
     } finally {

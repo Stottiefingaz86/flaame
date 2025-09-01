@@ -185,7 +185,16 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
                   className="hidden"
                   disabled={isUploading}
                 />
-                <label htmlFor="audioFile" className="cursor-pointer block">
+                <label 
+                  htmlFor="audioFile" 
+                  className="cursor-pointer block"
+                  onClick={(e) => {
+                    if (!selectedFile) {
+                      e.preventDefault()
+                      document.getElementById('audioFile')?.click()
+                    }
+                  }}
+                >
                   {selectedFile ? (
                     <div className="space-y-2">
                       <FileAudio className="w-8 h-8 text-green-400 mx-auto" />
@@ -196,7 +205,11 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
                         variant="outline" 
                         size="sm"
                         className="mt-2 border-white/20 text-white hover:bg-white/10"
-                        onClick={() => document.getElementById('audioFile')?.click()}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          document.getElementById('audioFile')?.click()
+                        }}
                       >
                         Change File
                       </Button>
@@ -210,7 +223,11 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
                         type="button" 
                         variant="outline" 
                         className="mt-2 border-white/20 text-white hover:bg-white/10"
-                        onClick={() => document.getElementById('audioFile')?.click()}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          document.getElementById('audioFile')?.click()
+                        }}
                       >
                         Choose File
                       </Button>

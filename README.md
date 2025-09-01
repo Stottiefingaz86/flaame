@@ -277,3 +277,4 @@ If you encounter any issues, please create a new issue in the repository with:
 - Steps to reproduce
 - Expected vs actual behavior
 - Browser/device information
+# Deployment trigger

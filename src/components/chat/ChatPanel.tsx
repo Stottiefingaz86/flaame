@@ -69,9 +69,9 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
 
   // Expose chat state to parent components via CSS custom properties
   useEffect(() => {
-    const chatWidth = isMinimized ? '0px' : '400px'
+    const chatWidth = !isOpen ? '0px' : '400px'
     document.documentElement.style.setProperty('--chat-width', chatWidth)
-  }, [isMinimized])
+  }, [isOpen])
 
 
 
@@ -366,7 +366,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
 
       {/* Chat Panel */}
       <AnimatePresence>
-        {!isMinimized && (
+        {isOpen && (
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}

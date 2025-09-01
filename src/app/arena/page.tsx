@@ -508,16 +508,36 @@ export default function ArenaPage() {
         {/* Search, Tabs, and League Filter - All on One Line */}
         <div className="mb-6">
           <div className="flex items-center gap-4">
-            {/* Search Bar */}
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search battles, artists, beats..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-black/20 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
-              />
+            {/* Search Icon/Bar */}
+            <div className="relative">
+              {!isSearchExpanded ? (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsSearchExpanded(true)}
+                  className="text-gray-400 hover:text-white hover:bg-white/10"
+                >
+                  <Search className="w-5 h-5" />
+                </Button>
+              ) : (
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <input
+                    type="text"
+                    className="w-64 pl-10 pr-4 py-2 bg-black/20 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
+                    placeholder="Search battles, artists, beats..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    autoFocus
+                    onBlur={() => {
+                      // Keep expanded if there's text, collapse if empty
+                      if (!searchQuery.trim()) {
+                        setIsSearchExpanded(false)
+                      }
+                    }}
+                  />
+                </div>
+              )}
             </div>
             
             {/* Tabs */}

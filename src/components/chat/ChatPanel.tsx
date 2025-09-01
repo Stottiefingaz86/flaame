@@ -105,9 +105,23 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
     try {
       // Play custom sound file
       const audio = new Audio('/sound.mp3')
-      audio.volume = 0.5 // Set volume to 50%
+      audio.volume = 0.7 // Set volume to 70%
+      audio.preload = 'auto'
+      
+      // Add event listeners for better error handling
+      audio.addEventListener('canplaythrough', () => {
+        audio.play().catch(error => {
+          console.log('Could not play notification sound:', error)
+        })
+      })
+      
+      audio.addEventListener('error', (e) => {
+        console.log('Audio error:', e)
+      })
+      
+      // Try to play immediately (for cached audio)
       audio.play().catch(error => {
-        console.log('Could not play notification sound:', error)
+        console.log('Could not play notification sound immediately:', error)
       })
     } catch (error) {
       console.log('Error playing notification sound:', error)
@@ -285,6 +299,9 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
     try {
       const result = await chatService.sendMessage(messageText)
       
+      // Play sound for sent message
+      playNotificationSound()
+      
       // Replace optimistic message with real one
       setMessages(prev => prev.map(msg => 
         msg.id === optimisticMessage.id ? result : msg
@@ -305,6 +322,8 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
     if (emoji.isUnlocked) {
       try {
         await chatService.sendEmoji(emoji.id)
+        // Play sound for sent emoji
+        playNotificationSound()
       } catch (error) {
         console.error('Error sending emoji:', error)
       }

@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
 
     // Upload file to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('beats')
+      .from('audio')
       .upload(fileName, audioFile, {
         cacheControl: '3600',
         upsert: false
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
 
     // Get public URL
     const { data: { publicUrl } } = supabase.storage
-      .from('beats')
+      .from('audio')
       .getPublicUrl(fileName)
 
     // Create beat record in database

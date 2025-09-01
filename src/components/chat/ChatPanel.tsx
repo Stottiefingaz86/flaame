@@ -375,7 +375,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
             className="w-[var(--chat-width)] bg-black/80 backdrop-blur-xl flex flex-col h-screen border-l border-white/5 fixed top-0 right-0 z-50"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-white/10 bg-black/50 mt-20">
+            <div className="flex items-center justify-between p-4 border-b border-white/10 bg-black/50">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-full bg-gradient-to-r from-orange-500 to-red-500">
                   <MessageSquare className="w-4 h-4 text-white" />
@@ -425,7 +425,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                   {activeTab === 'chat' ? (
                     /* Chat Messages */
                     <div className="h-full flex flex-col">
-                      <div className="flex-1 overflow-y-auto p-4 space-y-3 h-[calc(100vh-200px)]">
+                      <div className="flex-1 overflow-y-auto p-4 space-y-3 h-[calc(100vh-120px)]">
                         {messages.map((msg) => (
                           <motion.div 
                             key={msg.id} 
@@ -574,7 +574,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                     </div>
                   ) : (
                     /* Battles Tab */
-                    <div className="h-full p-4 space-y-4 overflow-y-auto h-[calc(100vh-200px)]">
+                    <div className="h-full p-4 space-y-4 overflow-y-auto h-[calc(100vh-120px)]">
                       <div className="flex items-center justify-between">
                         <h4 className="text-white font-semibold text-sm">Active Battles</h4>
                         {user && (

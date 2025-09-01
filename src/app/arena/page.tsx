@@ -430,6 +430,7 @@ export default function ArenaPage() {
   const [activeTab, setActiveTab] = useState('active')
   const [isLeagueDropdownOpen, setIsLeagueDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Close dropdown when clicking outside

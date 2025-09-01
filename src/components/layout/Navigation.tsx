@@ -50,7 +50,6 @@ export default function Navigation() {
     { href: '/beats', label: 'Beats', icon: Music },
     { href: '/leaderboard', label: 'Leaderboard', icon: Crown },
     { href: '/store', label: 'Store', icon: ShoppingCart },
-    { href: '/blog', label: 'Blog', icon: BookOpen },
   ]
 
   const isActive = (href: string) => {

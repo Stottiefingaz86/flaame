@@ -69,6 +69,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <li><a href="/arena" className="text-gray-400 hover:text-white transition-colors">Battle Arena</a></li>
                 <li><a href="/leaderboard" className="text-gray-400 hover:text-white transition-colors">Leaderboard</a></li>
                 <li><a href="/store" className="text-gray-400 hover:text-white transition-colors">Store</a></li>
+                <li><a href="/blog" className="text-gray-400 hover:text-white transition-colors">Blog</a></li>
                 <li><a href="/auth" className="text-gray-400 hover:text-white transition-colors">Sign In</a></li>
               </ul>
             </div>

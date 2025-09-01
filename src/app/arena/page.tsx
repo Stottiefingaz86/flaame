@@ -109,6 +109,9 @@ function BattleCard({ battle }: { battle: Battle }) {
   const [voteAnimation, setVoteAnimation] = useState<string | null>(null)
   const [userVote, setUserVote] = useState<string | null>(null)
   const [timeLeft, setTimeLeft] = useState<string>('')
+  const [isPlayingChallenger, setIsPlayingChallenger] = useState(false)
+  const [isPlayingOpponent, setIsPlayingOpponent] = useState(false)
+  const [showAcceptModal, setShowAcceptModal] = useState(false)
   const isActive = battle.status === 'active'
   const isOpen = battle.status === 'pending'
   const isFinished = battle.status === 'closed'
@@ -190,6 +193,30 @@ function BattleCard({ battle }: { battle: Battle }) {
     }
   }
 
+  const handlePlayChallenger = () => {
+    if (battle.challenger_track) {
+      setIsPlayingChallenger(!isPlayingChallenger)
+      // Here you would implement actual audio playback
+      console.log('Playing challenger track:', battle.challenger_track)
+    }
+  }
+
+  const handlePlayOpponent = () => {
+    if (battle.opponent_track) {
+      setIsPlayingOpponent(!isPlayingOpponent)
+      // Here you would implement actual audio playback
+      console.log('Playing opponent track:', battle.opponent_track)
+    }
+  }
+
+  const handleAcceptBattle = () => {
+    if (!user) {
+      alert('You must be logged in to accept a battle')
+      return
+    }
+    setShowAcceptModal(true)
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -246,7 +273,8 @@ function BattleCard({ battle }: { battle: Battle }) {
         </CardHeader>
         
         <CardContent className="px-5 pb-4">
-          <div className="mb-3">
+          {/* Battle Title and Info */}
+          <div className="mb-4">
             <h3 className="text-lg font-semibold text-white mb-1">{battle.title}</h3>
             <p className="text-sm text-gray-400">{battle.beat?.title} by {battle.beat?.artist}</p>
             <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
@@ -263,69 +291,133 @@ function BattleCard({ battle }: { battle: Battle }) {
             </div>
           </div>
 
-          {battle.opponent && (
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
+          {/* Battle Participants */}
+          {battle.opponent ? (
+            <div className="grid grid-cols-2 gap-4 mb-4">
               {/* Challenger */}
-              <div className="rounded-xl border border-white/10 p-3 bg-gradient-to-br from-white/5 to-transparent">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-6 w-6">
-                      <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
-                        {battle.challenger?.username?.charAt(0).toUpperCase() || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm font-medium text-white">{battle.challenger?.username}</span>
-                  </div>
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <Play className="h-4 w-4" />
-                  </Button>
+              <div className="text-center">
+                <Avatar className="h-12 w-12 mx-auto mb-2">
+                  <AvatarImage src={battle.challenger?.avatar_id ? `/api/avatars/${battle.challenger.avatar_id}` : undefined} />
+                  <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                    {battle.challenger?.username?.charAt(0).toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <p className="text-sm font-medium text-white mb-1">{battle.challenger?.username}</p>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="rounded-full"
+                  onClick={handlePlayChallenger}
+                >
+                  {isPlayingChallenger ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                </Button>
+              </div>
+              
+              {/* VS */}
+              <div className="flex items-center justify-center">
+                <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-full p-2">
+                  <span className="text-white font-bold text-sm">VS</span>
                 </div>
-                {wave}
-                {user && (
-                  <div className="flex items-center gap-1 mt-2">
-                    <Flame className="h-3 w-3 text-orange-500" />
-                    <span className="text-xs text-gray-400">{battle.challenger.flames.toLocaleString()}</span>
-                  </div>
-                )}
               </div>
               
               {/* Opponent */}
-              <div className="rounded-xl border border-white/10 p-3 bg-gradient-to-br from-white/5 to-transparent">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-6 w-6">
-                      <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
-                        {battle.opponent?.username?.charAt(0).toUpperCase() || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm font-medium text-white">{battle.opponent?.username}</span>
-                  </div>
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <Play className="h-4 w-4" />
-                  </Button>
-                </div>
-                {wave}
-                {user && (
-                  <div className="flex items-center gap-1 mt-2">
-                    <Flame className="h-3 w-3 text-orange-500" />
-                    <span className="text-xs text-gray-400">{battle.opponent.flames.toLocaleString()}</span>
-                  </div>
-                )}
+              <div className="text-center">
+                <Avatar className="h-12 w-12 mx-auto mb-2">
+                  <AvatarImage src={battle.opponent?.avatar_id ? `/api/avatars/${battle.opponent.avatar_id}` : undefined} />
+                  <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+                    {battle.opponent?.username?.charAt(0).toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <p className="text-sm font-medium text-white mb-1">{battle.opponent?.username}</p>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="rounded-full"
+                  onClick={handlePlayOpponent}
+                >
+                  {isPlayingOpponent ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                </Button>
               </div>
+            </div>
+          ) : (
+            <div className="text-center mb-4">
+              <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-full p-3 w-16 h-16 mx-auto mb-3 flex items-center justify-center">
+                <span className="text-white font-bold text-lg">VS</span>
+              </div>
+              <p className="text-gray-400 text-sm">Waiting for opponent...</p>
             </div>
           )}
 
-          {/* Vote meter - only show after user has voted */}
-          {battle.opponent && user && hasVoted && (
+          {/* Action Buttons */}
+          <div className="space-y-3">
+            {/* Download Beat */}
+            <Button 
+              variant="outline" 
+              className="w-full rounded-xl border-white/20 hover:bg-white/10 text-white"
+              onClick={() => {
+                if (battle.beat?.audio_url) {
+                  window.open(battle.beat.audio_url, '_blank')
+                } else {
+                  alert('Beat download not available')
+                }
+              }}
+            >
+              <Headphones className="h-4 w-4 mr-2" />
+              Download Beat
+            </Button>
+
+            {/* Gift Flames */}
+            <div className="bg-black/20 rounded-xl p-3 border border-white/10">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-400">Gift flames</span>
+                <div className="flex items-center gap-1">
+                  <Flame className="h-3 w-3 text-orange-500" />
+                  <span className="text-xs text-gray-400">0 gifted</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="rounded-xl border-orange-500/30 hover:bg-orange-500/20 text-orange-400"
+                  onClick={() => console.log('Gift 5 flames')}
+                >
+                  Gift 5
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="rounded-xl border-orange-500/30 hover:bg-orange-500/20 text-orange-400"
+                  onClick={() => console.log('Gift 10 flames')}
+                >
+                  Gift 10
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="rounded-xl border-orange-500/30 hover:bg-orange-500/20 text-orange-400"
+                  onClick={() => console.log('Gift 25 flames')}
+                >
+                  Gift 25
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Vote meter - only show to battle creator or after user has voted */}
+          {battle.opponent && user && (hasVoted || user.id === battle.challenger_id) && (
             <div className="mb-4">
               <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-                <span>{battle.challenger?.username}: {battle.challenger?.flames} flames</span>
-                <span>{battle.opponent?.username}: {battle.opponent?.flames} flames</span>
+                <span>{battle.challenger?.username}: {battle.challenger_votes || 0} votes</span>
+                <span>{battle.opponent?.username}: {battle.opponent_votes || 0} votes</span>
               </div>
               <div className="w-full bg-white/10 rounded-full h-2">
                 <div 
-                  className="bg-white/60 h-2 rounded-full" 
-                  style={{ width: `${battle.progress}%` }}
+                  className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full transition-all duration-500" 
+                  style={{ 
+                    width: `${battle.challenger_votes && battle.opponent_votes ? 
+                      (battle.challenger_votes / (battle.challenger_votes + battle.opponent_votes)) * 100 : 50}%` 
+                  }}
                 ></div>
               </div>
             </div>
@@ -336,7 +428,10 @@ function BattleCard({ battle }: { battle: Battle }) {
           {isOpen ? (
             <div className="w-full flex items-center justify-between">
               <span className="text-sm text-gray-400">Open challenge — accept to lock in.</span>
-              <Button className="rounded-xl bg-white/20 hover:bg-white/30 text-white border border-white/30">
+              <Button 
+                className="rounded-xl bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
+                onClick={handleAcceptBattle}
+              >
                 Accept Battle
               </Button>
             </div>

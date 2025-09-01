@@ -1,5 +1,6 @@
 'use client'
 
+// Force deployment - updated styling changes
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -466,8 +467,8 @@ export default function HomePage() {
                     <Mic className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-white">Battle Arena</h3>
-                    <p className="text-orange-400 text-sm">Compete & Create</p>
+                                      <h3 className="text-xl font-bold text-white">Battle Arena</h3>
+                  <p className="text-orange-400 text-sm">Compete & Create - UPDATED</p>
                   </div>
                 </div>
                 <p className="text-gray-300 mb-6 leading-relaxed">View active battles, create challenges, and compete with other rappers in epic rap battles.</p>

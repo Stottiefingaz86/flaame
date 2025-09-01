@@ -77,10 +77,83 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
         .order('created_at', { ascending: false })
         .limit(20)
 
-      if (error) throw error
-      setBeats(data || [])
+      if (error) {
+        console.error('Error loading beats:', error)
+        // If no beats exist, create some sample beats
+        await createSampleBeats()
+        return
+      }
+      
+      if (!data || data.length === 0) {
+        console.log('No beats found, creating sample beats...')
+        await createSampleBeats()
+        return
+      }
+      
+      setBeats(data)
     } catch (error) {
       console.error('Error loading beats:', error)
+    }
+  }
+
+  const createSampleBeats = async () => {
+    try {
+      const sampleBeats = [
+        {
+          title: 'Dark Trap Beat',
+          artist: 'Prod. Nova',
+          description: 'Aggressive dark trap beat perfect for battle rap',
+          genre: 'Trap',
+          bpm: 140,
+          key: 'C',
+          is_free: true,
+          is_original: true,
+          copyright_verified: true,
+          is_available: true,
+          cost_flames: 0
+        },
+        {
+          title: 'Street Dreams',
+          artist: 'Prod. Beats',
+          description: 'Hard-hitting street beat with heavy bass',
+          genre: 'Hip Hop',
+          bpm: 95,
+          key: 'F',
+          is_free: true,
+          is_original: true,
+          copyright_verified: true,
+          is_available: true,
+          cost_flames: 0
+        },
+        {
+          title: 'Urban Nights',
+          artist: 'Prod. Urban',
+          description: 'Smooth urban beat with atmospheric vibes',
+          genre: 'Hip Hop',
+          bpm: 90,
+          key: 'G',
+          is_free: true,
+          is_original: true,
+          copyright_verified: true,
+          is_available: true,
+          cost_flames: 0
+        }
+      ]
+
+      const { data, error } = await supabase
+        .from('beats')
+        .insert(sampleBeats)
+        .select()
+
+      if (error) {
+        console.error('Error creating sample beats:', error)
+        return
+      }
+
+      console.log('Created sample beats:', data)
+      setBeats(data || [])
+    } catch (error) {
+      console.error('Error creating sample beats:', error)
     }
   }
 
@@ -101,7 +174,20 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
   }
 
   const handleCreateBattle = async () => {
-    if (!user || !selectedBeat || !title.trim()) return
+    if (!user) {
+      alert('You must be logged in to create a battle.')
+      return
+    }
+    
+    if (!title.trim()) {
+      alert('Please enter a battle title.')
+      return
+    }
+    
+    if (!selectedBeat) {
+      alert('Please select a beat for the battle.')
+      return
+    }
 
     setIsCreating(true)
     try {
@@ -125,9 +211,10 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
       onBattleCreated()
       onClose()
       resetForm()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating battle:', error)
-      alert('Failed to create battle. Please try again.')
+      const errorMessage = error?.message || 'Failed to create battle. Please try again.'
+      alert(`Error: ${errorMessage}`)
     } finally {
       setIsCreating(false)
     }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -8,6 +8,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Crown, Trophy, Medal, Star, Target, TrendingUp, Award } from 'lucide-react'
+import { useUser } from '@/contexts/UserContext'
+import { supabase } from '@/lib/supabase/client'
 
 interface LeaderboardEntry {
   id: string
@@ -220,9 +222,103 @@ const weeklyData: LeaderboardEntry[] = [
 ]
 
 export default function LeaderboardPage() {
+  const { user } = useUser()
   const [activeTab, setActiveTab] = useState('global')
   const [selectedSeason, setSelectedSeason] = useState('Season 1')
   const [showChampions, setShowChampions] = useState(false)
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Load leaderboard data
+  useEffect(() => {
+    loadLeaderboardData()
+  }, [])
+
+  const loadLeaderboardData = async () => {
+    try {
+      setIsLoading(true)
+      
+      // Get all users with their battle statistics
+      const { data: profiles, error } = await supabase
+        .from('profiles')
+        .select(`
+          id,
+          username,
+          avatar_id,
+          flames,
+          rank,
+          is_verified,
+          created_at
+        `)
+        .order('flames', { ascending: false })
+
+      if (error) throw error
+
+      // Get battle statistics for each user
+      const leaderboardEntries: LeaderboardEntry[] = []
+      
+      for (const profile of profiles || []) {
+        // Get battle statistics
+        const { data: battles } = await supabase
+          .from('battles')
+          .select('id, challenger_id, opponent_id, status, challenger_votes, opponent_votes')
+          .or(`challenger_id.eq.${profile.id},opponent_id.eq.${profile.id}`)
+
+        let played = 0
+        let won = 0
+        let drawn = 0
+        let lost = 0
+
+        battles?.forEach(battle => {
+          if (battle.status === 'closed' || battle.status === 'finished') {
+            played++
+            
+            if (battle.challenger_id === profile.id) {
+              if (battle.challenger_votes > battle.opponent_votes) won++
+              else if (battle.challenger_votes === battle.opponent_votes) drawn++
+              else lost++
+            } else if (battle.opponent_id === profile.id) {
+              if (battle.opponent_votes > battle.challenger_votes) won++
+              else if (battle.opponent_votes === battle.challenger_votes) drawn++
+              else lost++
+            }
+          }
+        })
+
+        const points = (won * 3) + (drawn * 1)
+        const winRate = played > 0 ? ((won / played) * 100) : 0
+
+        leaderboardEntries.push({
+          id: profile.id,
+          rank: 0, // Will be set after sorting
+          username: profile.username || 'Unknown',
+          avatar: profile.avatar_id || profile.username?.charAt(0).toUpperCase() || 'U',
+          isVerified: profile.is_verified || false,
+          rankTitle: profile.rank || 'Newcomer',
+          points,
+          played,
+          won,
+          drawn,
+          lost,
+          winRate: Math.round(winRate * 10) / 10
+        })
+      }
+
+      // Sort by points and assign ranks
+      leaderboardEntries.sort((a, b) => b.points - a.points)
+      leaderboardEntries.forEach((entry, index) => {
+        entry.rank = index + 1
+      })
+
+      setLeaderboardData(leaderboardEntries)
+    } catch (error) {
+      console.error('Error loading leaderboard:', error)
+      // Fallback to mock data if there's an error
+      setLeaderboardData(mockLeaderboardData)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const getRankColor = (rank: string) => {
     switch (rank) {
@@ -325,11 +421,28 @@ export default function LeaderboardPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {mockLeaderboardData
-                          .filter(entry => entry.season === selectedSeason)
-                          .filter(entry => !showChampions || entry.isChampion)
-                          .map((entry) => (
-                          <tr key={entry.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        {isLoading ? (
+                          <tr>
+                            <td colSpan={7} className="py-8 text-center text-gray-400">
+                              Loading leaderboard...
+                            </td>
+                          </tr>
+                        ) : leaderboardData.length === 0 ? (
+                          <tr>
+                            <td colSpan={7} className="py-8 text-center text-gray-400">
+                              No battles yet. Be the first to create one!
+                            </td>
+                          </tr>
+                        ) : (
+                          leaderboardData
+                            .filter(entry => !showChampions || entry.isChampion)
+                            .map((entry) => (
+                            <tr 
+                              key={entry.id} 
+                              className={`border-b border-white/5 hover:bg-white/5 transition-colors ${
+                                user && entry.id === user.id ? 'bg-orange-500/10 border-orange-500/20' : ''
+                              }`}
+                            >
                             <td className="py-4 px-4">
                               <div className="flex items-center gap-2">
                                 {getRankIcon(entry.rank)}
@@ -338,9 +451,9 @@ export default function LeaderboardPage() {
                             <td className="py-4 px-4">
                               <div className="flex items-center gap-3">
                                 <Avatar className="h-8 w-8">
-                                  <AvatarImage src={`https://i.pravatar.cc/100?img=${entry.avatar}`} />
+                                  <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${entry.avatar}`} />
                                   <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
-                                    {entry.avatar}
+                                    {entry.username.charAt(0).toUpperCase()}
                                   </AvatarFallback>
                                 </Avatar>
                                 <div>
@@ -420,9 +533,9 @@ export default function LeaderboardPage() {
                             <td className="py-4 px-4">
                               <div className="flex items-center gap-3">
                                 <Avatar className="h-8 w-8">
-                                  <AvatarImage src={`https://i.pravatar.cc/100?img=${entry.avatar}`} />
+                                  <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${entry.avatar}`} />
                                   <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
-                                    {entry.avatar}
+                                    {entry.username.charAt(0).toUpperCase()}
                                   </AvatarFallback>
                                 </Avatar>
                                 <div>
@@ -481,7 +594,7 @@ export default function LeaderboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {mockLeaderboardData.filter(entry => entry.rankTitle === 'Legendary').slice(0, 3).map((entry) => (
+                    {leaderboardData.filter(entry => entry.rankTitle === 'Legendary').slice(0, 3).map((entry) => (
                       <div key={entry.id} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Avatar className="h-6 w-6">
@@ -509,7 +622,7 @@ export default function LeaderboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {mockLeaderboardData.filter(entry => entry.rankTitle === 'Veteran').slice(0, 3).map((entry) => (
+                    {leaderboardData.filter(entry => entry.rankTitle === 'Veteran').slice(0, 3).map((entry) => (
                       <div key={entry.id} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Avatar className="h-6 w-6">
@@ -537,7 +650,7 @@ export default function LeaderboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {mockLeaderboardData.filter(entry => entry.rankTitle === 'Rising').slice(0, 3).map((entry) => (
+                    {leaderboardData.filter(entry => entry.rankTitle === 'Rising').slice(0, 3).map((entry) => (
                       <div key={entry.id} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Avatar className="h-6 w-6">
@@ -565,7 +678,7 @@ export default function LeaderboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {mockLeaderboardData.filter(entry => entry.rankTitle === 'Newcomer').slice(0, 3).map((entry) => (
+                    {leaderboardData.filter(entry => entry.rankTitle === 'Newcomer').slice(0, 3).map((entry) => (
                       <div key={entry.id} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Avatar className="h-6 w-6">

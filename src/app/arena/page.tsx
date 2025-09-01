@@ -128,6 +128,7 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
   const [isVoting, setIsVoting] = useState(false)
   const [voteAnimation, setVoteAnimation] = useState<string | null>(null)
   const [userVote, setUserVote] = useState<string | null>(null)
+  const [timeLeft, setTimeLeft] = useState<string>('')
   const isActive = battle.status === 'ACTIVE'
   const isOpen = battle.status === 'OPEN'
   const isFinished = battle.status === 'FINISHED'
@@ -144,6 +145,42 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
       }
     }
   }, [user, battle.id])
+
+  // Real-time countdown timer
+  useEffect(() => {
+    if (!battle.endsAt || isFinished) return
+
+    const updateTimer = () => {
+      const now = new Date()
+      const endTime = new Date(battle.endsAt)
+      const diff = endTime.getTime() - now.getTime()
+
+      if (diff <= 0) {
+        setTimeLeft('Expired')
+        return
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+
+      if (days > 0) {
+        setTimeLeft(`${days}d ${hours}h left`)
+      } else if (hours > 0) {
+        setTimeLeft(`${hours}h ${minutes}m left`)
+      } else {
+        setTimeLeft(`${minutes}m left`)
+      }
+    }
+
+    // Update immediately
+    updateTimer()
+
+    // Update every minute
+    const interval = setInterval(updateTimer, 60000)
+
+    return () => clearInterval(interval)
+  }, [battle.endsAt, isFinished])
 
   const handleVote = async (candidateId: string, candidateName: string) => {
     if (!user || isVoting || hasVoted) return
@@ -211,9 +248,9 @@ function BattleCard({ battle }: { battle: typeof mockBattles[0] }) {
           </div>
           <div className="flex items-center gap-2">
             {isOpen && <Badge className="rounded-full bg-green-500/20 text-green-300 border-green-500/30">Open</Badge>}
-            {isActive && battle.endsAt && (
+            {isActive && battle.endsAt && timeLeft && (
               <div className="flex items-center gap-2 text-xs text-gray-400">
-                <Timer className="h-3.5 w-3.5" /> {formatTimeLeft(battle.endsAt)} left
+                <Timer className="h-3.5 w-3.5" /> {timeLeft}
               </div>
             )}
             {isFinished && (
@@ -432,6 +469,7 @@ export default function ArenaPage() {
   const [isLeagueDropdownOpen, setIsLeagueDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchExpanded, setIsSearchExpanded] = useState(false)
+  const [finishedFilter, setFinishedFilter] = useState('all') // 'all', '30days', 'season1', 'season2'
   const [showCreateBattleModal, setShowCreateBattleModal] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -472,7 +510,19 @@ export default function ArenaPage() {
       case 'open':
         return filtered.filter(b => b.status === 'OPEN')
       case 'finished':
-        return filtered.filter(b => b.status === 'FINISHED')
+        let finishedBattles = filtered.filter(b => b.status === 'FINISHED')
+        
+        // Apply additional filters for finished battles
+        if (finishedFilter === '30days') {
+          const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+          finishedBattles = finishedBattles.filter(battle => new Date(battle.createdAt) >= thirtyDaysAgo)
+        } else if (finishedFilter === 'season1') {
+          finishedBattles = finishedBattles.filter(battle => battle.title.includes('Season 1'))
+        } else if (finishedFilter === 'season2') {
+          finishedBattles = finishedBattles.filter(battle => battle.title.includes('Season 2'))
+        }
+        
+        return finishedBattles
       default:
         return filtered
     }

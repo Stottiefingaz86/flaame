@@ -498,8 +498,6 @@ export default function ArenaPage() {
           </div>
         </motion.div>
 
-
-
         {/* Search and Filters */}
         <div className="mb-6">
           <div className="flex items-center gap-4 mb-4">
@@ -566,33 +564,32 @@ export default function ArenaPage() {
                 Finished
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="active" className="mt-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {mockBattles.filter(b => b.status === 'ACTIVE').map((battle) => (
+                  <BattleCard key={battle.id} battle={battle} />
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="open" className="mt-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {mockBattles.filter(b => b.status === 'OPEN').map((battle) => (
+                  <BattleCard key={battle.id} battle={battle} />
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="finished" className="mt-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {mockBattles.filter(b => b.status === 'FINISHED').map((battle) => (
+                  <BattleCard key={battle.id} battle={battle} />
+                ))}
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
-
-          <TabsContent value="active" className="mt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {mockBattles.filter(b => b.status === 'ACTIVE').map((battle) => (
-                <BattleCard key={battle.id} battle={battle} />
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="open" className="mt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {mockBattles.filter(b => b.status === 'OPEN').map((battle) => (
-                <BattleCard key={battle.id} battle={battle} />
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="finished" className="mt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {mockBattles.filter(b => b.status === 'FINISHED').map((battle) => (
-                <BattleCard key={battle.id} battle={battle} />
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
       </div>
 
       {/* Sticky Create Battle Button */}

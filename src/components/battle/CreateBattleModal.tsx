@@ -58,6 +58,7 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
   const [beats, setBeats] = useState<Beat[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [searchQuery, setSearchQuery] = useState('')
+  const [beatSearchQuery, setBeatSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
   const [isUploadingTrack, setIsUploadingTrack] = useState(false)
@@ -203,13 +204,18 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
       const fileExt = battleTrack.name.split('.').pop()
       const trackFileName = `${user.id}-${Date.now()}.${fileExt}`
       
+      console.log('Uploading track:', trackFileName, 'Size:', battleTrack.size, 'Type:', battleTrack.type)
+      
       const { error: trackUploadError } = await supabase.storage
         .from('audio')
         .upload(`battles/${trackFileName}`, battleTrack)
       
       if (trackUploadError) {
+        console.error('Track upload error details:', trackUploadError)
         throw new Error(`Failed to upload track: ${trackUploadError.message}`)
       }
+      
+      console.log('Track uploaded successfully:', trackFileName)
 
       const battleData = {
         title: title.trim(),
@@ -258,23 +264,12 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
     try {
       setIsUploadingTrack(true)
       
-      // Upload to Supabase Storage
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${user?.id}-${Date.now()}.${fileExt}`
-      
-      const { error: uploadError } = await supabase.storage
-        .from('audio')
-        .upload(`battles/${fileName}`, file)
-      
-      if (uploadError) {
-        throw uploadError
-      }
-      
+      // Just set the file - we'll upload it when creating the battle
       setBattleTrack(file)
-      console.log('Track uploaded successfully:', fileName)
+      console.log('Track selected:', file.name)
     } catch (error) {
-      console.error('Error uploading track:', error)
-      alert('Failed to upload track. Please try again.')
+      console.error('Error selecting track:', error)
+      alert('Failed to select track. Please try again.')
     } finally {
       setIsUploadingTrack(false)
     }
@@ -292,6 +287,11 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
 
   const filteredUsers = users.filter(u => 
     u.username.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const filteredBeats = beats.filter(beat => 
+    beat.title.toLowerCase().includes(beatSearchQuery.toLowerCase()) ||
+    beat.artist.toLowerCase().includes(beatSearchQuery.toLowerCase())
   )
 
   if (!isOpen) return null

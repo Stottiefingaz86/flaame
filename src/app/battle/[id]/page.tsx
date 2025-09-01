@@ -32,6 +32,7 @@ import {
 import { supabase } from '@/lib/supabase/client'
 import { useUser } from '@/contexts/UserContext'
 import { useAudio } from '@/contexts/AudioContext'
+import { BattleSystem, BattleWithDetails } from '@/lib/battle-system'
 import Link from 'next/link'
 
 interface Battle {
@@ -74,13 +75,16 @@ export default function BattleDetailPage() {
   const router = useRouter()
   const { user } = useUser()
   const { playAudio, pauseAudio, isPlaying, currentTrack } = useAudio()
-  const [battle, setBattle] = useState<Battle | null>(null)
+  const [battle, setBattle] = useState<BattleWithDetails | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [hasVoted, setHasVoted] = useState(false)
   const [userVote, setUserVote] = useState<string | null>(null)
   const [isVoting, setIsVoting] = useState(false)
   const [voteAnimation, setVoteAnimation] = useState<string | null>(null)
   const [timeLeft, setTimeLeft] = useState<string>('')
+  const [isGiftingFlames, setIsGiftingFlames] = useState(false)
+  const [flameGiftAmount, setFlameGiftAmount] = useState(1)
+  const [recentFlameGifts, setRecentFlameGifts] = useState<any[]>([])
 
   const battleId = params.id as string
 
@@ -94,7 +98,7 @@ export default function BattleDetailPage() {
   useEffect(() => {
     if (battle) {
       const timer = setInterval(() => {
-        setTimeLeft(calculateTimeLeft(new Date(battle.ends_at)))
+        setTimeLeft(BattleSystem.calculateTimeLeft(battle.ends_at))
       }, 1000)
       return () => clearInterval(timer)
     }
@@ -103,19 +107,20 @@ export default function BattleDetailPage() {
   const loadBattle = async () => {
     try {
       setIsLoading(true)
-      const { data, error } = await supabase
-        .from('battles')
-        .select(`
-          *,
-          challenger:profiles!battles_challenger_id_fkey(id, username, avatar_id, flames),
-          opponent:profiles!battles_opponent_id_fkey(id, username, avatar_id, flames),
-          beat:beats(id, title, artist, file_path)
-        `)
-        .eq('id', battleId)
-        .single()
-
-      if (error) throw error
-      setBattle(data)
+      const battleData = await BattleSystem.getBattleWithDetails(battleId, user?.id)
+      
+      if (!battleData) {
+        router.push('/arena')
+        return
+      }
+      
+      setBattle(battleData)
+      setHasVoted(!!battleData.user_voted_for)
+      setUserVote(battleData.user_voted_for || null)
+      
+      // Load recent flame gifts
+      const flames = await BattleSystem.getBattleFlames(battleId, 5)
+      setRecentFlameGifts(flames)
     } catch (error) {
       console.error('Error loading battle:', error)
       router.push('/arena')
@@ -156,25 +161,51 @@ export default function BattleDetailPage() {
     setVoteAnimation(votedFor)
 
     try {
-      // Simulate vote (in real app, this would update the database)
-      const voteKey = `battle_vote_${battleId}_${user.id}`
-      localStorage.setItem(voteKey, votedFor)
+      const result = await BattleSystem.voteForBattle(battleId, votedFor, user.id)
       
-      setHasVoted(true)
-      setUserVote(votedFor)
+      if (result.success) {
+        setHasVoted(true)
+        setUserVote(votedFor)
 
-      // Update local state for immediate feedback
-      setBattle(prev => prev ? {
-        ...prev,
-        challenger_votes: votedFor === 'challenger' ? prev.challenger_votes + 1 : prev.challenger_votes,
-        opponent_votes: votedFor === 'opponent' ? prev.opponent_votes + 1 : prev.opponent_votes
-      } : null)
+        // Update local state for immediate feedback
+        setBattle(prev => prev ? {
+          ...prev,
+          challenger_votes: votedFor === 'challenger' ? prev.challenger_votes + 1 : prev.challenger_votes,
+          opponent_votes: votedFor === 'opponent' ? prev.opponent_votes + 1 : prev.opponent_votes,
+          user_voted_for: votedFor
+        } : null)
 
-      setTimeout(() => setVoteAnimation(null), 2000)
+        setTimeout(() => setVoteAnimation(null), 2000)
+      } else {
+        alert(result.error || 'Failed to vote')
+      }
     } catch (error) {
       console.error('Error voting:', error)
+      alert('Failed to vote. Please try again.')
     } finally {
       setIsVoting(false)
+    }
+  }
+
+  const handleGiftFlames = async () => {
+    if (!user || !battle || isGiftingFlames) return
+
+    setIsGiftingFlames(true)
+    try {
+      const result = await BattleSystem.giftFlames(battleId, flameGiftAmount, user.id)
+      
+      if (result.success) {
+        // Reload battle data to get updated flame count
+        await loadBattle()
+        alert(`Gifted ${flameGiftAmount} flame${flameGiftAmount > 1 ? 's' : ''} to this battle!`)
+      } else {
+        alert(result.error || 'Failed to gift flames')
+      }
+    } catch (error) {
+      console.error('Error gifting flames:', error)
+      alert('Failed to gift flames. Please try again.')
+    } finally {
+      setIsGiftingFlames(false)
     }
   }
 
@@ -526,6 +557,74 @@ export default function BattleDetailPage() {
                 </CardContent>
               </Card>
             </motion.div>
+
+            {/* Flame Gifting */}
+            {battle.status === 'active' && user && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+              >
+                <Card className="bg-black/40 backdrop-blur-xl border-white/10">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <Flame className="w-5 h-5" />
+                      Gift Flames
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="text-center">
+                        <p className="text-gray-400 text-sm mb-2">
+                          Show love for this battle! Winner gets all gifted flames.
+                        </p>
+                        <div className="text-orange-400 font-semibold">
+                          {battle.total_gifted_flames || 0} flames gifted
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        {[1, 5, 10].map((amount) => (
+                          <Button
+                            key={amount}
+                            variant={flameGiftAmount === amount ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setFlameGiftAmount(amount)}
+                            className={flameGiftAmount === amount ? 
+                              "bg-gradient-to-r from-orange-500 to-red-500" : 
+                              "border-white/20 hover:bg-white/10"
+                            }
+                          >
+                            {amount}
+                          </Button>
+                        ))}
+                      </div>
+                      
+                      <Button
+                        onClick={handleGiftFlames}
+                        disabled={isGiftingFlames || !user}
+                        className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                      >
+                        <Flame className="w-4 h-4 mr-2" />
+                        {isGiftingFlames ? 'Gifting...' : `Gift ${flameGiftAmount} Flame${flameGiftAmount > 1 ? 's' : ''}`}
+                      </Button>
+                      
+                      {recentFlameGifts.length > 0 && (
+                        <div className="space-y-2">
+                          <p className="text-gray-400 text-xs">Recent gifts:</p>
+                          {recentFlameGifts.slice(0, 3).map((gift) => (
+                            <div key={gift.id} className="flex items-center justify-between text-xs">
+                              <span className="text-white">{gift.gifter?.username}</span>
+                              <span className="text-orange-400">+{gift.amount} 🔥</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
 
             {/* Beat Info */}
             <motion.div

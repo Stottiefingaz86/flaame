@@ -30,6 +30,7 @@ import { supabase } from '@/lib/supabase/client'
 import { useLeague } from '@/contexts/LeagueContext'
 import { useUser } from '@/contexts/UserContext'
 import Link from 'next/link'
+import CreateBattleModal from '@/components/battle/CreateBattleModal'
 
 // Mock data with 6-day creation periods
 const mockBattles = [

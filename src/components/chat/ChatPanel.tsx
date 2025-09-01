@@ -102,22 +102,16 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
   const playNotificationSound = () => {
     if (!soundEnabled || muted) return
     
-    // Create a simple notification sound using Web Audio API
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-    const oscillator = audioContext.createOscillator()
-    const gainNode = audioContext.createGain()
-    
-    oscillator.connect(gainNode)
-    gainNode.connect(audioContext.destination)
-    
-    oscillator.frequency.setValueAtTime(800, audioContext.currentTime)
-    oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1)
-    
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2)
-    
-    oscillator.start(audioContext.currentTime)
-    oscillator.stop(audioContext.currentTime + 0.2)
+    try {
+      // Play custom sound file
+      const audio = new Audio('/sound.mp3')
+      audio.volume = 0.5 // Set volume to 50%
+      audio.play().catch(error => {
+        console.log('Could not play notification sound:', error)
+      })
+    } catch (error) {
+      console.log('Error playing notification sound:', error)
+    }
   }
 
 

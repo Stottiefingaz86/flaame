@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -23,6 +23,7 @@ interface BeatUploadProps {
 }
 
 export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -178,6 +179,7 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
               <Label htmlFor="audioFile" className="text-white">Audio File *</Label>
               <div className="border-2 border-dashed border-white/20 rounded-lg p-6 text-center hover:border-white/40 transition-colors">
                 <input
+                  ref={fileInputRef}
                   id="audioFile"
                   type="file"
                   accept="audio/mpeg,audio/wav,audio/mp3,audio/aac,video/mp4,video/quicktime"
@@ -189,9 +191,10 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
                   htmlFor="audioFile" 
                   className="cursor-pointer block"
                   onClick={(e) => {
-                    if (!selectedFile) {
-                      e.preventDefault()
-                      document.getElementById('audioFile')?.click()
+                    e.preventDefault()
+                    e.stopPropagation()
+                    if (fileInputRef.current) {
+                      fileInputRef.current.click()
                     }
                   }}
                 >
@@ -208,7 +211,10 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
                         onClick={(e) => {
                           e.preventDefault()
                           e.stopPropagation()
-                          document.getElementById('audioFile')?.click()
+                          const fileInput = document.getElementById('audioFile') as HTMLInputElement
+                          if (fileInput) {
+                            fileInput.click()
+                          }
                         }}
                       >
                         Change File
@@ -226,7 +232,9 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
                         onClick={(e) => {
                           e.preventDefault()
                           e.stopPropagation()
-                          document.getElementById('audioFile')?.click()
+                          if (fileInputRef.current) {
+                            fileInputRef.current.click()
+                          }
                         }}
                       >
                         Choose File

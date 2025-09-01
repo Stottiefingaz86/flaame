@@ -229,12 +229,19 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
         ends_at: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString() // 6 days from now
       }
 
+      console.log('Inserting battle data:', battleData)
+      
       const { data, error } = await supabase
         .from('battles')
         .insert([battleData])
         .select()
 
-      if (error) throw error
+      if (error) {
+        console.error('Database insert error:', error)
+        throw error
+      }
+      
+      console.log('Battle created successfully:', data)
 
       onBattleCreated()
       onClose()

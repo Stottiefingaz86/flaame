@@ -377,54 +377,72 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.8 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-3 gap-8"
         >
           <Link href="/arena">
-            <Card className="bg-black/20 backdrop-blur-md border-white/10 hover:bg-black/30 transition-all duration-300 cursor-pointer">
-              <CardHeader>
-                <CardTitle className="text-white">
-                  Battle Arena
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-400 mb-4">View active battles, create challenges, and compete with other rappers.</p>
-                <Button variant="outline" className="w-full border-white/20 hover:bg-white/10">
-                  Enter Arena
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20 hover:border-orange-500/40 transition-all duration-300 cursor-pointer">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative p-8">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="p-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-500">
+                    <Mic className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Battle Arena</h3>
+                    <p className="text-orange-400 text-sm">Compete & Create</p>
+                  </div>
+                </div>
+                <p className="text-gray-300 mb-6 leading-relaxed">View active battles, create challenges, and compete with other rappers in epic rap battles.</p>
+                <div className="flex items-center text-orange-400 group-hover:text-orange-300 transition-colors">
+                  <span className="font-medium">Enter Arena</span>
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            </div>
           </Link>
 
           <Link href="/leaderboard">
-            <Card className="bg-black/20 backdrop-blur-md border-white/10 hover:bg-black/30 transition-all duration-300 cursor-pointer">
-              <CardHeader>
-                <CardTitle className="text-white">
-                  Leaderboard
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-400 mb-4">See the top rappers, track your ranking, and compete for legendary status.</p>
-                <Button variant="outline" className="w-full border-white/20 hover:bg-white/10">
-                  View Rankings
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 cursor-pointer">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative p-8">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500">
+                    <Trophy className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Leaderboard</h3>
+                    <p className="text-blue-400 text-sm">Rankings & Stats</p>
+                  </div>
+                </div>
+                <p className="text-gray-300 mb-6 leading-relaxed">See the top rappers, track your ranking, and compete for legendary status.</p>
+                <div className="flex items-center text-blue-400 group-hover:text-blue-300 transition-colors">
+                  <span className="font-medium">View Rankings</span>
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            </div>
           </Link>
 
           <Link href="/store/avatars">
-            <Card className="bg-black/20 backdrop-blur-md border-white/10 hover:bg-black/30 transition-all duration-300 cursor-pointer">
-              <CardHeader>
-                <CardTitle className="text-white">
-                  Avatar Store
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-400 mb-4">Browse and purchase unique avatars to customize your profile.</p>
-                <Button variant="outline" className="w-full border-white/20 hover:bg-white/10">
-                  Browse Store
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 hover:border-green-500/40 transition-all duration-300 cursor-pointer">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative p-8">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="p-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500">
+                    <Crown className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Avatar Store</h3>
+                    <p className="text-green-400 text-sm">Customize & Shop</p>
+                  </div>
+                </div>
+                <p className="text-gray-300 mb-6 leading-relaxed">Browse and purchase unique avatars to customize your profile and stand out.</p>
+                <div className="flex items-center text-green-400 group-hover:text-green-300 transition-colors">
+                  <span className="font-medium">Browse Store</span>
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            </div>
           </Link>
         </motion.div>
 

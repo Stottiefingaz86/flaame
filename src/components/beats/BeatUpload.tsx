@@ -180,23 +180,40 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
                 <input
                   id="audioFile"
                   type="file"
-                  accept="audio/mpeg,audio/wav,audio/mp3,audio/aac"
+                  accept="audio/mpeg,audio/wav,audio/mp3,audio/aac,video/mp4,video/quicktime"
                   onChange={handleFileSelect}
                   className="hidden"
                   disabled={isUploading}
                 />
-                <label htmlFor="audioFile" className="cursor-pointer">
+                <label htmlFor="audioFile" className="cursor-pointer block">
                   {selectedFile ? (
                     <div className="space-y-2">
                       <FileAudio className="w-8 h-8 text-green-400 mx-auto" />
                       <div className="text-white font-medium">{selectedFile.name}</div>
                       <div className="text-gray-400 text-sm">{formatFileSize(selectedFile.size)}</div>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm"
+                        className="mt-2 border-white/20 text-white hover:bg-white/10"
+                        onClick={() => document.getElementById('audioFile')?.click()}
+                      >
+                        Change File
+                      </Button>
                     </div>
                   ) : (
                     <div className="space-y-2">
                       <Upload className="w-8 h-8 text-gray-400 mx-auto" />
-                      <div className="text-white">Click to select audio file</div>
-                      <div className="text-gray-400 text-sm">MP3, WAV, or AAC up to 10MB</div>
+                      <div className="text-white">Drop your audio file here</div>
+                      <div className="text-gray-400 text-sm">or click to browse</div>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        className="mt-2 border-white/20 text-white hover:bg-white/10"
+                        onClick={() => document.getElementById('audioFile')?.click()}
+                      >
+                        Choose File
+                      </Button>
                     </div>
                   )}
                 </label>

@@ -149,14 +149,14 @@ export default function BeatsPage() {
       const filePath = `beats/${user.id}/${fileName}`
 
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('beats')
+        .from('audio')
         .upload(filePath, selectedFile)
 
       if (uploadError) throw uploadError
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('beats')
+        .from('audio')
         .getPublicUrl(filePath)
 
       // Create beat record

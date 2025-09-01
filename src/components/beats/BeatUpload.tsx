@@ -187,14 +187,15 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
                   className="hidden"
                   disabled={isUploading}
                 />
-                <label 
-                  htmlFor="audioFile" 
+                <div 
                   className="cursor-pointer block"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
+                  onClick={() => {
+                    console.log('Drop zone clicked!')
                     if (fileInputRef.current) {
+                      console.log('File input ref found, clicking...')
                       fileInputRef.current.click()
+                    } else {
+                      console.log('File input ref not found!')
                     }
                   }}
                 >
@@ -208,12 +209,13 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
                         variant="outline" 
                         size="sm"
                         className="mt-2 border-white/20 text-white hover:bg-white/10"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          const fileInput = document.getElementById('audioFile') as HTMLInputElement
-                          if (fileInput) {
-                            fileInput.click()
+                        onClick={() => {
+                          console.log('Change File button clicked!')
+                          if (fileInputRef.current) {
+                            console.log('File input ref found, clicking...')
+                            fileInputRef.current.click()
+                          } else {
+                            console.log('File input ref not found!')
                           }
                         }}
                       >
@@ -229,11 +231,13 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
                         type="button" 
                         variant="outline" 
                         className="mt-2 border-white/20 text-white hover:bg-white/10"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
+                        onClick={() => {
+                          console.log('Choose File button clicked!')
                           if (fileInputRef.current) {
+                            console.log('File input ref found, clicking...')
                             fileInputRef.current.click()
+                          } else {
+                            console.log('File input ref not found!')
                           }
                         }}
                       >
@@ -241,7 +245,7 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
                       </Button>
                     </div>
                   )}
-                </label>
+                </div>
               </div>
               {errors.file && (
                 <div className="flex items-center gap-2 text-red-400 text-sm">

@@ -25,8 +25,10 @@ import {
   User
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
+import { useUser } from '@/contexts/UserContext'
 
 export default function HomePage() {
+  const { user } = useUser()
   const [featuredBattle, setFeaturedBattle] = useState<any>(null)
   const [featuredArtist, setFeaturedArtist] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -98,14 +100,17 @@ export default function HomePage() {
           <div className="flex items-center justify-center gap-4">
             <Link href="/arena">
               <Button size="lg" className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8">
+                <Mic className="w-5 h-5 mr-2" />
                 Enter Arena
               </Button>
             </Link>
-            <Link href="/auth">
-              <Button size="lg" variant="outline" className="text-white border-white/20 hover:bg-white/10 px-8">
-                Sign In
-              </Button>
-            </Link>
+            {!user && (
+              <Link href="/auth">
+                <Button size="lg" variant="outline" className="text-white border-white/20 hover:bg-white/10 px-8">
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
         </motion.div>
 

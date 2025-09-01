@@ -662,6 +662,23 @@ export default function ArenaPage() {
                 <div className="text-center py-8 text-gray-400">
                   Loading battles...
                 </div>
+              ) : getFilteredBattles().length === 0 ? (
+                <div className="text-center py-16">
+                  <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-12 border border-white/10">
+                    <Mic className="w-16 h-16 text-gray-400 mx-auto mb-6" />
+                    <h3 className="text-2xl font-bold text-white mb-4">No Active Battles</h3>
+                    <p className="text-gray-300 mb-8 max-w-md mx-auto">
+                      Be the first to create an epic battle! Challenge other rappers and show off your skills.
+                    </p>
+                    <Button 
+                      onClick={() => setShowCreateModal(true)}
+                      className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
+                    >
+                      <Plus className="w-5 h-5 mr-2" />
+                      Create First Battle
+                    </Button>
+                  </div>
+                </div>
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {getFilteredBattles().map((battle) => (
@@ -676,6 +693,23 @@ export default function ArenaPage() {
                 <div className="text-center py-8 text-gray-400">
                   Loading battles...
                 </div>
+              ) : getFilteredBattles().length === 0 ? (
+                <div className="text-center py-16">
+                  <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-12 border border-white/10">
+                    <Users className="w-16 h-16 text-gray-400 mx-auto mb-6" />
+                    <h3 className="text-2xl font-bold text-white mb-4">No Open Challenges</h3>
+                    <p className="text-gray-300 mb-8 max-w-md mx-auto">
+                      No one is looking for a battle right now. Create a challenge and wait for someone to accept!
+                    </p>
+                    <Button 
+                      onClick={() => setShowCreateModal(true)}
+                      className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
+                    >
+                      <Plus className="w-5 h-5 mr-2" />
+                      Create Challenge
+                    </Button>
+                  </div>
+                </div>
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {getFilteredBattles().map((battle) => (
@@ -689,6 +723,23 @@ export default function ArenaPage() {
               {isLoading ? (
                 <div className="text-center py-8 text-gray-400">
                   Loading battles...
+                </div>
+              ) : getFilteredBattles().length === 0 ? (
+                <div className="text-center py-16">
+                  <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-12 border border-white/10">
+                    <Trophy className="w-16 h-16 text-gray-400 mx-auto mb-6" />
+                    <h3 className="text-2xl font-bold text-white mb-4">No Finished Battles</h3>
+                    <p className="text-gray-300 mb-8 max-w-md mx-auto">
+                      No battles have been completed yet. Create some battles and let the competition begin!
+                    </p>
+                    <Button 
+                      onClick={() => setShowCreateModal(true)}
+                      className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
+                    >
+                      <Plus className="w-5 h-5 mr-2" />
+                      Start a Battle
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

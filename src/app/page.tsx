@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -23,8 +24,56 @@ import {
   ExternalLink,
   User
 } from 'lucide-react'
+import { supabase } from '@/lib/supabase/client'
 
 export default function HomePage() {
+  const [featuredBattle, setFeaturedBattle] = useState<any>(null)
+  const [featuredArtist, setFeaturedArtist] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    loadHomepageData()
+  }, [])
+
+  const loadHomepageData = async () => {
+    try {
+      setIsLoading(true)
+      
+      // Load featured battle (most recent active battle)
+      const { data: battles } = await supabase
+        .from('battles')
+        .select(`
+          *,
+          challenger:profiles!battles_challenger_id_fkey(id, username, avatar_id, flames),
+          opponent:profiles!battles_opponent_id_fkey(id, username, avatar_id, flames),
+          beat:beats(id, title, artist)
+        `)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(1)
+
+      if (battles && battles.length > 0) {
+        setFeaturedBattle(battles[0])
+      }
+
+      // Load featured artist (user with most flames)
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('flames', { ascending: false })
+        .limit(1)
+
+      if (profiles && profiles.length > 0) {
+        setFeaturedArtist(profiles[0])
+      }
+
+    } catch (error) {
+      console.error('Error loading homepage data:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="flex-1">
       {/* Hero Section */}
@@ -127,65 +176,89 @@ export default function HomePage() {
             </Link>
           </div>
           
-          <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-xl border border-orange-500/20">
-            <CardContent className="p-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-                      Active Battle
-                    </Badge>
-                    <Badge variant="outline" className="border-yellow-500/50 text-yellow-400">
-                      Featured
-                    </Badge>
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">Street Dreams vs Concrete Reality</h3>
-                  <p className="text-gray-300 mb-6">
-                    Two rising stars clash in an epic battle over the beat &quot;Street Dreams&quot; by Stottie Fingaz. 
-                    Watch as they trade bars about ambition, struggle, and the pursuit of success.
-                  </p>
-                  
-                  <div className="flex items-center gap-6 mb-6">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">MC</span>
-                      </div>
-                      <span className="text-white font-semibold">MC_Flaame</span>
+          {isLoading ? (
+            <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-xl border border-orange-500/20">
+              <CardContent className="p-8">
+                <div className="text-center py-8 text-gray-400">
+                  Loading featured battle...
+                </div>
+              </CardContent>
+            </Card>
+          ) : featuredBattle ? (
+            <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-xl border border-orange-500/20">
+              <CardContent className="p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                        Active Battle
+                      </Badge>
+                      <Badge variant="outline" className="border-yellow-500/50 text-yellow-400">
+                        Featured
+                      </Badge>
                     </div>
-                    <span className="text-gray-400">vs</span>
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">RB</span>
+                    <h3 className="text-2xl font-bold text-white mb-4">{featuredBattle.title}</h3>
+                    <p className="text-gray-300 mb-6">
+                      {featuredBattle.challenger?.username} vs {featuredBattle.opponent?.username || 'Waiting for challenger...'}
+                      {featuredBattle.beat && ` over the beat "${featuredBattle.beat.title}" by ${featuredBattle.beat.artist}.`}
+                    </p>
+                    
+                    <div className="flex items-center gap-6 mb-6">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                          <span className="text-white font-bold text-sm">{featuredBattle.challenger?.username?.charAt(0) || 'C'}</span>
+                        </div>
+                        <span className="text-white font-semibold">{featuredBattle.challenger?.username}</span>
                       </div>
-                      <span className="text-white font-semibold">RapBeast</span>
+                      <span className="text-gray-400">vs</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center">
+                          <span className="text-white font-bold text-sm">{featuredBattle.opponent?.username?.charAt(0) || '?'}</span>
+                        </div>
+                        <span className="text-white font-semibold">{featuredBattle.opponent?.username || 'TBD'}</span>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4">
-                    <Link href="/arena">
-                      <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white">
-                        <Play className="w-4 h-4 mr-2" />
-                        Watch Battle
+                    
+                    <div className="flex items-center gap-4">
+                      <Link href="/arena">
+                        <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white">
+                          <Play className="w-4 h-4 mr-2" />
+                          Watch Battle
+                        </Button>
+                      </Link>
+                      <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                        Vote Now
                       </Button>
-                    </Link>
-                    <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
-                      Vote Now
-                    </Button>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="flex items-center justify-center">
-                  <div className="w-64 h-64 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl flex items-center justify-center">
-                    <div className="text-center">
-                      <Music className="w-16 h-16 text-orange-400 mx-auto mb-4" />
-                      <p className="text-white font-semibold">Street Dreams</p>
-                      <p className="text-gray-400 text-sm">by Stottie Fingaz</p>
+                  
+                  <div className="flex items-center justify-center">
+                    <div className="w-64 h-64 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl flex items-center justify-center">
+                      <div className="text-center">
+                        <Music className="w-16 h-16 text-orange-400 mx-auto mb-4" />
+                        <p className="text-white font-semibold">{featuredBattle.beat?.title || 'Beat TBD'}</p>
+                        <p className="text-gray-400 text-sm">by {featuredBattle.beat?.artist || 'Unknown'}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-xl border border-orange-500/20">
+              <CardContent className="p-8">
+                <div className="text-center py-8">
+                  <h3 className="text-xl font-semibold text-white mb-2">No Active Battles</h3>
+                  <p className="text-gray-400 mb-4">Be the first to create a battle!</p>
+                  <Link href="/arena">
+                    <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white">
+                      Create Battle
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </motion.div>
 
         {/* Featured Artist Section */}

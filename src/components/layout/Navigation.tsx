@@ -18,10 +18,13 @@ import {
   User,
   Settings,
   Sword,
-  ShoppingCart
+  ShoppingCart,
+  BookOpen
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase/client'
+import { useUser } from '@/contexts/UserContext'
+import { clearAuthCache } from '@/utils/auth'
 
 interface User {
   id: string
@@ -36,8 +39,7 @@ interface User {
 export default function Navigation() {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const { user, isLoading } = useUser()
 
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
@@ -45,6 +47,7 @@ export default function Navigation() {
     { href: '/beats', label: 'Beats', icon: Music },
     { href: '/leaderboard', label: 'Leaderboard', icon: Crown },
     { href: '/store', label: 'Store', icon: ShoppingCart },
+    { href: '/blog', label: 'Blog', icon: BookOpen },
   ]
 
   const isActive = (href: string) => {
@@ -54,61 +57,19 @@ export default function Navigation() {
     return pathname.startsWith(href)
   }
 
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const { data: { user: authUser } } = await supabase.auth.getUser()
-        
-        if (authUser) {
-          // Get user profile data
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', authUser.id)
-            .single()
 
-          if (profile) {
-            setUser(profile)
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching user:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    getUser()
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (session?.user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-
-          if (profile) {
-            setUser(profile)
-          }
-        } else {
-          setUser(null)
-        }
-        setIsLoading(false)
-      }
-    )
-
-    return () => subscription.unsubscribe()
-  }, [])
 
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut()
-      setUser(null)
     } catch (error) {
       console.error('Error signing out:', error)
+    }
+  }
+
+  const handleClearCache = async () => {
+    if (confirm('This will clear all authentication data and reload the page. Continue?')) {
+      await clearAuthCache()
     }
   }
 
@@ -124,13 +85,13 @@ export default function Navigation() {
   return (
     <>
       {/* Desktop Navigation */}
-      <nav className="hidden lg:flex items-center justify-between w-full max-w-7xl mx-auto px-4 py-4">
+      <nav className="hidden lg:flex items-center justify-between w-full max-w-7xl mx-auto px-4 py-2">
         {/* Logo */}
-        <Link href="/" className="flex items-center">
-          <img 
-            src="/flaame_logo.png" 
-            alt="Flaame" 
-            className="h-8"
+        <Link href="/" className="flex items-center px-2">
+          <img
+            src="/flaame_logo.png"
+            alt="Flaame"
+            className="h-10"
           />
         </Link>
 
@@ -164,15 +125,21 @@ export default function Navigation() {
                      <>
                        {/* Wallet - Clickable to go to store */}
                        <Link href="/store">
-                         <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/20 backdrop-blur-md border border-white/10 hover:bg-black/30 transition-all duration-200 cursor-pointer">
+                         <Button 
+                           variant="ghost" 
+                           className="flex items-center gap-2 px-3 py-2 rounded-xl bg-transparent hover:bg-white/10 border border-white/20 hover:border-white/30 transition-all duration-200"
+                         >
                            <Flame className="w-4 h-4 text-orange-500" />
                            <span className="text-white font-semibold">{user.flames.toLocaleString()}</span>
-                         </div>
+                         </Button>
                        </Link>
 
                        {/* User Menu */}
                        <div className="relative group">
-                         <Button variant="ghost" className="p-1 rounded-full">
+                         <Button 
+                           variant="ghost" 
+                           className="p-1 rounded-full border border-white/20 hover:border-white/30 hover:bg-white/10 transition-all duration-200"
+                         >
                            <Avatar className="h-8 w-8">
                              <AvatarImage src={user.avatar_id ? `/api/avatars/${user.avatar_id}` : undefined} />
                              <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
@@ -222,6 +189,14 @@ export default function Navigation() {
                              </Link>
                              <Button
                                variant="ghost"
+                               className="w-full justify-start text-yellow-400 hover:bg-yellow-500/10"
+                               onClick={handleClearCache}
+                             >
+                               <Settings className="w-4 h-4 mr-2" />
+                               Clear Cache
+                             </Button>
+                             <Button
+                               variant="ghost"
                                className="w-full justify-start text-red-400 hover:bg-red-500/10"
                                onClick={handleSignOut}
                              >
@@ -233,11 +208,25 @@ export default function Navigation() {
                        </div>
                      </>
                    ) : (
-                     <Link href="/auth">
-                       <Button variant="outline" className="border-white/20 hover:bg-white/10 text-white">
-                         Sign In
+                     <div className="flex items-center gap-2">
+                       <Button 
+                         variant="outline" 
+                         className="border-yellow-500/50 hover:bg-yellow-500/10 text-yellow-400 text-xs px-2 py-1"
+                         onClick={handleClearCache}
+                       >
+                         Clear Cache
                        </Button>
-                     </Link>
+                       <Link href="/auth">
+                         <Button variant="outline" className="border-white/20 hover:bg-white/10 text-white">
+                           Sign In
+                         </Button>
+                       </Link>
+                       <Link href="/auth?mode=signup">
+                         <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white">
+                           Create Account
+                         </Button>
+                       </Link>
+                     </div>
                    )}
                  </>
                )}
@@ -245,14 +234,14 @@ export default function Navigation() {
       </nav>
 
       {/* Mobile Navigation */}
-      <nav className="lg:hidden w-full px-4 py-4">
+      <nav className="lg:hidden w-full px-4 py-2">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <img 
-              src="/flaame_logo.png" 
-              alt="Flaame" 
-              className="h-6"
+            <img
+              src="/flaame_logo.png"
+              alt="Flaame"
+              className="h-10"
             />
           </Link>
 

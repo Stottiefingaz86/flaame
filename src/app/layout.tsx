@@ -2,6 +2,11 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import AppLayout from '@/components/layout/AppLayout'
+import { AudioProvider } from '@/contexts/AudioContext'
+import { LeagueProvider } from '@/contexts/LeagueContext'
+import { UserProvider } from '@/contexts/UserContext'
+import { LoadingProvider } from '@/contexts/LoadingContext'
+import PersistentPlayer from '@/components/audio/PersistentPlayer'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -18,9 +23,18 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.className} bg-black text-white antialiased`}>
-        <AppLayout>
-          {children}
-        </AppLayout>
+        <LoadingProvider>
+          <UserProvider>
+            <AudioProvider>
+              <LeagueProvider>
+                <AppLayout>
+                  {children}
+                </AppLayout>
+                <PersistentPlayer />
+              </LeagueProvider>
+            </AudioProvider>
+          </UserProvider>
+        </LoadingProvider>
       </body>
     </html>
   )

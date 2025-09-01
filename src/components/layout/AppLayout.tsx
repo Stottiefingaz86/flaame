@@ -3,12 +3,15 @@
 import { ReactNode } from 'react'
 import Navigation from './Navigation'
 import ChatPanel from '../chat/ChatPanel'
+import { useAudio } from '@/contexts/AudioContext'
 
 interface AppLayoutProps {
   children: ReactNode
 }
 
 export default function AppLayout({ children }: AppLayoutProps) {
+  const { currentTrack } = useAudio()
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
       {/* Navigation */}
@@ -17,9 +20,15 @@ export default function AppLayout({ children }: AppLayoutProps) {
       </header>
 
       {/* Main Content with Chat Panel */}
-      <div className="flex">
+      <div className="flex min-h-[calc(100vh-80px)]">
         {/* Main Content Area */}
-        <main className="flex-1 transition-all duration-300" style={{ paddingRight: 'var(--chat-width, 320px)' }}>
+        <main 
+          className="flex-1 transition-all duration-300" 
+          style={{ 
+            paddingRight: 'var(--chat-width)',
+            paddingBottom: currentTrack ? '80px' : '0'
+          }}
+        >
           {children}
         </main>
 
@@ -28,7 +37,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 bg-black/20 backdrop-blur-xl">
+      <footer 
+        className="border-t border-white/10 bg-black/20 backdrop-blur-xl transition-all duration-300"
+        style={{ 
+          marginRight: 'var(--chat-width)'
+        }}
+      >
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Brand */}

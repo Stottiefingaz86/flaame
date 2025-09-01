@@ -65,8 +65,21 @@ export class ChatService {
           schema: 'public',
           table: 'chat_messages'
         },
-        (payload) => {
-          callback(payload.new as ChatMessage)
+        async (payload) => {
+          // Fetch the full message with user and emoji data
+          const { data: fullMessage, error } = await this.supabase
+            .from('chat_messages')
+            .select(`
+              *,
+              user:profiles(username, avatar_id, is_verified, rank, flames),
+              emoji:emojis(emoji, name, cost)
+            `)
+            .eq('id', payload.new.id)
+            .single()
+
+          if (!error && fullMessage) {
+            callback(fullMessage as ChatMessage)
+          }
         }
       )
       .subscribe()
@@ -106,7 +119,11 @@ export class ChatService {
         message,
         message_type: 'message'
       })
-      .select()
+      .select(`
+        *,
+        user:profiles(username, avatar_id, is_verified, rank, flames),
+        emoji:emojis(emoji, name, cost)
+      `)
       .single()
 
     if (error) throw error
@@ -125,7 +142,11 @@ export class ChatService {
         emoji_id: emojiId,
         message_type: 'emoji'
       })
-      .select()
+      .select(`
+        *,
+        user:profiles(username, avatar_id, is_verified, rank, flames),
+        emoji:emojis(emoji, name, cost)
+      `)
       .single()
 
     if (error) throw error
@@ -165,7 +186,10 @@ export class ChatService {
       .order('created_at', { ascending: false })
       .limit(limit)
 
-    if (error) throw error
+    if (error) {
+      console.error('Error fetching chat messages:', error)
+      return []
+    }
     return data.reverse() // Return in chronological order
   }
 
@@ -186,7 +210,10 @@ export class ChatService {
       .eq('status', 'pending')
       .order('created_at', { ascending: false })
 
-    if (error) throw error
+    if (error) {
+      console.error('Error fetching battle challenges:', error)
+      return []
+    }
     return data
   }
 
@@ -228,7 +255,10 @@ export class ChatService {
       `)
       .eq('user_id', user.id)
 
-    if (error) throw error
+    if (error) {
+      console.error('Error fetching user emojis:', error)
+      return []
+    }
     return data.map(item => item.emoji)
   }
 

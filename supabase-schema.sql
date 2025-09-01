@@ -226,6 +226,34 @@ CREATE TABLE copyright_verifications (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Add leagues table
+CREATE TABLE IF NOT EXISTS leagues (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(100) NOT NULL,
+    country VARCHAR(100) NOT NULL,
+    language VARCHAR(50) NOT NULL,
+    flag_emoji VARCHAR(10),
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Insert default leagues
+INSERT INTO leagues (name, country, language, flag_emoji) VALUES
+('US/UK League', 'United States & United Kingdom', 'English', '🇺🇸🇬🇧'),
+('Spanish League', 'Spain & Latin America', 'Spanish', '🇪🇸'),
+('Philippines League', 'Philippines', 'Filipino/English', '🇵🇭'),
+('German League', 'Germany', 'German', '🇩🇪'),
+('French League', 'France', 'French', '🇫🇷');
+
+-- Add league_id to battles table
+ALTER TABLE battles ADD COLUMN IF NOT EXISTS league_id UUID REFERENCES leagues(id);
+ALTER TABLE battles ALTER COLUMN league_id SET DEFAULT (SELECT id FROM leagues WHERE name = 'US/UK League' LIMIT 1);
+
+-- Add league_id to profiles table for user's preferred league
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS preferred_league_id UUID REFERENCES leagues(id);
+ALTER TABLE profiles ALTER COLUMN preferred_league_id SET DEFAULT (SELECT id FROM leagues WHERE name = 'US/UK League' LIMIT 1);
+
 -- Create indexes for better performance
 CREATE INDEX idx_profiles_username ON profiles(username);
 CREATE INDEX idx_profiles_instagram_id ON profiles(instagram_id);
@@ -370,6 +398,7 @@ ALTER TABLE battle_sponsors ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE battle_challenges ENABLE ROW LEVEL SECURITY;
 ALTER TABLE copyright_verifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE leagues ENABLE ROW LEVEL SECURITY;
 
 -- Profiles policies
 CREATE POLICY "Users can view all profiles" ON profiles FOR SELECT USING (true);
@@ -453,12 +482,13 @@ INSERT INTO emojis (emoji, name, cost, rarity) VALUES
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO profiles (id, username, flames, rank)
+    INSERT INTO profiles (id, username, flames, rank, preferred_league_id)
     VALUES (
         NEW.id,
         COALESCE(NEW.raw_user_meta_data->>'username', 'User' || substr(NEW.id::text, 1, 8)),
         100,
-        'Newcomer'
+        'Newcomer',
+        (SELECT id FROM leagues WHERE name = 'US/UK League' LIMIT 1)
     );
     
     -- Grant free emojis
@@ -477,3 +507,15 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+
+-- Add function to get user's league
+CREATE OR REPLACE FUNCTION get_user_league(user_id UUID DEFAULT auth.uid())
+RETURNS UUID AS $$
+BEGIN
+    RETURN (
+        SELECT preferred_league_id 
+        FROM profiles 
+        WHERE id = user_id
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

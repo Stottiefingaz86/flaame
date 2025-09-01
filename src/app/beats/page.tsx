@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   Music,
   Play,
@@ -24,6 +25,8 @@ import {
   X
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
+import AudioPlayer from '@/components/beats/AudioPlayer'
+import { useAudio } from '@/contexts/AudioContext'
 
 interface User {
   id: string
@@ -66,8 +69,7 @@ export default function BeatsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedGenre, setSelectedGenre] = useState('all')
   const [selectedBPM, setSelectedBPM] = useState('all')
-  const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null)
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null)
+  const { playTrack, currentTrack, isPlaying } = useAudio()
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [uploadForm, setUploadForm] = useState({
     title: '',
@@ -96,16 +98,23 @@ export default function BeatsPage() {
     try {
       const { data, error } = await supabase
         .from('beats')
-        .select(`
-          *,
-          producer:profiles!beats_producer_id_fkey(
-            id, username, avatar_id, is_verified
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      setBeats(data || [])
+      
+      // Transform the data to match the expected format
+      const transformedBeats = (data || []).map(beat => ({
+        ...beat,
+        producer: {
+          id: beat.producer_id || '00000000-0000-0000-0000-000000000000',
+          username: beat.artist || 'Unknown Artist',
+          avatar_id: null,
+          is_verified: false
+        }
+      }))
+      
+      setBeats(transformedBeats)
     } catch (error) {
       console.error('Error loading beats:', error)
     } finally {
@@ -113,34 +122,20 @@ export default function BeatsPage() {
     }
   }
 
-  const handlePlayPause = (beatId: string, audioUrl: string) => {
-    if (currentlyPlaying === beatId) {
-      // Stop current beat
-      if (audioElement) {
-        audioElement.pause()
-        audioElement.currentTime = 0
-      }
-      setCurrentlyPlaying(null)
-      setAudioElement(null)
-    } else {
-      // Stop any currently playing beat
-      if (audioElement) {
-        audioElement.pause()
-        audioElement.currentTime = 0
-      }
-
-      // Play new beat
-      const audio = new Audio(audioUrl)
-      audio.play()
-      setAudioElement(audio)
-      setCurrentlyPlaying(beatId)
-
-      // Handle when audio ends
-      audio.onended = () => {
-        setCurrentlyPlaying(null)
-        setAudioElement(null)
-      }
+  const handlePlayPause = (beat: Beat) => {
+    if (currentTrack?.id === beat.id && isPlaying) {
+      // If this beat is currently playing, pause it
+      return
     }
+    
+    // Play the beat
+    playTrack({
+      id: beat.id,
+      title: beat.title,
+      artist: beat.artist,
+      audioUrl: beat.audio_url,
+      duration: beat.duration
+    })
   }
 
   const handleUpload = async () => {
@@ -154,14 +149,14 @@ export default function BeatsPage() {
       const filePath = `beats/${user.id}/${fileName}`
 
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('audio')
+        .from('beats')
         .upload(filePath, selectedFile)
 
       if (uploadError) throw uploadError
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('audio')
+        .from('beats')
         .getPublicUrl(filePath)
 
       // Create beat record
@@ -212,8 +207,22 @@ export default function BeatsPage() {
 
   const handleDownload = async (beat: Beat) => {
     if (beat.is_free) {
-      // Free download
-      window.open(beat.audio_url, '_blank')
+      // Free download - proper file download
+      try {
+        const response = await fetch(beat.audio_url)
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${beat.title} - ${beat.artist}.wav`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      } catch (error) {
+        console.error('Download failed:', error)
+        alert('Download failed. Please try again.')
+      }
     } else {
       // Paid download - check if user has enough flames
       if (!user) {
@@ -246,7 +255,16 @@ export default function BeatsPage() {
           .eq('id', user.id)
 
         // Download the beat
-        window.open(beat.audio_url, '_blank')
+        const response = await fetch(beat.audio_url)
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${beat.title} - ${beat.artist}.wav`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
         
         // Reload user data
         checkAuth()
@@ -414,7 +432,12 @@ export default function BeatsPage() {
                     <h3 className="text-white font-semibold text-lg line-clamp-1">{beat.title}</h3>
                     <p className="text-gray-400 text-sm line-clamp-2">{beat.description}</p>
                     <div className="flex items-center gap-2 text-sm text-gray-400">
-                      <User className="w-3 h-3" />
+                      <Avatar className="h-5 w-5">
+                        <AvatarImage src={beat.producer.avatar_id ? `/api/avatars/${beat.producer.avatar_id}` : undefined} />
+                        <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
+                          {beat.producer.username.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
                       <span>{beat.producer.username}</span>
                       {beat.producer.is_verified && (
                         <Badge className="h-2 px-1 text-xs bg-blue-500/20 text-blue-300 border-blue-500/30">✓</Badge>
@@ -440,36 +463,23 @@ export default function BeatsPage() {
                     </div>
                   </div>
 
-                  {/* Waveform Placeholder */}
-                  <div className="h-12 bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-lg flex items-center justify-center">
-                    <div className="flex items-center gap-1">
-                      {[...Array(20)].map((_, i) => (
-                        <div
-                          key={i}
-                          className="w-1 bg-orange-400 rounded-full"
-                          style={{
-                            height: `${Math.random() * 30 + 10}px`,
-                            animationDelay: `${i * 0.1}s`
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
+                  {/* Play Button */}
                   <div className="flex gap-2">
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handlePlayPause(beat.id, beat.audio_url)}
-                      className="flex-1 border-white/20 text-white hover:bg-white/10"
+                      onClick={() => handlePlayPause(beat)}
+                      className={`flex-1 border-white/20 text-white hover:bg-white/10 ${
+                        currentTrack?.id === beat.id && isPlaying ? 'bg-orange-500/20 border-orange-500/30' : ''
+                      }`}
                     >
-                      {currentlyPlaying === beat.id ? (
+                      {currentTrack?.id === beat.id && isPlaying ? (
                         <Pause className="w-4 h-4" />
                       ) : (
                         <Play className="w-4 h-4" />
                       )}
                     </Button>
+                    
                     <Button
                       size="sm"
                       onClick={() => handleDownload(beat)}

@@ -29,6 +29,7 @@ import {
 } from 'lucide-react'
 import { chatService, ChatMessage, BattleChallenge } from '@/lib/chat'
 import { supabase } from '@/lib/supabase/client'
+import { useUser } from '@/contexts/UserContext'
 
 interface User {
   id: string
@@ -50,8 +51,7 @@ interface Emoji {
 export default function ChatPanel() {
   const [isMinimized, setIsMinimized] = useState(false)
   const [message, setMessage] = useState('')
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const { user, isLoading } = useUser()
   const [activeTab, setActiveTab] = useState<'chat' | 'battles'>('chat')
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [showEmojiShop, setShowEmojiShop] = useState(false)
@@ -68,28 +68,17 @@ export default function ChatPanel() {
     document.documentElement.style.setProperty('--chat-width', chatWidth)
   }, [isMinimized])
 
-  // Check authentication status
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      setIsLoading(false)
-    }
-    
-    checkAuth()
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user || null)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
 
   // Load initial data
   useEffect(() => {
     if (user) {
       loadInitialData()
+    } else {
+      // If no user, clear data and stop loading
+      setMessages([])
+      setPendingBattles([])
+      setAvailableEmojis([])
     }
   }, [user])
 
@@ -97,25 +86,50 @@ export default function ChatPanel() {
   useEffect(() => {
     if (!user) return
 
+    console.log('Setting up chat subscriptions for user:', user.id)
+
     // Subscribe to chat messages
     const chatSubscription = chatService.subscribeToChat((newMessage) => {
-      setMessages(prev => [...prev, newMessage])
+      console.log('New message received:', newMessage)
+      setMessages(prev => {
+        // Check if message already exists to avoid duplicates
+        const exists = prev.some(msg => msg.id === newMessage.id)
+        if (exists) return prev
+        return [...prev, newMessage]
+      })
     })
 
     // Subscribe to battle challenges
     const challengeSubscription = chatService.subscribeToChallenges((newChallenge) => {
+      console.log('New challenge received:', newChallenge)
       setPendingBattles(prev => [newChallenge, ...prev])
     })
 
     return () => {
+      console.log('Cleaning up chat subscriptions')
       chatService.unsubscribe()
     }
   }, [user])
 
   const loadInitialData = async () => {
     try {
+      // Set a timeout to prevent infinite loading
+      const timeoutId = setTimeout(() => {
+        console.log('Chat data loading timeout - using defaults')
+        setMessages([])
+        setPendingBattles([])
+        setAvailableEmojis([
+          { id: 'default-1', emoji: '🔥', name: 'Fire', cost: 0, rarity: 'common' as const, isUnlocked: true },
+          { id: 'default-2', emoji: '💯', name: 'Hundred', cost: 0, rarity: 'common' as const, isUnlocked: true },
+          { id: 'default-3', emoji: '🎤', name: 'Microphone', cost: 0, rarity: 'common' as const, isUnlocked: true },
+          { id: 'default-4', emoji: '👑', name: 'Crown', cost: 0, rarity: 'common' as const, isUnlocked: true },
+          { id: 'default-5', emoji: '⚡', name: 'Lightning', cost: 0, rarity: 'common' as const, isUnlocked: true }
+        ])
+      }, 10000) // 10 second timeout
+
       // Load recent messages
       const recentMessages = await chatService.getRecentMessages(50)
+      clearTimeout(timeoutId)
       setMessages(recentMessages)
 
       // Load pending battles
@@ -125,16 +139,61 @@ export default function ChatPanel() {
       // Load user's emojis
       const userEmojis = await chatService.getUserEmojis()
       const flattenedEmojis = userEmojis.flat()
-      setAvailableEmojis(flattenedEmojis.map(emoji => ({
-        id: emoji.id,
-        emoji: emoji.emoji,
-        name: emoji.name,
-        cost: emoji.cost,
-        rarity: emoji.rarity,
-        isUnlocked: true
-      })))
+      
+      // If user has no emojis, provide some default free ones
+      if (flattenedEmojis.length === 0) {
+        const defaultEmojis = [
+          { id: 'default-1', emoji: '🔥', name: 'Fire', cost: 0, rarity: 'common' as const },
+          { id: 'default-2', emoji: '💯', name: 'Hundred', cost: 0, rarity: 'common' as const },
+          { id: 'default-3', emoji: '🎤', name: 'Microphone', cost: 0, rarity: 'common' as const },
+          { id: 'default-4', emoji: '👑', name: 'Crown', cost: 0, rarity: 'common' as const },
+          { id: 'default-5', emoji: '⚡', name: 'Lightning', cost: 0, rarity: 'common' as const }
+        ]
+        setAvailableEmojis(defaultEmojis.map(emoji => ({
+          ...emoji,
+          isUnlocked: true
+        })))
+      } else {
+        setAvailableEmojis(flattenedEmojis.map(emoji => ({
+          id: emoji.id,
+          emoji: emoji.emoji,
+          name: emoji.name,
+          cost: emoji.cost,
+          rarity: emoji.rarity,
+          isUnlocked: true
+        })))
+      }
+
+      // Set up polling as fallback for real-time updates
+      const pollInterval = setInterval(async () => {
+        try {
+          const newMessages = await chatService.getRecentMessages(50)
+          setMessages(prev => {
+            // Only update if there are new messages
+            if (newMessages.length > prev.length) {
+              return newMessages
+            }
+            return prev
+          })
+        } catch (error) {
+          console.error('Error polling for new messages:', error)
+        }
+      }, 5000) // Poll every 5 seconds
+
+      // Store interval ID for cleanup
+      return () => clearInterval(pollInterval)
     } catch (error) {
       console.error('Error loading chat data:', error)
+      // Set defaults on error
+      setMessages([])
+      setPendingBattles([])
+      setAvailableEmojis([
+        { id: 'default-1', emoji: '🔥', name: 'Fire', cost: 0, rarity: 'common' as const, isUnlocked: true },
+        { id: 'default-2', emoji: '💯', name: 'Hundred', cost: 0, rarity: 'common' as const, isUnlocked: true },
+        { id: 'default-3', emoji: '🎤', name: 'Microphone', cost: 0, rarity: 'common' as const, isUnlocked: true },
+        { id: 'default-4', emoji: '👑', name: 'Crown', cost: 0, rarity: 'common' as const, isUnlocked: true },
+        { id: 'default-5', emoji: '⚡', name: 'Lightning', cost: 0, rarity: 'common' as const, isUnlocked: true }
+      ])
     }
   }
 
@@ -149,12 +208,40 @@ export default function ChatPanel() {
   const handleSendMessage = async () => {
     if (!message.trim() || !user || isSending) return
 
+    const messageText = message.trim()
+    setMessage('')
     setIsSending(true)
+
+    // Optimistic update - add message immediately
+    const optimisticMessage: ChatMessage = {
+      id: `temp-${Date.now()}`,
+      user_id: user.id,
+      message: messageText,
+      message_type: 'message',
+      created_at: new Date().toISOString(),
+      user: {
+        username: user.username,
+        avatar_id: user.avatar_id,
+        is_verified: user.is_verified,
+        rank: user.rank,
+        flames: user.flames
+      }
+    }
+
+    setMessages(prev => [...prev, optimisticMessage])
+
     try {
-      await chatService.sendMessage(message.trim())
-      setMessage('')
+      const result = await chatService.sendMessage(messageText)
+      
+      // Replace optimistic message with real one
+      setMessages(prev => prev.map(msg => 
+        msg.id === optimisticMessage.id ? result : msg
+      ))
     } catch (error) {
       console.error('Error sending message:', error)
+      // Remove optimistic message on error
+      setMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id))
+      setMessage(messageText) // Restore message text
     } finally {
       setIsSending(false)
     }
@@ -255,8 +342,11 @@ export default function ChatPanel() {
 
   if (isLoading) {
     return (
-      <div className="fixed right-0 top-0 h-full w-80 bg-black/95 backdrop-blur-xl border-l border-white/10 z-50 flex items-center justify-center">
-        <div className="text-white">Loading chat...</div>
+      <div className="w-[var(--chat-width)] bg-black/95 backdrop-blur-xl border-l border-white/10 flex items-center justify-center min-h-[calc(100vh-80px)]">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="text-white">Loading chat...</div>
+        </div>
       </div>
     )
   }
@@ -268,7 +358,7 @@ export default function ChatPanel() {
         <motion.div
           initial={{ x: 100 }}
           animate={{ x: 0 }}
-                      className="fixed right-4 bottom-4 z-60"
+          className="w-[var(--chat-width)] flex justify-end p-4"
         >
           <Button
             onClick={() => setIsMinimized(false)}
@@ -288,7 +378,7 @@ export default function ChatPanel() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed right-0 top-0 h-full w-80 bg-black/95 backdrop-blur-xl border-l border-white/10 z-50 flex flex-col shadow-2xl"
+            className="w-[var(--chat-width)] bg-black/95 backdrop-blur-xl border-l border-white/10 flex flex-col shadow-2xl min-h-[calc(100vh-80px)]"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-white/10 bg-black/50">
@@ -583,7 +673,7 @@ export default function ChatPanel() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-70 flex items-center justify-center p-4"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm z-70 flex items-center justify-center p-4"
             onClick={() => setShowEmojiShop(false)}
           >
             <motion.div
@@ -627,23 +717,7 @@ export default function ChatPanel() {
       </AnimatePresence>
 
       {/* Floating Chat Button when minimized */}
-      <AnimatePresence>
-        {isMinimized && (
-          <motion.div
-            initial={{ x: 320, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 320, opacity: 0 }}
-            className="fixed bottom-4 right-4 z-60"
-          >
-            <Button
-              onClick={() => setIsMinimized(false)}
-              className="h-12 w-12 rounded-full bg-gradient-to-r from-orange-500 to-red-500 shadow-lg hover:shadow-xl transition-all duration-200"
-            >
-              <MessageSquare className="w-5 h-5 text-white" />
-            </Button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
     </>
   )
 }

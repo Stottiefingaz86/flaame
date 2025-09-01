@@ -199,6 +199,10 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
     }
 
     setIsCreating(true)
+    
+    // Define battleData outside try block so it's accessible in catch
+    let battleData: any = null
+    
     try {
       // Upload the battle track
       const fileExt = battleTrack.name.split('.').pop()
@@ -217,7 +221,7 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
       
       console.log('Track uploaded successfully:', trackFileName)
 
-      const battleData = {
+      battleData = {
         title: title.trim(),
         challenger_id: user.id,
         opponent_id: selectedOpponent?.id || null,

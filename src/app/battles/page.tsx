@@ -529,9 +529,9 @@ export default function BattlesPage() {
         {filteredBattles.length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-400 mb-4">
-              <Sword className="w-12 h-12 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">No battles found</h3>
-              <p className="text-gray-400">There are no {activeTab} battles at the moment.</p>
+              <Sword className="w-10 h-10 mx-auto mb-3 text-gray-500" />
+              <h3 className="text-sm font-medium text-gray-400 mb-2">No battles found</h3>
+              <p className="text-gray-500 text-sm">There are no {activeTab} battles at the moment.</p>
             </div>
           </div>
         )}

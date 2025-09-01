@@ -664,9 +664,9 @@ export default function ArenaPage() {
               ) : getFilteredBattles().length === 0 ? (
                 <div className="text-center py-16">
                   <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-12 border border-white/10">
-                    <Mic className="w-16 h-16 text-gray-400 mx-auto mb-6" />
-                    <h3 className="text-2xl font-bold text-white mb-4">No Active Battles</h3>
-                    <p className="text-gray-300 mb-8 max-w-md mx-auto">
+                    <Mic className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-400 mb-3">No Active Battles</h3>
+                    <p className="text-gray-500 mb-8 max-w-md mx-auto text-sm">
                       No battles are currently active. Create a new battle or accept an open challenge!
                     </p>
                     <Button 
@@ -695,9 +695,9 @@ export default function ArenaPage() {
               ) : getFilteredBattles().length === 0 ? (
                 <div className="text-center py-16">
                   <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-12 border border-white/10">
-                    <Users className="w-16 h-16 text-gray-400 mx-auto mb-6" />
-                    <h3 className="text-2xl font-bold text-white mb-4">No Open Challenges</h3>
-                    <p className="text-gray-300 mb-8 max-w-md mx-auto">
+                    <Users className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-400 mb-3">No Open Challenges</h3>
+                    <p className="text-gray-500 mb-8 max-w-md mx-auto text-sm">
                       No one is looking for a battle right now. Create a challenge and wait for someone to accept!
                     </p>
                     <Button 
@@ -726,9 +726,9 @@ export default function ArenaPage() {
               ) : getFilteredBattles().length === 0 ? (
                 <div className="text-center py-16">
                   <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-12 border border-white/10">
-                    <Trophy className="w-16 h-16 text-gray-400 mx-auto mb-6" />
-                    <h3 className="text-2xl font-bold text-white mb-4">No Finished Battles</h3>
-                    <p className="text-gray-300 mb-8 max-w-md mx-auto">
+                    <Trophy className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-400 mb-3">No Finished Battles</h3>
+                    <p className="text-gray-500 mb-8 max-w-md mx-auto text-sm">
                       No battles have been completed yet. Create some battles and let the competition begin!
                     </p>
                     <Button 

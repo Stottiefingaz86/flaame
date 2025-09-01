@@ -388,8 +388,8 @@ export default function ProfilePage() {
                     </div>
                   ) : battles.length === 0 ? (
                     <div className="text-center py-8">
-                      <Trophy className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                      <p className="text-gray-400">No battles yet</p>
+                      <Trophy className="w-10 h-10 text-gray-500 mx-auto mb-3" />
+                      <p className="text-gray-500 text-sm">No battles yet</p>
                       <Button 
                         className="mt-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
                         onClick={() => router.push('/arena')}
@@ -439,8 +439,8 @@ export default function ProfilePage() {
                     </div>
                   ) : beats.length === 0 ? (
                     <div className="text-center py-8">
-                      <Music className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                      <p className="text-gray-400">No beats uploaded yet</p>
+                      <Music className="w-10 h-10 text-gray-500 mx-auto mb-3" />
+                      <p className="text-gray-500 text-sm">No beats uploaded yet</p>
                       <Button 
                         className="mt-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
                         onClick={() => router.push('/beats')}

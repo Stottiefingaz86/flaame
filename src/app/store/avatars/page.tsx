@@ -61,7 +61,7 @@ export default async function AvatarsStorePage() {
 
         {(!avatars || avatars.length === 0) && (
           <div className="text-center py-12">
-            <p className="text-gray-400">No avatars available</p>
+            <p className="text-gray-500 text-sm">No avatars available</p>
           </div>
         )}
       </div>

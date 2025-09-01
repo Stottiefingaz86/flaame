@@ -432,8 +432,8 @@ export default function UserProfilePage() {
             {battles.length === 0 ? (
               <Card className="bg-black/20 backdrop-blur-md border-white/10">
                 <CardContent className="p-8 text-center">
-                  <Mic className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-400">No battles yet</p>
+                  <Mic className="w-10 h-10 text-gray-500 mx-auto mb-3" />
+                  <p className="text-gray-500 text-sm">No battles yet</p>
                 </CardContent>
               </Card>
             ) : (

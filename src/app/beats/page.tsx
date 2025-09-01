@@ -520,9 +520,9 @@ export default function BeatsPage() {
         {filteredBeats.length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-400 mb-4">
-              <Music className="w-12 h-12 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">No beats found</h3>
-              <p className="text-gray-400">Try adjusting your search or filters.</p>
+              <Music className="w-10 h-10 mx-auto mb-3 text-gray-500" />
+              <h3 className="text-sm font-medium text-gray-400 mb-2">No beats found</h3>
+              <p className="text-gray-500 text-sm">Try adjusting your search or filters.</p>
             </div>
           </div>
                  )}

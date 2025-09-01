@@ -16,7 +16,6 @@ import {
   Crown,
   Users,
   X,
-
   Plus,
   Sword,
   Zap,
@@ -25,7 +24,12 @@ import {
   Maximize2,
   Settings,
   Gift,
-  Star
+  Star,
+  ChevronDown,
+  Volume2,
+  VolumeX,
+  Bell,
+  BellOff
 } from 'lucide-react'
 import { chatService, ChatMessage, BattleChallenge } from '@/lib/chat'
 import { supabase } from '@/lib/supabase/client'
@@ -64,14 +68,57 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
   const [pendingBattles, setPendingBattles] = useState<BattleChallenge[]>([])
   const [availableEmojis, setAvailableEmojis] = useState<Emoji[]>([])
   const [isSending, setIsSending] = useState(false)
+  const [showChatSettings, setShowChatSettings] = useState(false)
+  const [soundEnabled, setSoundEnabled] = useState(true)
+  const [muted, setMuted] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const settingsRef = useRef<HTMLDivElement>(null)
 
   // Expose chat state to parent components via CSS custom properties
   useEffect(() => {
     const chatWidth = !isOpen ? '0px' : '400px'
     document.documentElement.style.setProperty('--chat-width', chatWidth)
   }, [isOpen])
+
+  // Close settings dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
+        setShowChatSettings(false)
+      }
+    }
+
+    if (showChatSettings) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showChatSettings])
+
+  // Play notification sound
+  const playNotificationSound = () => {
+    if (!soundEnabled || muted) return
+    
+    // Create a simple notification sound using Web Audio API
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+    const oscillator = audioContext.createOscillator()
+    const gainNode = audioContext.createGain()
+    
+    oscillator.connect(gainNode)
+    gainNode.connect(audioContext.destination)
+    
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime)
+    oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1)
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2)
+    
+    oscillator.start(audioContext.currentTime)
+    oscillator.stop(audioContext.currentTime + 0.2)
+  }
 
 
 
@@ -100,6 +147,12 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
         // Check if message already exists to avoid duplicates
         const exists = prev.some(msg => msg.id === newMessage.id)
         if (exists) return prev
+        
+        // Play notification sound for new messages (not from current user)
+        if (newMessage.user_id !== user.id) {
+          playNotificationSound()
+        }
+        
         return [...prev, newMessage]
       })
     })
@@ -385,16 +438,56 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                   <p className="text-xs text-gray-400">Live battle talk</p>
                 </div>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 relative">
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={onToggle}
+                  onClick={() => setShowChatSettings(!showChatSettings)}
                   className="text-white hover:bg-white/10"
                 >
-                  <X className="w-4 h-4" />
+                  <Settings className="w-4 h-4" />
                 </Button>
 
+                {/* Chat Settings Dropdown */}
+                {showChatSettings && (
+                  <div ref={settingsRef} className="absolute top-10 right-0 w-48 bg-black/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl z-50">
+                    <div className="p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white text-sm">Notification Sounds</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSoundEnabled(!soundEnabled)}
+                          className="text-white hover:bg-white/10"
+                        >
+                          {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                        </Button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white text-sm">Mute Chat</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setMuted(!muted)}
+                          className="text-white hover:bg-white/10"
+                        >
+                          {muted ? <BellOff className="w-4 h-4" /> : <Bell className="w-4 h-4" />}
+                        </Button>
+                      </div>
+                      <div className="border-t border-white/10 pt-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={onToggle}
+                          className="w-full justify-start text-red-400 hover:bg-red-500/10"
+                        >
+                          <X className="w-4 h-4 mr-2" />
+                          Close Chat
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

@@ -25,7 +25,8 @@ import {
   Timer,
   ArrowRight,
   ChevronDown,
-  Search
+  Search,
+  CheckCircle
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { useLeague } from '@/contexts/LeagueContext'

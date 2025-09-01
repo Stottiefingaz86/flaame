@@ -194,7 +194,8 @@ function BattleCard({ battle }: { battle: Battle }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="bg-black/20 backdrop-blur-md border-white/10 overflow-hidden hover:bg-black/30 transition-all duration-300">
+      <Link href={`/battle/${battle.id}`}>
+        <Card className="bg-black/20 backdrop-blur-md border-white/10 overflow-hidden hover:bg-black/30 transition-all duration-300 cursor-pointer">
         <CardHeader className="flex flex-row items-center justify-between py-4 px-5">
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">
@@ -414,12 +415,10 @@ function BattleCard({ battle }: { battle: Battle }) {
               ) : (
                 <div className="text-sm text-gray-400">Sign in to vote</div>
               )}
-              <Link href={`/battles/${battle.id}`}>
-                <Button variant="ghost" className="w-full rounded-xl text-white hover:bg-white/10">
-                  <ArrowRight className="h-4 w-4 mr-2" />
-                  View Battle Details
-                </Button>
-              </Link>
+              <Button variant="ghost" className="w-full rounded-xl text-white hover:bg-white/10">
+                <ArrowRight className="h-4 w-4 mr-2" />
+                View Battle Details
+              </Button>
             </div>
           ) : (
             <div className="w-full flex items-center justify-between">
@@ -427,16 +426,15 @@ function BattleCard({ battle }: { battle: Battle }) {
                 <Crown className="h-4 w-4 text-yellow-400" />
                 Winner: <span className="font-semibold ml-1 text-white">{battle.winner}</span>
               </div>
-              <Link href={`/battles/${battle.id}`}>
-                <Button variant="ghost" className="rounded-xl text-white hover:bg-white/10">
-                  <ArrowRight className="h-4 w-4 mr-2" />
-                  View Details
-                </Button>
-              </Link>
+              <Button variant="ghost" className="rounded-xl text-white hover:bg-white/10">
+                <ArrowRight className="h-4 w-4 mr-2" />
+                View Details
+              </Button>
             </div>
           )}
         </div>
       </Card>
+      </Link>
     </motion.div>
   )
 }
@@ -517,7 +515,8 @@ export default function ArenaPage() {
     // Filter by active tab
     switch (activeTab) {
       case 'active':
-        return filtered.filter(b => b.status === 'active')
+        // Show all battles that are not finished (active + pending)
+        return filtered.filter(b => b.status === 'active' || b.status === 'pending')
       case 'open':
         return filtered.filter(b => b.status === 'pending')
       case 'finished':
@@ -668,7 +667,7 @@ export default function ArenaPage() {
                     <Mic className="w-16 h-16 text-gray-400 mx-auto mb-6" />
                     <h3 className="text-2xl font-bold text-white mb-4">No Active Battles</h3>
                     <p className="text-gray-300 mb-8 max-w-md mx-auto">
-                      Be the first to create an epic battle! Challenge other rappers and show off your skills.
+                      No battles are currently active. Create a new battle or accept an open challenge!
                     </p>
                     <Button 
                       onClick={() => setShowCreateModal(true)}

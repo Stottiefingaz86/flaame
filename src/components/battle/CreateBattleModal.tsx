@@ -53,11 +53,14 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
   const [title, setTitle] = useState('')
   const [selectedBeat, setSelectedBeat] = useState<Beat | null>(null)
   const [selectedOpponent, setSelectedOpponent] = useState<User | null>(null)
+  const [battleTrack, setBattleTrack] = useState<File | null>(null)
+  const [lyrics, setLyrics] = useState('')
   const [beats, setBeats] = useState<Beat[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
+  const [isUploadingTrack, setIsUploadingTrack] = useState(false)
 
   // Load beats and users
   useEffect(() => {
@@ -189,13 +192,32 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
       return
     }
 
+    if (!battleTrack) {
+      alert('Please upload your battle track.')
+      return
+    }
+
     setIsCreating(true)
     try {
+      // Upload the battle track
+      const fileExt = battleTrack.name.split('.').pop()
+      const trackFileName = `${user.id}-${Date.now()}.${fileExt}`
+      
+      const { error: trackUploadError } = await supabase.storage
+        .from('audio')
+        .upload(`battles/${trackFileName}`, battleTrack)
+      
+      if (trackUploadError) {
+        throw new Error(`Failed to upload track: ${trackUploadError.message}`)
+      }
+
       const battleData = {
         title: title.trim(),
         challenger_id: user.id,
         opponent_id: selectedOpponent?.id || null,
         beat_id: selectedBeat.id,
+        challenger_track: `battles/${trackFileName}`,
+        challenger_lyrics: lyrics.trim() || null,
         status: selectedOpponent ? 'active' : 'pending',
         created_at: new Date().toISOString(),
         ends_at: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString() // 6 days from now
@@ -216,6 +238,7 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
       console.error('Battle data:', battleData)
       console.error('User:', user)
       console.error('Selected beat:', selectedBeat)
+      console.error('Battle track:', battleTrack)
       
       let errorMessage = 'Failed to create battle. Please try again.'
       
@@ -231,11 +254,39 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
     }
   }
 
+  const handleTrackUpload = async (file: File) => {
+    try {
+      setIsUploadingTrack(true)
+      
+      // Upload to Supabase Storage
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${user?.id}-${Date.now()}.${fileExt}`
+      
+      const { error: uploadError } = await supabase.storage
+        .from('audio')
+        .upload(`battles/${fileName}`, file)
+      
+      if (uploadError) {
+        throw uploadError
+      }
+      
+      setBattleTrack(file)
+      console.log('Track uploaded successfully:', fileName)
+    } catch (error) {
+      console.error('Error uploading track:', error)
+      alert('Failed to upload track. Please try again.')
+    } finally {
+      setIsUploadingTrack(false)
+    }
+  }
+
   const resetForm = () => {
     setStep(1)
     setTitle('')
     setSelectedBeat(null)
     setSelectedOpponent(null)
+    setBattleTrack(null)
+    setLyrics('')
     setSearchQuery('')
   }
 
@@ -258,7 +309,7 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
           <div className="flex items-center justify-between p-6 border-b border-white/10">
             <div>
               <h2 className="text-2xl font-bold text-white">Create Battle</h2>
-              <p className="text-gray-400">Step {step} of 3</p>
+              <p className="text-gray-400">Step {step} of 5</p>
             </div>
             <Button
               variant="ghost"
@@ -458,11 +509,132 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
                     Back
                   </Button>
                   <Button
+                    onClick={() => setStep(4)}
+                    className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {step === 4 && (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xl font-semibold text-white mb-4">Upload Your Battle Track</h3>
+                  <p className="text-gray-400 mb-4">
+                    Upload your rap track for this battle. Supported formats: MP3, WAV, M4A
+                  </p>
+                </div>
+
+                <div className="border-2 border-dashed border-white/20 rounded-lg p-8 text-center">
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        handleTrackUpload(file)
+                      }
+                    }}
+                    className="hidden"
+                    id="track-upload"
+                    disabled={isUploadingTrack}
+                  />
+                  <label htmlFor="track-upload" className="cursor-pointer">
+                    <div className="space-y-4">
+                      <div className="mx-auto w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center">
+                        <Music className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-white font-medium">
+                          {battleTrack ? battleTrack.name : 'Click to upload your track'}
+                        </p>
+                        <p className="text-gray-400 text-sm">
+                          {isUploadingTrack ? 'Uploading...' : 'MP3, WAV, M4A up to 10MB'}
+                        </p>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+
+                {battleTrack && (
+                  <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-green-400 text-sm">Track uploaded successfully!</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-between">
+                  <Button
+                    variant="outline"
+                    onClick={() => setStep(3)}
+                    className="border-white/20 hover:bg-white/10"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    onClick={() => setStep(5)}
+                    disabled={!battleTrack}
+                    className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {step === 5 && (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xl font-semibold text-white mb-4">Add Your Lyrics (Optional)</h3>
+                  <p className="text-gray-400 mb-4">
+                    Share your lyrics with the audience. This helps people understand your bars and vote better.
+                  </p>
+                </div>
+
+                <div>
+                  <textarea
+                    value={lyrics}
+                    onChange={(e) => setLyrics(e.target.value)}
+                    placeholder="Enter your lyrics here... (Optional)"
+                    className="w-full h-40 p-4 bg-black/20 border border-white/20 rounded-lg text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  />
+                  <p className="text-gray-400 text-sm mt-2">
+                    {lyrics.length} characters
+                  </p>
+                </div>
+
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-white text-xs">i</span>
+                    </div>
+                    <div>
+                      <p className="text-blue-300 text-sm font-medium">Pro Tip</p>
+                      <p className="text-blue-200 text-sm">
+                        Adding lyrics helps voters understand your wordplay and flow, potentially increasing your chances of winning!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-between">
+                  <Button
+                    variant="outline"
+                    onClick={() => setStep(4)}
+                    className="border-white/20 hover:bg-white/10"
+                  >
+                    Back
+                  </Button>
+                  <Button
                     onClick={handleCreateBattle}
                     disabled={isCreating}
                     className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
                   >
-                    {isCreating ? 'Creating...' : 'Create Battle'}
+                    {isCreating ? 'Creating Battle...' : 'Create Battle'}
                   </Button>
                 </div>
               </div>

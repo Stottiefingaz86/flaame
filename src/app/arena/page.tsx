@@ -113,6 +113,8 @@ function BattleCard({ battle }: { battle: Battle }) {
   const [isPlayingChallenger, setIsPlayingChallenger] = useState(false)
   const [isPlayingOpponent, setIsPlayingOpponent] = useState(false)
   const [showAcceptModal, setShowAcceptModal] = useState(false)
+  const [challengerAudio, setChallengerAudio] = useState<HTMLAudioElement | null>(null)
+  const [opponentAudio, setOpponentAudio] = useState<HTMLAudioElement | null>(null)
   const isActive = battle.status === 'active'
   const isOpen = battle.status === 'pending'
   const isFinished = battle.status === 'closed'
@@ -195,19 +197,97 @@ function BattleCard({ battle }: { battle: Battle }) {
   }
 
   const handlePlayChallenger = () => {
-    if (battle.challenger_track) {
-      setIsPlayingChallenger(!isPlayingChallenger)
-      // Here you would implement actual audio playback
-      console.log('Playing challenger track:', battle.challenger_track)
+    if (!battle.challenger_track) {
+      alert('No challenger track available')
+      return
     }
+
+    if (isPlayingChallenger) {
+      // Stop playing
+      if (challengerAudio) {
+        challengerAudio.pause()
+        challengerAudio.currentTime = 0
+      }
+      setIsPlayingChallenger(false)
+      return
+    }
+
+    // Stop opponent audio if playing
+    if (opponentAudio) {
+      opponentAudio.pause()
+      opponentAudio.currentTime = 0
+      setIsPlayingOpponent(false)
+    }
+
+    // Get the full URL for the challenger track
+    const { data: urlData } = supabase.storage
+      .from('audio')
+      .getPublicUrl(battle.challenger_track)
+    
+    const audioUrl = urlData.publicUrl
+
+    // Create and play challenger audio
+    const audio = new Audio(audioUrl)
+    audio.addEventListener('ended', () => setIsPlayingChallenger(false))
+    audio.addEventListener('error', () => {
+      console.error('Error playing challenger track')
+      setIsPlayingChallenger(false)
+    })
+    
+    audio.play().then(() => {
+      setChallengerAudio(audio)
+      setIsPlayingChallenger(true)
+    }).catch((error) => {
+      console.error('Failed to play challenger track:', error)
+      alert('Failed to play track. Please try again.')
+    })
   }
 
   const handlePlayOpponent = () => {
-    if (battle.opponent_track) {
-      setIsPlayingOpponent(!isPlayingOpponent)
-      // Here you would implement actual audio playback
-      console.log('Playing opponent track:', battle.opponent_track)
+    if (!battle.opponent_track) {
+      alert('No opponent track available')
+      return
     }
+
+    if (isPlayingOpponent) {
+      // Stop playing
+      if (opponentAudio) {
+        opponentAudio.pause()
+        opponentAudio.currentTime = 0
+      }
+      setIsPlayingOpponent(false)
+      return
+    }
+
+    // Stop challenger audio if playing
+    if (challengerAudio) {
+      challengerAudio.pause()
+      challengerAudio.currentTime = 0
+      setIsPlayingChallenger(false)
+    }
+
+    // Get the full URL for the opponent track
+    const { data: urlData } = supabase.storage
+      .from('audio')
+      .getPublicUrl(battle.opponent_track)
+    
+    const audioUrl = urlData.publicUrl
+
+    // Create and play opponent audio
+    const audio = new Audio(audioUrl)
+    audio.addEventListener('ended', () => setIsPlayingOpponent(false))
+    audio.addEventListener('error', () => {
+      console.error('Error playing opponent track')
+      setIsPlayingOpponent(false)
+    })
+    
+    audio.play().then(() => {
+      setOpponentAudio(audio)
+      setIsPlayingOpponent(true)
+    }).catch((error) => {
+      console.error('Failed to play opponent track:', error)
+      alert('Failed to play track. Please try again.')
+    })
   }
 
   const handleAcceptBattle = () => {
@@ -357,8 +437,11 @@ function BattleCard({ battle }: { battle: Battle }) {
               variant="outline" 
               className="w-full rounded-xl border-white/20 hover:bg-white/10 text-white"
               onClick={() => {
-                if (battle.beat?.audio_url) {
-                  window.open(battle.beat.audio_url, '_blank')
+                if (battle.beat?.file_path) {
+                  const { data: urlData } = supabase.storage
+                    .from('audio')
+                    .getPublicUrl(battle.beat.file_path)
+                  window.open(urlData.publicUrl, '_blank')
                 } else {
                   alert('Beat download not available')
                 }

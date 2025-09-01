@@ -28,6 +28,7 @@ interface LeaderboardEntry {
   isChampion?: boolean
 }
 
+// No mock data - using real data from database
 const mockLeaderboardData: LeaderboardEntry[] = [
   {
     id: '1',
@@ -313,8 +314,8 @@ export default function LeaderboardPage() {
       setLeaderboardData(leaderboardEntries)
     } catch (error) {
       console.error('Error loading leaderboard:', error)
-      // Fallback to mock data if there's an error
-      setLeaderboardData(mockLeaderboardData)
+      // Fallback to empty array if there's an error
+      setLeaderboardData([])
     } finally {
       setIsLoading(false)
     }

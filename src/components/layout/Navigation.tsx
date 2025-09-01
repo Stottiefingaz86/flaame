@@ -121,7 +121,7 @@ export default function Navigation() {
         </div>
 
                      {/* Right Side */}
-             <div className="flex items-center gap-3 transition-all duration-300" style={{ marginRight: 'var(--chat-width, 320px)' }}>
+             <div className="flex items-center gap-3 transition-all duration-300" style={{ marginRight: 'var(--chat-width, 280px)' }}>
                {!isLoading && (
                  <>
                    {user ? (
@@ -137,15 +137,6 @@ export default function Navigation() {
                          </Button>
                        </Link>
 
-                       {/* Chat Toggle Button */}
-                       <Button 
-                         onClick={toggleChat}
-                         variant="ghost" 
-                         className="p-2 rounded-full border border-white/20 hover:border-white/30 hover:bg-white/10 transition-all duration-200"
-                       >
-                         <MessageCircle className="w-5 h-5 text-white" />
-                       </Button>
-
                        {/* User Menu */}
                        <div className="relative group">
                          <Button 
@@ -158,6 +149,15 @@ export default function Navigation() {
                                {user.username.charAt(0).toUpperCase()}
                              </AvatarFallback>
                            </Avatar>
+                         </Button>
+
+                         {/* Chat Toggle Button */}
+                         <Button 
+                           onClick={toggleChat}
+                           variant="ghost" 
+                           className="ml-2 p-2 rounded-full border border-white/20 hover:border-white/30 hover:bg-white/10 transition-all duration-200"
+                         >
+                           <MessageCircle className="w-4 h-4 text-white" />
                          </Button>
 
                          {/* Dropdown Menu */}

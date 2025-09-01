@@ -147,10 +147,11 @@ export default function ProfilePage() {
         return
       }
 
-      // Update profile with new avatar
+      // Update profile with new avatar filename (without extension for UUID compatibility)
+      const avatarFilename = fileName.split('.')[0] // Remove file extension
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ avatar_id: fileName })
+        .update({ avatar_id: avatarFilename })
         .eq('id', user.id)
 
       if (updateError) {

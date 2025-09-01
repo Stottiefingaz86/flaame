@@ -432,6 +432,7 @@ export default function ArenaPage() {
   const [isLeagueDropdownOpen, setIsLeagueDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchExpanded, setIsSearchExpanded] = useState(false)
+  const [showCreateBattleModal, setShowCreateBattleModal] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Close dropdown when clicking outside
@@ -493,7 +494,11 @@ export default function ArenaPage() {
             Each battle runs for 6 days from creation - create new challenges or accept existing ones.
           </p>
           <div className="flex items-center justify-center">
-            <Button size="lg" className="px-8 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white">
+            <Button 
+              size="lg" 
+              className="px-8 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
+              onClick={() => setShowCreateBattleModal(true)}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Create Battle
             </Button>
@@ -608,10 +613,21 @@ export default function ArenaPage() {
         <Button 
           size="lg" 
           className="rounded-full w-16 h-16 shadow-2xl hover:scale-110 transition-transform duration-200 bg-white/20 hover:bg-white/30 text-white border border-white/30"
+          onClick={() => setShowCreateBattleModal(true)}
         >
           <Plus className="w-6 h-6" />
         </Button>
       </motion.div>
+
+      {/* Create Battle Modal */}
+      <CreateBattleModal
+        isOpen={showCreateBattleModal}
+        onClose={() => setShowCreateBattleModal(false)}
+        onBattleCreated={() => {
+          // Refresh battles or show success message
+          console.log('Battle created successfully!')
+        }}
+      />
     </div>
   )
 }

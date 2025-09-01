@@ -16,7 +16,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen)
     // Update CSS variable for chat width
-    document.documentElement.style.setProperty('--chat-width', isChatOpen ? '0px' : '240px')
+    document.documentElement.style.setProperty('--chat-width', isChatOpen ? '0px' : '320px')
   }
 
   return (

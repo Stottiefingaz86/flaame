@@ -69,7 +69,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
 
   // Expose chat state to parent components via CSS custom properties
   useEffect(() => {
-    const chatWidth = isMinimized ? '0px' : '240px'
+    const chatWidth = isMinimized ? '0px' : '320px'
     document.documentElement.style.setProperty('--chat-width', chatWidth)
   }, [isMinimized])
 

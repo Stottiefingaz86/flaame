@@ -121,7 +121,7 @@ export default function Navigation() {
         </div>
 
                      {/* Right Side */}
-             <div className="flex items-center gap-3 transition-all duration-300" style={{ marginRight: 'var(--chat-width, 240px)' }}>
+             <div className="flex items-center gap-3 transition-all duration-300" style={{ marginRight: 'var(--chat-width, 320px)' }}>
                {!isLoading && (
                  <>
                    {user ? (
@@ -137,29 +137,32 @@ export default function Navigation() {
                          </Button>
                        </Link>
 
-                       {/* User Menu */}
-                       <div className="relative group">
-                         <Button 
-                           variant="ghost" 
-                           className="p-1 rounded-full border border-white/20 hover:border-white/30 hover:bg-white/10 transition-all duration-200"
-                         >
-                           <Avatar className="h-8 w-8">
-                             <AvatarImage src={user.avatar_id ? `/api/avatars/${user.avatar_id}` : undefined} />
-                             <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-                               {user.username.charAt(0).toUpperCase()}
-                             </AvatarFallback>
-                           </Avatar>
-                         </Button>
+                       {/* User Menu and Chat Toggle */}
+                       <div className="flex items-center gap-2">
+                         <div className="relative group">
+                           <Button 
+                             variant="ghost" 
+                             className="p-1 rounded-full border border-white/20 hover:border-white/30 hover:bg-white/10 transition-all duration-200"
+                           >
+                             <Avatar className="h-8 w-8">
+                               <AvatarImage src={user.avatar_id ? `/api/avatars/${user.avatar_id}` : undefined} />
+                               <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                                 {user.username.charAt(0).toUpperCase()}
+                               </AvatarFallback>
+                             </Avatar>
+                           </Button>
+                         </div>
 
                          {/* Chat Toggle Button */}
                          <Button 
                            onClick={toggleChat}
                            variant="ghost" 
-                           className="ml-2 p-1 rounded-full border border-white/20 hover:border-white/30 hover:bg-white/10 transition-all duration-200"
+                           className="p-1 rounded-full border border-white/20 hover:border-white/30 hover:bg-white/10 transition-all duration-200"
                            size="icon"
                          >
                            <MessageCircle className="w-4 h-4 text-white" />
                          </Button>
+                       </div>
 
                          {/* Dropdown Menu */}
                          <div className="absolute right-0 top-full mt-2 w-64 bg-black/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">

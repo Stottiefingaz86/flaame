@@ -213,7 +213,18 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
       resetForm()
     } catch (error: any) {
       console.error('Error creating battle:', error)
-      const errorMessage = error?.message || 'Failed to create battle. Please try again.'
+      console.error('Battle data:', battleData)
+      console.error('User:', user)
+      console.error('Selected beat:', selectedBeat)
+      
+      let errorMessage = 'Failed to create battle. Please try again.'
+      
+      if (error?.message) {
+        errorMessage = error.message
+      } else if (error?.code) {
+        errorMessage = `Database error: ${error.code}`
+      }
+      
       alert(`Error: ${errorMessage}`)
     } finally {
       setIsCreating(false)

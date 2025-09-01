@@ -260,7 +260,7 @@ CREATE INDEX idx_profiles_instagram_id ON profiles(instagram_id);
 CREATE INDEX idx_beats_uploader ON beats(uploader_id);
 CREATE INDEX idx_beats_free ON beats(is_free);
 CREATE INDEX idx_battles_status ON battles(status);
-CREATE INDEX idx_battles_creator ON battles(creator_id);
+CREATE INDEX idx_battles_creator ON battles(challenger_id);
 CREATE INDEX idx_battle_entries_battle ON battle_entries(battle_id);
 CREATE INDEX idx_votes_battle ON votes(battle_id);
 CREATE INDEX idx_votes_voter ON votes(voter_id);
@@ -418,9 +418,9 @@ CREATE POLICY "Users can purchase licenses" ON beat_licenses FOR INSERT WITH CHE
 
 -- Battles policies
 CREATE POLICY "Anyone can view active battles" ON battles FOR SELECT USING (status IN ('active', 'closed'));
-CREATE POLICY "Users can view own created battles" ON battles FOR SELECT USING (auth.uid() = creator_id);
-CREATE POLICY "Users can create battles" ON battles FOR INSERT WITH CHECK (auth.uid() = creator_id);
-CREATE POLICY "Users can update own battles" ON battles FOR UPDATE USING (auth.uid() = creator_id);
+CREATE POLICY "Users can view own created battles" ON battles FOR SELECT USING (auth.uid() = challenger_id);
+CREATE POLICY "Users can create battles" ON battles FOR INSERT WITH CHECK (auth.uid() = challenger_id);
+CREATE POLICY "Users can update own battles" ON battles FOR UPDATE USING (auth.uid() = challenger_id);
 
 -- Battle entries policies
 CREATE POLICY "Anyone can view battle entries" ON battle_entries FOR SELECT USING (true);

@@ -670,6 +670,7 @@ export default function ArenaPage() {
                     <p className="text-gray-500 mb-8 max-w-md mx-auto text-sm">
                       No battles are currently active. Create a new battle or accept an open challenge!
                     </p>
+                    <div className="text-xs text-gray-600 mt-2">Updated styling - more subtle</div>
                     <Button 
                       onClick={() => setShowCreateModal(true)}
                       className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"

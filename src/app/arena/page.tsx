@@ -1,5 +1,6 @@
 'use client'
 
+// Arena page with subtle placeholder styling
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'

@@ -53,15 +53,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate file type
-    const allowedTypes = ['audio/mpeg', 'audio/wav', 'audio/mp3', 'audio/aac']
+    const allowedTypes = ['audio/mpeg', 'audio/wav', 'audio/mp3', 'audio/aac', 'video/mp4', 'video/quicktime']
     if (!allowedTypes.includes(audioFile.type)) {
-      return NextResponse.json({ error: 'Invalid file type. Only MP3, WAV, and AAC files are allowed.' }, { status: 400 })
+      return NextResponse.json({ error: 'Invalid file type. Only MP3, WAV, AAC, MP4, and MOV files are allowed.' }, { status: 400 })
     }
 
-    // Validate file size (10MB max)
-    const maxSize = 10 * 1024 * 1024 // 10MB
+    // Validate file size (100MB max)
+    const maxSize = 100 * 1024 * 1024 // 100MB
     if (audioFile.size > maxSize) {
-      return NextResponse.json({ error: 'File size too large. Maximum size is 10MB.' }, { status: 400 })
+      return NextResponse.json({ error: 'File size too large. Maximum size is 100MB.' }, { status: 400 })
     }
 
     // Generate unique filename

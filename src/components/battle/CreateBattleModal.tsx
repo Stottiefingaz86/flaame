@@ -523,14 +523,14 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-4">Upload Your Battle Track</h3>
                   <p className="text-gray-400 mb-4">
-                    Upload your rap track for this battle. Supported formats: MP3, WAV, M4A
+                    Upload your rap track for this battle. Supported formats: MP3, WAV, M4A, MP4, MOV
                   </p>
                 </div>
 
                 <div className="border-2 border-dashed border-white/20 rounded-lg p-8 text-center">
                   <input
                     type="file"
-                    accept="audio/*"
+                    accept="audio/*,video/*"
                     onChange={(e) => {
                       const file = e.target.files?.[0]
                       if (file) {
@@ -551,7 +551,7 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
                           {battleTrack ? battleTrack.name : 'Click to upload your track'}
                         </p>
                         <p className="text-gray-400 text-sm">
-                          {isUploadingTrack ? 'Uploading...' : 'MP3, WAV, M4A up to 10MB'}
+                          {isUploadingTrack ? 'Uploading...' : 'MP3, WAV, M4A, MP4, MOV up to 100MB'}
                         </p>
                       </div>
                     </div>

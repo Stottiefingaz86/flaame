@@ -43,16 +43,16 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
     const file = event.target.files?.[0]
     if (file) {
       // Validate file type
-      const allowedTypes = ['audio/mpeg', 'audio/wav', 'audio/mp3', 'audio/aac']
+      const allowedTypes = ['audio/mpeg', 'audio/wav', 'audio/mp3', 'audio/aac', 'video/mp4', 'video/quicktime']
       if (!allowedTypes.includes(file.type)) {
-        setErrors({ file: 'Invalid file type. Only MP3, WAV, and AAC files are allowed.' })
+        setErrors({ file: 'Invalid file type. Only MP3, WAV, AAC, MP4, and MOV files are allowed.' })
         return
       }
 
-      // Validate file size (10MB max)
-      const maxSize = 10 * 1024 * 1024 // 10MB
+      // Validate file size (100MB max)
+      const maxSize = 100 * 1024 * 1024 // 100MB
       if (file.size > maxSize) {
-        setErrors({ file: 'File size too large. Maximum size is 10MB.' })
+        setErrors({ file: 'File size too large. Maximum size is 100MB.' })
         return
       }
 

@@ -69,7 +69,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
 
   // Expose chat state to parent components via CSS custom properties
   useEffect(() => {
-    const chatWidth = isMinimized ? '0px' : '280px'
+    const chatWidth = isMinimized ? '0px' : '240px'
     document.documentElement.style.setProperty('--chat-width', chatWidth)
   }, [isMinimized])
 
@@ -372,7 +372,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="w-[var(--chat-width)] bg-black/95 backdrop-blur-xl border-l border-white/10 flex flex-col shadow-2xl min-h-[calc(100vh-80px)]"
+            className="w-[var(--chat-width)] bg-black/95 backdrop-blur-xl border-l border-white/10 flex flex-col shadow-2xl h-[calc(100vh-80px)]"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-white/10 bg-black/50">

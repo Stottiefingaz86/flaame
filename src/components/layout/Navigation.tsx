@@ -121,7 +121,7 @@ export default function Navigation() {
         </div>
 
                      {/* Right Side */}
-             <div className="flex items-center gap-3 transition-all duration-300" style={{ marginRight: 'var(--chat-width, 280px)' }}>
+             <div className="flex items-center gap-3 transition-all duration-300" style={{ marginRight: 'var(--chat-width, 240px)' }}>
                {!isLoading && (
                  <>
                    {user ? (
@@ -155,7 +155,8 @@ export default function Navigation() {
                          <Button 
                            onClick={toggleChat}
                            variant="ghost" 
-                           className="ml-2 p-2 rounded-full border border-white/20 hover:border-white/30 hover:bg-white/10 transition-all duration-200"
+                           className="ml-2 p-1 rounded-full border border-white/20 hover:border-white/30 hover:bg-white/10 transition-all duration-200"
+                           size="icon"
                          >
                            <MessageCircle className="w-4 h-4 text-white" />
                          </Button>

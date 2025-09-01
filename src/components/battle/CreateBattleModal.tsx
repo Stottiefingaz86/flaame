@@ -26,10 +26,11 @@ interface Beat {
   id: string
   title: string
   artist: string
-  price: number
-  audio_url: string
+  cost_flames: number
   duration: number
-  tags: string[]
+  is_free: boolean
+  is_available: boolean
+  file_path?: string
 }
 
 interface User {
@@ -72,6 +73,7 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
         .from('beats')
         .select('*')
         .eq('is_free', true)
+        .eq('is_available', true)
         .order('created_at', { ascending: false })
         .limit(20)
 
@@ -108,7 +110,7 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
         challenger_id: user.id,
         opponent_id: selectedOpponent?.id || null,
         beat_id: selectedBeat.id,
-        status: selectedOpponent ? 'ACTIVE' : 'OPEN',
+        status: selectedOpponent ? 'active' : 'pending',
         created_at: new Date().toISOString(),
         ends_at: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString() // 6 days from now
       }
@@ -237,10 +239,10 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
                             <p className="text-gray-400 text-sm">by {beat.artist}</p>
                             <div className="flex items-center gap-2 mt-2">
                               <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
-                                Free
+                                {beat.is_free ? 'Free' : `${beat.cost_flames} flames`}
                               </Badge>
                               <span className="text-gray-400 text-xs">
-                                {Math.floor(beat.duration / 60)}:{(beat.duration % 60).toString().padStart(2, '0')}
+                                {beat.duration ? `${Math.floor(beat.duration / 60)}:${(beat.duration % 60).toString().padStart(2, '0')}` : 'Unknown duration'}
                               </span>
                             </div>
                           </div>

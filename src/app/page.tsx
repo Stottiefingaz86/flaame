@@ -39,9 +39,8 @@ export default function HomePage() {
             <img
               src="/flaame_logo.png"
               alt="Flaame"
-              className="h-16"
+              className="h-20"
             />
-            <h1 className="text-6xl font-bold text-white">Flaame</h1>
           </div>
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
             The ultimate hip-hop battle platform where rappers compete, earn flames, 

@@ -48,7 +48,12 @@ interface Emoji {
   isUnlocked: boolean
 }
 
-export default function ChatPanel() {
+interface ChatPanelProps {
+  isOpen?: boolean
+  onToggle?: () => void
+}
+
+export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = {}) {
   const [isMinimized, setIsMinimized] = useState(false)
   const [message, setMessage] = useState('')
   const { user, isLoading } = useUser()
@@ -349,6 +354,10 @@ export default function ChatPanel() {
         </div>
       </div>
     )
+  }
+
+  if (!isOpen) {
+    return null
   }
 
   return (

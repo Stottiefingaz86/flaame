@@ -6,6 +6,7 @@ import { AudioProvider } from '@/contexts/AudioContext'
 import { LeagueProvider } from '@/contexts/LeagueContext'
 import { UserProvider } from '@/contexts/UserContext'
 import { LoadingProvider } from '@/contexts/LoadingContext'
+import { ChatProvider } from '@/contexts/ChatContext'
 import PersistentPlayer from '@/components/audio/PersistentPlayer'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -27,10 +28,12 @@ export default function RootLayout({
           <UserProvider>
             <AudioProvider>
               <LeagueProvider>
-                <AppLayout>
-                  {children}
-                </AppLayout>
-                <PersistentPlayer />
+                <ChatProvider>
+                  <AppLayout>
+                    {children}
+                  </AppLayout>
+                  <PersistentPlayer />
+                </ChatProvider>
               </LeagueProvider>
             </AudioProvider>
           </UserProvider>

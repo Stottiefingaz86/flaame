@@ -19,11 +19,13 @@ import {
   Settings,
   Sword,
   ShoppingCart,
-  BookOpen
+  BookOpen,
+  MessageCircle
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { useUser } from '@/contexts/UserContext'
+import { useChat } from '@/contexts/ChatContext'
 import { clearAuthCache } from '@/utils/auth'
 
 interface User {
@@ -40,6 +42,7 @@ export default function Navigation() {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { user, isLoading } = useUser()
+  const { isChatOpen, toggleChat } = useChat()
 
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
@@ -133,6 +136,15 @@ export default function Navigation() {
                            <span className="text-white font-semibold">{user.flames.toLocaleString()}</span>
                          </Button>
                        </Link>
+
+                       {/* Chat Toggle Button */}
+                       <Button 
+                         onClick={toggleChat}
+                         variant="ghost" 
+                         className="p-2 rounded-full border border-white/20 hover:border-white/30 hover:bg-white/10 transition-all duration-200"
+                       >
+                         <MessageCircle className="w-5 h-5 text-white" />
+                       </Button>
 
                        {/* User Menu */}
                        <div className="relative group">

@@ -4,6 +4,7 @@ import { ReactNode } from 'react'
 import Navigation from './Navigation'
 import ChatPanel from '../chat/ChatPanel'
 import { useAudio } from '@/contexts/AudioContext'
+import { useChat } from '@/contexts/ChatContext'
 
 interface AppLayoutProps {
   children: ReactNode
@@ -11,6 +12,7 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const { currentTrack } = useAudio()
+  const { isChatOpen } = useChat()
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
@@ -32,8 +34,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
           {children}
         </main>
 
-        {/* Chat Panel - Always Visible */}
-        <ChatPanel />
+        {/* Chat Panel - Controlled by Navigation */}
+        <ChatPanel isOpen={isChatOpen} />
       </div>
 
       {/* Footer */}

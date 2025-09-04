@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -10,108 +10,92 @@ import {
   Pause, 
   Download, 
   Heart,
-  Volume2,
-  Clock,
-  Music
+  Clock
 } from 'lucide-react'
-import WaveSurfer from 'wavesurfer.js'
+import { createClient } from '@supabase/supabase-js'
+import { useUser } from '@/contexts/UserContext'
+import Link from 'next/link'
 
 interface Beat {
   id: string
   title: string
-  artist: string
   description: string
-  bpm: number
-  key: string
-  genre: string
-  duration: number
-  price: number
   is_free: boolean
+  cost_flames?: number
   download_count: number
-  rating: number
-  tags: string[]
-
+  like_count: number
   audio_url: string
-  waveform_url?: string
   created_at: string
+  uploader_id: string
+  duration?: number
   producer: {
     id: string
     username: string
     avatar_id?: string
-    is_verified: boolean
   }
 }
 
 interface BeatCardProps {
   beat: Beat
-  onPlay?: (beatId: string) => void
-  isPlaying?: boolean
-  isCurrentBeat?: boolean
+  onPlay: (beatId: string) => void
+  isPlaying: boolean
+  isCurrentBeat: boolean
 }
 
 export default function BeatCard({ beat, onPlay, isPlaying, isCurrentBeat }: BeatCardProps) {
+  const { user } = useUser()
   const [isLiked, setIsLiked] = useState(false)
+  const [localLikeCount, setLocalLikeCount] = useState(beat.like_count || 0)
   const [isDownloading, setIsDownloading] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
-  const [isLoaded, setIsLoaded] = useState(false)
-  
-  const waveformRef = useRef<HTMLDivElement>(null)
-  const wavesurferRef = useRef<WaveSurfer | null>(null)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [forceUpdate, setForceUpdate] = useState(false)
 
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+
+  // Check like status on mount - FIXED: removed supabase dependency to prevent infinite loop
   useEffect(() => {
-    if (waveformRef.current && !wavesurferRef.current) {
-      wavesurferRef.current = WaveSurfer.create({
-        container: waveformRef.current,
-        waveColor: '#4B5563',
-        progressColor: '#F97316',
-        cursorColor: '#F97316',
-        barWidth: 2,
-        barRadius: 3,
-        cursorWidth: 1,
-        height: 60,
-        barGap: 2,
-      })
-
-      wavesurferRef.current.load(beat.audio_url)
+    const checkLikeStatus = async () => {
+      if (!user) {
+        return
+      }
       
-      wavesurferRef.current.on('ready', () => {
-        setIsLoaded(true)
-        setDuration(wavesurferRef.current!.getDuration())
-      })
+      try {
+        const { data, error } = await supabase
+          .from('beat_likes')
+          .select('*')
+          .eq('beat_id', beat.id)
+          .eq('user_id', user.id)
+          .single()
 
-      wavesurferRef.current.on('audioprocess', () => {
-        setCurrentTime(wavesurferRef.current!.getCurrentTime())
-      })
+        if (error && error.code !== 'PGRST116') { // PGRST116 means no rows found
+          setIsLiked(false)
+          return
+        }
 
-      wavesurferRef.current.on('finish', () => {
-        setCurrentTime(0)
-        if (onPlay) onPlay('')
-      })
-    }
-
-    return () => {
-      if (wavesurferRef.current) {
-        wavesurferRef.current.destroy()
-        wavesurferRef.current = null
+        setIsLiked(!!data) // Set to true if data exists, false otherwise
+      } catch (error) {
+        setIsLiked(false)
       }
     }
-  }, [beat.audio_url, onPlay])
 
-  useEffect(() => {
-    if (wavesurferRef.current) {
-      if (isPlaying && isCurrentBeat) {
-        wavesurferRef.current.play()
-      } else {
-        wavesurferRef.current.pause()
-      }
-    }
-  }, [isPlaying, isCurrentBeat])
+    checkLikeStatus()
+  }, [user, beat.id]) // Removed supabase dependency to prevent infinite loop
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60)
+    const seconds = Math.floor(time % 60)
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`
+  }
 
   const handlePlayPause = () => {
     if (onPlay) {
-      onPlay(isCurrentBeat ? '' : beat.id)
+      if (isCurrentBeat && isPlaying) {
+        onPlay('') // Stop current beat
+      } else {
+        onPlay(beat.id) // Play this beat
+      }
     }
   }
 
@@ -123,11 +107,26 @@ export default function BeatCard({ beat, onPlay, isPlaying, isCurrentBeat }: Bea
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `${beat.title} - ${beat.artist}.wav`
+      a.download = `${beat.title} - ${beat.producer.username}.wav`
       document.body.appendChild(a)
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
+
+      // Update download count in database
+      const { error } = await supabase
+        .from('beats')
+        .update({ download_count: (beat.download_count || 0) + 1 })
+        .eq('id', beat.id)
+
+      if (error) {
+        console.error('Error updating download count:', error)
+      } else {
+        // Update local state
+        beat.download_count = (beat.download_count || 0) + 1
+        // Force re-render
+        setForceUpdate(prev => !prev)
+      }
     } catch (error) {
       console.error('Download failed:', error)
     } finally {
@@ -135,14 +134,45 @@ export default function BeatCard({ beat, onPlay, isPlaying, isCurrentBeat }: Bea
     }
   }
 
-  const handleLike = () => {
-    setIsLiked(!isLiked)
-  }
+  const handleLike = async () => {
+    if (!user) {
+      alert('Please log in to like beats')
+      return
+    }
+    
+    try {
+      if (isLiked) {
+        // Unlike: delete the like record
+        const { error } = await supabase
+          .from('beat_likes')
+          .delete()
+          .eq('beat_id', beat.id)
+          .eq('user_id', user.id)
 
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60)
-    const seconds = Math.floor(time % 60)
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`
+        if (error) {
+          console.error('Error unliking beat:', error)
+          return
+        }
+
+        setIsLiked(false)
+        setLocalLikeCount(prev => Math.max(0, prev - 1))
+      } else {
+        // Like: insert a new like record
+        const { error } = await supabase
+          .from('beat_likes')
+          .insert({ beat_id: beat.id, user_id: user.id })
+
+        if (error) {
+          console.error('Error liking beat:', error)
+          return
+        }
+
+        setIsLiked(true)
+        setLocalLikeCount(prev => prev + 1)
+      }
+    } catch (error) {
+      console.error('Error in handleLike:', error)
+    }
   }
 
   return (
@@ -150,110 +180,94 @@ export default function BeatCard({ beat, onPlay, isPlaying, isCurrentBeat }: Bea
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
+            <Link href={`/profile/${beat.producer?.username?.toLowerCase()}`} className="flex items-center gap-2 mb-2 group">
+              <Avatar className="h-8 w-8 border border-white/20">
+                <AvatarImage src={`/api/avatars/${beat.producer?.avatar_id}`} alt={beat.producer?.username || 'Unknown Artist'} />
+                <AvatarFallback>{beat.producer?.username?.charAt(0).toUpperCase() || '?'}</AvatarFallback>
+              </Avatar>
+              <span className="text-gray-300 text-sm font-medium group-hover:text-white transition-colors">
+                {beat.producer?.username || 'Unknown Artist'}
+              </span>
+            </Link>
             <CardTitle className="text-white text-lg mb-1">{beat.title}</CardTitle>
-            <p className="text-gray-400 text-sm mb-2">{beat.artist}</p>
             <div className="flex items-center gap-2 mb-2">
-              <Badge variant="secondary" className="bg-white/10 backdrop-blur-sm text-white border-white/20">
-                {beat.genre}
-              </Badge>
-              {beat.is_free && (
+              {beat.is_free ? (
                 <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
                   Free
                 </Badge>
+              ) : (
+                <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
+                  {beat.cost_flames} Flaames
+                </Badge>
               )}
             </div>
-          </div>
-          <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-xl p-2 border border-white/10">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleLike}
-              className={`rounded-lg ${isLiked ? 'text-red-500' : 'text-gray-400 hover:text-red-500 hover:bg-white/20'}`}
-            >
-              <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleDownload}
-              disabled={isDownloading}
-              className="rounded-lg text-gray-400 hover:text-white hover:bg-white/20"
-            >
-              <Download className="h-4 w-4" />
-            </Button>
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {/* Waveform */}
-        <div className="relative bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10">
-          <div ref={waveformRef} className="w-full" />
-          {!isLoaded && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-xl">
-              <div className="text-gray-400 text-sm">Loading...</div>
-            </div>
-          )}
-        </div>
+        {/* Play, Like, Download Controls */}
+        <div className="flex items-center justify-start gap-4">
+          <Button
+            onClick={handlePlayPause}
+            className={`h-12 w-12 rounded-xl border-2 shadow-lg transition-all duration-200 ${
+              isPlaying && isCurrentBeat
+                ? 'bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/30'
+                : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+            }`}
+            size="icon"
+          >
+            {isPlaying && isCurrentBeat ? (
+              <Pause className="h-6 w-6" />
+            ) : (
+              <Play className="h-6 w-6" />
+            )}
+          </Button>
 
-        {/* Time and Controls */}
-        <div className="flex items-center justify-between bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10">
-          <div className="flex items-center gap-4 text-xs text-gray-400">
-            <span>{formatTime(currentTime)}</span>
-            <span>/</span>
-            <span>{formatTime(duration)}</span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handlePlayPause}
-              className={`rounded-lg transition-all duration-200 ${
-                isPlaying && isCurrentBeat 
-                  ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30' 
-                  : 'bg-white/10 text-white border border-white/20 hover:bg-white/20'
-              }`}
-            >
-              {isPlaying && isCurrentBeat ? (
-                <Pause className="h-4 w-4" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
+          <Button
+            onClick={handleLike}
+            className={`h-10 w-10 p-0 min-w-[40px] rounded-lg transition-all duration-200 flex items-center justify-center ${
+              isLiked
+                ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30'
+                : 'bg-transparent text-gray-400 border border-gray-500/20 hover:bg-white/10 hover:text-white'
+            }`}
+            size="icon"
+          >
+            <Heart className={`h-5 w-5 ${isLiked ? 'fill-current' : ''}`} />
+          </Button>
+
+          <Button
+            onClick={handleDownload}
+            disabled={isDownloading}
+            className="h-10 w-10 p-0 min-w-[40px] rounded-lg transition-all duration-200 flex items-center justify-center bg-transparent text-gray-400 border border-gray-500/20 hover:bg-white/10 hover:text-white"
+            size="icon"
+          >
+            <Download className="h-5 w-5" />
+          </Button>
         </div>
 
         {/* Description */}
         <p className="text-gray-300 text-sm line-clamp-2">{beat.description}</p>
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1">
-          {beat.tags?.slice(0, 3).map((tag, index) => (
-            <Badge key={index} variant="outline" className="text-xs border-white/20 text-gray-300 bg-white/5 backdrop-blur-sm">
-              {tag}
-            </Badge>
-          ))}
-        </div>
 
         {/* Stats */}
         <div className="flex items-center justify-between text-xs text-gray-400 bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1">
               <Download className="h-3 w-3" />
-              {beat.download_count}
+              {beat.download_count || 0}
             </span>
             <span className="flex items-center gap-1">
               <Heart className="h-3 w-3" />
-              {beat.rating}
+              {localLikeCount}
             </span>
           </div>
           <span className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
-            {formatTime(beat.duration)}
+            {beat.duration ? formatTime(beat.duration) : '0:00'}
           </span>
         </div>
       </CardContent>
     </Card>
   )
 }
+

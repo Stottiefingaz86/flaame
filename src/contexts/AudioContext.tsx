@@ -8,17 +8,22 @@ interface AudioTrack {
   artist: string
   audioUrl: string
   duration: number
+  username?: string
+  avatarId?: string
 }
 
 interface AudioContextType {
   currentTrack: AudioTrack | null
+  currentTrackUrl: string | null
   isPlaying: boolean
   currentTime: number
   duration: number
   volume: number
   isMuted: boolean
   playTrack: (track: AudioTrack) => void
+  playAudio: (trackUrl: string, trackName: string, username?: string, avatarId?: string) => void
   pauseTrack: () => void
+  pauseAudio: () => void
   resumeTrack: () => void
   stopTrack: () => void
   seekTo: (time: number) => void
@@ -31,6 +36,7 @@ const AudioContext = createContext<AudioContextType | undefined>(undefined)
 
 export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [currentTrack, setCurrentTrack] = useState<AudioTrack | null>(null)
+  const [currentTrackUrl, setCurrentTrackUrl] = useState<string | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
@@ -90,11 +96,45 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
     audioRef.current.src = track.audioUrl
     setCurrentTrack(track)
+    setCurrentTrackUrl(track.audioUrl)
+    
+    audioRef.current.play().catch(console.error)
+  }
+
+  const playAudio = (trackUrl: string, trackName: string, username?: string, avatarId?: string) => {
+    if (!audioRef.current) return
+
+    // Stop current track if different
+    if (currentTrackUrl !== trackUrl) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+    }
+
+    audioRef.current.src = trackUrl
+    setCurrentTrackUrl(trackUrl)
+    
+    // Create a track object for the floating player
+    const trackObject: AudioTrack = {
+      id: `battle-${Date.now()}`, // Generate unique ID for battle tracks
+      title: trackName,
+      artist: username || 'Battle Track',
+      audioUrl: trackUrl,
+      duration: 0, // Will be set when metadata loads
+      username: username,
+      avatarId: avatarId
+    }
+    setCurrentTrack(trackObject)
     
     audioRef.current.play().catch(console.error)
   }
 
   const pauseTrack = () => {
+    if (audioRef.current) {
+      audioRef.current.pause()
+    }
+  }
+
+  const pauseAudio = () => {
     if (audioRef.current) {
       audioRef.current.pause()
     }
@@ -143,13 +183,16 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
   const value: AudioContextType = {
     currentTrack,
+    currentTrackUrl,
     isPlaying,
     currentTime,
     duration,
     volume,
     isMuted,
     playTrack,
+    playAudio,
     pauseTrack,
+    pauseAudio,
     resumeTrack,
     stopTrack,
     seekTo,

@@ -24,7 +24,7 @@ import {
   Music2
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
-import BattleWave from '@/components/battle/BattleWave'
+
 
 interface User {
   id: string
@@ -46,29 +46,33 @@ interface User {
 interface Battle {
   id: string
   title: string
-  status: 'active' | 'voting' | 'closed'
+  status: string
   created_at: string
-  ends_at: string
-  total_votes: number
-  winner_id?: string
-  beat: {
-    title: string
-    artist: string
+  challenger_id: string
+  opponent_id?: string
+  challenger: {
+    username: string
+    avatar_id?: string
   }
-  entries: BattleEntry[]
-}
-
-interface BattleEntry {
-  id: string
-  user_id: string
-  audio_url: string
-  vote_count: number
-  created_at: string
-  user: {
+  opponent?: {
     username: string
     avatar_id?: string
   }
 }
+
+interface Beat {
+  id: string
+  title: string
+  description?: string
+  is_free: boolean
+  cost_flames?: number
+  download_count: number
+  like_count: number
+  created_at: string
+  audio_url: string
+}
+
+
 
 export default function UserProfilePage() {
   const params = useParams()
@@ -77,6 +81,7 @@ export default function UserProfilePage() {
   const [user, setUser] = useState<User | null>(null)
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [battles, setBattles] = useState<Battle[]>([])
+  const [beats, setBeats] = useState<Beat[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isFollowing, setIsFollowing] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -102,22 +107,44 @@ export default function UserProfilePage() {
       if (error) throw error
       setUser(profile)
 
-      // Get user's battles
+      // Get user's battles (both as challenger and opponent)
       const { data: userBattles, error: battlesError } = await supabase
         .from('battles')
         .select(`
-          *,
-          beat:beats(title, artist),
-          entries:battle_entries(
-            *,
-            user:profiles(username, avatar_id)
-          )
+          id,
+          title,
+          status,
+          created_at,
+          challenger_id,
+          opponent_id,
+          challenger:profiles!battles_challenger_id_fkey(username, avatar_id),
+          opponent:profiles!battles_opponent_id_fkey(username, avatar_id)
         `)
-        .eq('creator_id', profile.id)
+        .or(`challenger_id.eq.${profile.id},opponent_id.eq.${profile.id}`)
         .order('created_at', { ascending: false })
 
       if (battlesError) throw battlesError
       setBattles(userBattles || [])
+
+      // Get user's beats
+      const { data: userBeats, error: beatsError } = await supabase
+        .from('beats')
+        .select(`
+          id,
+          title,
+          description,
+          is_free,
+          cost_flames,
+          download_count,
+          like_count,
+          created_at,
+          audio_url
+        `)
+        .eq('uploader_id', profile.id)
+        .order('created_at', { ascending: false })
+
+      if (beatsError) throw beatsError
+      setBeats(userBeats || [])
 
       // Check if current user is following this user
       if (currentUser) {
@@ -426,7 +453,7 @@ export default function UserProfilePage() {
           </Card>
 
           {/* Battles Section */}
-          <div className="space-y-6">
+          <div className="space-y-6 mb-8">
             <h2 className="text-2xl font-bold text-white mb-6">Battles</h2>
             
             {battles.length === 0 ? (
@@ -438,36 +465,71 @@ export default function UserProfilePage() {
               </Card>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {battles.map((battle) => (
-                  <Card key={battle.id} className="bg-black/20 backdrop-blur-md border-white/10">
+                {battles.map((battle) => {
+                  const isChallenger = battle.challenger_id === user.id
+                  const opponent = isChallenger ? battle.opponent : battle.challenger
+                  
+                  return (
+                    <Card key={battle.id} className="bg-black/20 backdrop-blur-md border-white/10">
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-white">{battle.title}</CardTitle>
+                          <Badge className={`${getStatusColor(battle.status)} border-current`}>
+                            {battle.status}
+                          </Badge>
+                        </div>
+                        <p className="text-gray-400 text-sm">
+                          vs {opponent?.username || 'Unknown'}
+                        </p>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-400 text-sm">
+                          Created {new Date(battle.created_at).toLocaleDateString()}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Beats Section */}
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-white mb-6">Beats</h2>
+            
+            {beats.length === 0 ? (
+              <Card className="bg-black/20 backdrop-blur-md border-white/10">
+                <CardContent className="p-8 text-center">
+                  <Music className="w-10 h-10 text-gray-500 mx-auto mb-3" />
+                  <p className="text-gray-500 text-sm">No beats uploaded yet</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {beats.map((beat) => (
+                  <Card key={beat.id} className="bg-black/20 backdrop-blur-md border-white/10">
                     <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-white">{battle.title}</CardTitle>
-                        <Badge className={`${getStatusColor(battle.status)} border-current`}>
-                          {battle.status}
-                        </Badge>
-                      </div>
+                      <CardTitle className="text-white">{beat.title}</CardTitle>
                       <p className="text-gray-400 text-sm">
-                        {battle.beat.title} by {battle.beat.artist}
+                        {beat.description || 'No description'}
                       </p>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-4">
-                        {battle.entries.map((entry) => (
-                          <div key={entry.id} className="flex items-center gap-3 p-3 bg-black/20 rounded-lg">
-                            <Avatar className="h-8 w-8">
-                              <AvatarImage src={entry.user.avatar_id ? `/api/avatars/${entry.user.avatar_id}` : undefined} />
-                              <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
-                                {entry.user.username.charAt(0).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                              <p className="text-white text-sm font-medium">{entry.user.username}</p>
-                              <p className="text-gray-400 text-xs">{entry.vote_count} votes</p>
-                            </div>
-                            <BattleWave audioUrl={entry.audio_url} entryId={entry.id} isOwner={false} />
-                          </div>
-                        ))}
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-4">
+                          <span className="text-gray-400">
+                            <Heart className="w-4 h-4 inline mr-1" />
+                            {beat.like_count}
+                          </span>
+                          <span className="text-gray-400">
+                            <Music className="w-4 h-4 inline mr-1" />
+                            {beat.download_count}
+                          </span>
+                        </div>
+                        <Badge variant={beat.is_free ? "default" : "secondary"}>
+                          {beat.is_free ? 'Free' : `${beat.cost_flames} Flames`}
+                        </Badge>
                       </div>
                     </CardContent>
                   </Card>

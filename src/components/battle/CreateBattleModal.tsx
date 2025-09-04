@@ -50,7 +50,8 @@ interface CreateBattleModalProps {
 export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: CreateBattleModalProps) {
   const { user } = useUser()
   const [step, setStep] = useState(1)
-  const [title, setTitle] = useState('')
+  const [battleType, setBattleType] = useState<'flame' | 'story' | 'freestyle'>('flame')
+  const [selectedLeague, setSelectedLeague] = useState<'ukus' | 'spanish' | 'german' | 'philippines'>('ukus')
   const [selectedBeat, setSelectedBeat] = useState<Beat | null>(null)
   const [selectedOpponent, setSelectedOpponent] = useState<User | null>(null)
   const [battleTrack, setBattleTrack] = useState<File | null>(null)
@@ -210,10 +211,7 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
       return
     }
     
-    if (!title.trim()) {
-      alert('Please enter a battle title.')
-      return
-    }
+
     
     if (!selectedBeat) {
       alert('Please select a beat for the battle.')
@@ -273,13 +271,14 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
       setCreationStep('Creating battle...')
 
       battleData = {
-        title: title.trim(),
+        title: `${battleType.charAt(0).toUpperCase() + battleType.slice(1)} Battle`, // Auto-generate title from type
+        league: selectedLeague, // Add league to battle data
         challenger_id: user.id,
         opponent_id: selectedOpponent?.id || null,
         beat_id: selectedBeat.id,
         challenger_track: `battles/${trackFileName}`,
         challenger_lyrics: lyrics.trim() || null,
-        status: selectedOpponent ? 'active' : 'pending',
+        status: selectedOpponent ? 'challenge' : 'pending',
         created_at: new Date().toISOString(),
         ends_at: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString() // 6 days from now
       }
@@ -354,7 +353,8 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
 
   const resetForm = () => {
     setStep(1)
-    setTitle('')
+    setBattleType('flame')
+    setSelectedLeague('ukus')
     setSelectedBeat(null)
     setSelectedOpponent(null)
     setBattleTrack(null)
@@ -417,21 +417,80 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
             {step === 1 && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-xl font-semibold text-white mb-4">Battle Title</h3>
-                  <Input
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Enter battle title (e.g., 'Weekend Showdown', 'Season 1 - Week 3')"
-                    className="bg-black/20 border-white/20 text-white placeholder-gray-400"
-                  />
+                  <h3 className="text-xl font-semibold text-white mb-4">Battle Type</h3>
+                  <p className="text-gray-400 mb-6">Choose the type of battle you want to create</p>
+                  
+                  <div className="grid grid-cols-1 gap-4">
+                    <Card
+                      className={`cursor-pointer transition-all duration-200 ${
+                        battleType === 'flame'
+                          ? 'ring-2 ring-orange-500 bg-orange-500/10'
+                          : 'bg-black/20 border-white/10 hover:bg-black/30'
+                      }`}
+                      onClick={() => setBattleType('flame')}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-3 rounded-lg bg-gradient-to-r from-orange-500 to-red-500">
+                            <Flame className="w-6 h-6 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-white">Flame Battle</h4>
+                            <p className="text-gray-400 text-sm">Aggressive, competitive rap battle with direct challenges and disses</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card
+                      className={`cursor-pointer transition-all duration-200 ${
+                        battleType === 'story'
+                          ? 'ring-2 ring-blue-500 bg-blue-500/10'
+                          : 'bg-black/20 border-white/10 hover:bg-black/30'
+                      }`}
+                      onClick={() => setBattleType('story')}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500">
+                            <Mic className="w-6 h-6 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-white">Story Style</h4>
+                            <p className="text-gray-400 text-sm">Narrative-driven battle with storytelling and lyrical depth</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card
+                      className={`cursor-pointer transition-all duration-200 ${
+                        battleType === 'freestyle'
+                          ? 'ring-2 ring-green-500 bg-green-500/10'
+                          : 'bg-black/20 border-white/10 hover:bg-black/30'
+                      }`}
+                      onClick={() => setBattleType('freestyle')}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500">
+                            <Music className="w-6 h-6 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-white">Freestyle</h4>
+                            <p className="text-gray-400 text-sm">Improvised battle with spontaneous lyrics and flow</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </div>
                 <div className="flex justify-end">
                   <Button
                     onClick={() => setStep(2)}
-                    disabled={!title.trim()}
                     className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
                   >
-                    Next: Select Beat
+                    Next: Select League
                   </Button>
                 </div>
               </div>
@@ -440,8 +499,118 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
             {step === 2 && (
               <div className="space-y-6">
                 <div>
+                  <h3 className="text-xl font-semibold text-white mb-4">Select League</h3>
+                  <p className="text-gray-400 mb-6">Choose which league this battle belongs to</p>
+                  
+                  <div className="grid grid-cols-1 gap-4">
+                    <Card
+                      className={`cursor-pointer transition-all duration-200 ${
+                        selectedLeague === 'ukus'
+                          ? 'ring-2 ring-blue-500 bg-blue-500/10'
+                          : 'bg-black/20 border-white/10 hover:bg-black/30'
+                      }`}
+                      onClick={() => setSelectedLeague('ukus')}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-3 rounded-lg bg-gradient-to-r from-blue-500 to-red-500">
+                            <span className="text-2xl">🇺🇸🇬🇧</span>
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-white">UK/US League</h4>
+                            <p className="text-gray-400 text-sm">English-speaking battle league for UK and US rappers</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card
+                      className={`cursor-pointer transition-all duration-200 ${
+                        selectedLeague === 'spanish'
+                          ? 'ring-2 ring-yellow-500 bg-yellow-500/10'
+                          : 'bg-black/20 border-white/10 hover:bg-black/30'
+                      }`}
+                      onClick={() => setSelectedLeague('spanish')}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-3 rounded-lg bg-gradient-to-r from-yellow-500 to-red-500">
+                            <span className="text-2xl">🇪🇸🇲🇽</span>
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-white">Spanish League</h4>
+                            <p className="text-gray-400 text-sm">Spanish-speaking battle league for Latin rappers</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card
+                      className={`cursor-pointer transition-all duration-200 ${
+                        selectedLeague === 'german'
+                          ? 'ring-2 ring-black bg-black/20'
+                          : 'bg-black/20 border-white/10 hover:bg-black/30'
+                      }`}
+                      onClick={() => setSelectedLeague('german')}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-3 rounded-lg bg-gradient-to-r from-black to-gray-700 border border-white/20">
+                            <span className="text-2xl">🇩🇪🇦🇹</span>
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-white">German League</h4>
+                            <p className="text-gray-400 text-sm">German-speaking battle league for German rappers</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card
+                      className={`cursor-pointer transition-all duration-200 ${
+                        selectedLeague === 'philippines'
+                          ? 'ring-2 ring-blue-500 bg-blue-500/10'
+                          : 'bg-black/20 border-white/10 hover:bg-black/30'
+                      }`}
+                      onClick={() => setSelectedLeague('philippines')}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-3 rounded-lg bg-gradient-to-r from-blue-500 to-red-500">
+                            <span className="text-2xl">🇵🇭</span>
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-white">Philippines League</h4>
+                            <p className="text-gray-400 text-sm">Filipino battle league for Tagalog and English rappers</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+                <div className="flex justify-between">
+                  <Button
+                    variant="outline"
+                    onClick={() => setStep(1)}
+                    className="border-white/20 hover:bg-white/10"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    onClick={() => setStep(3)}
+                    className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                  >
+                    Next: Select Beat
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="space-y-6">
+                <div>
                   <h3 className="text-xl font-semibold text-white mb-4">Select Beat</h3>
-                  <p className="text-gray-400 mb-4">Choose a beat for your battle</p>
+                  <p className="text-gray-400 mb-4">Choose a beat for your {battleType} battle in the {selectedLeague === 'ukus' ? 'UK/US' : selectedLeague === 'spanish' ? 'Spanish' : selectedLeague === 'german' ? 'German' : 'Philippines'} league</p>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -481,13 +650,13 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
                 <div className="flex justify-between">
                   <Button
                     variant="outline"
-                    onClick={() => setStep(1)}
+                    onClick={() => setStep(2)}
                     className="border-white/20 hover:bg-white/10"
                   >
                     Back
                   </Button>
                   <Button
-                    onClick={() => setStep(3)}
+                    onClick={() => setStep(4)}
                     disabled={!selectedBeat}
                     className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
                   >
@@ -497,7 +666,7 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
               </div>
             )}
 
-            {step === 3 && (
+            {step === 4 && (
               <div className="space-y-6">
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-4">Choose Opponent (Optional)</h3>
@@ -580,13 +749,13 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
                 <div className="flex justify-between">
                   <Button
                     variant="outline"
-                    onClick={() => setStep(2)}
+                    onClick={() => setStep(3)}
                     className="border-white/20 hover:bg-white/10"
                   >
                     Back
                   </Button>
                   <Button
-                    onClick={() => setStep(4)}
+                    onClick={() => setStep(5)}
                     className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
                   >
                     Next
@@ -595,7 +764,7 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
               </div>
             )}
 
-            {step === 4 && (
+            {step === 5 && (
               <div className="space-y-6">
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-4">Upload Your Battle Track</h3>
@@ -647,13 +816,13 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
                 <div className="flex justify-between">
                   <Button
                     variant="outline"
-                    onClick={() => setStep(3)}
+                    onClick={() => setStep(4)}
                     className="border-white/20 hover:bg-white/10"
                   >
                     Back
                   </Button>
                   <Button
-                    onClick={() => setStep(5)}
+                    onClick={() => setStep(6)}
                     disabled={!battleTrack}
                     className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
                   >
@@ -663,7 +832,7 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
               </div>
             )}
 
-            {step === 5 && (
+            {step === 6 && (
               <div className="space-y-6">
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-4">Add Your Lyrics (Optional)</h3>
@@ -720,7 +889,7 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
                 <div className="flex justify-between">
                   <Button
                     variant="outline"
-                    onClick={() => setStep(4)}
+                    onClick={() => setStep(5)}
                     className="border-white/20 hover:bg-white/10"
                     disabled={isCreating}
                   >

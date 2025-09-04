@@ -80,7 +80,7 @@ export default function AuthPage() {
             .insert({
               id: data.user.id,
               username: username,
-              flames: 100,
+              flames: 5,
               rank: 'Newcomer'
             })
           

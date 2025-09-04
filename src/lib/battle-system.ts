@@ -24,7 +24,7 @@ export interface BattleFlame {
 export interface BattleWithDetails {
   id: string
   title: string
-  status: 'pending' | 'active' | 'closed' | 'cancelled'
+  status: 'pending' | 'challenge' | 'active' | 'closed' | 'cancelled'
   challenger_id: string
   opponent_id?: string
   beat_id: string
@@ -74,8 +74,8 @@ export class BattleSystem {
       if (battleError) throw battleError
 
       // Check if battle is still active
-      if (battle.status !== 'active' && battle.status !== 'pending') {
-        return { success: false, error: 'Battle is no longer accepting votes' }
+      if (battle.status !== 'active') {
+        return { success: false, error: 'Battle is not yet active for voting' }
       }
 
       // Check if battle has ended

@@ -1,45 +1,31 @@
 'use client'
 
-// Arena page with subtle placeholder styling
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { 
-  Flame, 
-  Music, 
-  Crown, 
-  Users, 
-  Trophy, 
-  Play, 
-  Pause, 
-  Clock, 
   Plus,
-  Mic,
-  Headphones,
-  TrendingUp,
-  Calendar,
-  Timer,
-  ArrowRight,
-  ChevronDown,
   Search,
-  CheckCircle
+  ChevronDown,
+  Users,
+  Trophy,
+  Filter,
+  X
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { useLeague } from '@/contexts/LeagueContext'
 import { useUser } from '@/contexts/UserContext'
-import Link from 'next/link'
 import CreateBattleModal from '@/components/battle/CreateBattleModal'
-import AcceptBattleModal from '@/components/battle/AcceptBattleModal'
+import AcceptBattleModal from '@/components/arena/BattleCard'
+import BattleCard from '@/components/arena/BattleCard'
 
-// Battle interface for real data
+// Battle interface
 interface Battle {
   id: string
   title: string
-  status: 'pending' | 'active' | 'closed' | 'cancelled'
+  status: 'pending' | 'challenge' | 'active' | 'closed' | 'cancelled'
   challenger_id: string
   opponent_id?: string
   beat_id: string
@@ -66,569 +52,16 @@ interface Battle {
   }
 }
 
-const wave = (
-  <div className="flex items-end gap-0.5 h-12 w-full overflow-hidden">
-    {Array.from({ length: 64 }).map((_, i) => (
-      <div
-        key={i}
-        className="w-1 rounded-full bg-white/30"
-        style={{ height: `${8 + Math.abs(Math.sin(i)) * 32}px` }}
-      />
-    ))}
-  </div>
-)
-
-function formatTimeLeft(endDate: Date): string {
-  const now = new Date()
-  const diff = endDate.getTime() - now.getTime()
-  
-  if (diff <= 0) return 'Ended'
-  
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-  
-  if (days > 0) return `${days}d ${hours}h`
-  if (hours > 0) return `${hours}h ${minutes}m`
-  return `${minutes}m`
-}
-
-function formatCreationTime(createdDate: Date): string {
-  const now = new Date()
-  const diff = now.getTime() - createdDate.getTime()
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-  
-  if (days === 0) return 'Created today'
-  if (days === 1) return 'Created yesterday'
-  return `Created ${days} days ago`
-}
-
-function BattleCard({ battle }: { battle: Battle }) {
-  const { user } = useUser()
-  const [hasVoted, setHasVoted] = useState(false)
-  const [isVoting, setIsVoting] = useState(false)
-  const [voteAnimation, setVoteAnimation] = useState<string | null>(null)
-  const [userVote, setUserVote] = useState<string | null>(null)
-  const [timeLeft, setTimeLeft] = useState<string>('')
-  const [isPlayingChallenger, setIsPlayingChallenger] = useState(false)
-  const [isPlayingOpponent, setIsPlayingOpponent] = useState(false)
-  const [showAcceptModal, setShowAcceptModal] = useState(false)
-  const [challengerAudio, setChallengerAudio] = useState<HTMLAudioElement | null>(null)
-  const [opponentAudio, setOpponentAudio] = useState<HTMLAudioElement | null>(null)
-  const isActive = battle.status === 'active'
-  const isOpen = battle.status === 'pending'
-  const isFinished = battle.status === 'closed'
-
-  // Check if user has already voted (in real app, this would come from database)
-  useEffect(() => {
-    if (user) {
-      // Simulate checking if user has voted
-      // In real app: check database for existing vote
-      const existingVote = localStorage.getItem(`vote_${battle.id}_${user.id}`)
-      if (existingVote) {
-        setHasVoted(true)
-        setUserVote(existingVote)
-      }
-    }
-  }, [user, battle.id])
-
-  // Real-time countdown timer
-  useEffect(() => {
-    if (!battle.ends_at || isFinished) return
-
-    const updateTimer = () => {
-      const now = new Date()
-      const endTime = new Date(battle.ends_at)
-      const diff = endTime.getTime() - now.getTime()
-
-      if (diff <= 0) {
-        setTimeLeft('Expired')
-        return
-      }
-
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-
-      if (days > 0) {
-        setTimeLeft(`${days}d ${hours}h left`)
-      } else if (hours > 0) {
-        setTimeLeft(`${hours}h ${minutes}m left`)
-      } else {
-        setTimeLeft(`${minutes}m left`)
-      }
-    }
-
-    // Update immediately
-    updateTimer()
-
-    // Update every minute
-    const interval = setInterval(updateTimer, 60000)
-
-    return () => clearInterval(interval)
-  }, [battle.ends_at, isFinished])
-
-  const handleVote = async (candidateId: string, candidateName: string) => {
-    if (!user || isVoting || hasVoted) return
-    
-    setIsVoting(true)
-    setVoteAnimation(candidateId)
-    
-    try {
-      // Here you would call your voting API
-      console.log(`Voting for ${candidateName} (${candidateId})`)
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // Store vote locally (in real app, this would be in database)
-      localStorage.setItem(`vote_${battle.id}_${user.id}`, candidateId)
-      
-      setHasVoted(true)
-      setUserVote(candidateId)
-      
-      // Clear animation after a delay
-      setTimeout(() => setVoteAnimation(null), 2000)
-    } catch (error) {
-      console.error('Error voting:', error)
-    } finally {
-      setIsVoting(false)
-    }
-  }
-
-  const handlePlayChallenger = () => {
-    if (!battle.challenger_track) {
-      alert('No challenger track available')
-      return
-    }
-
-    if (isPlayingChallenger) {
-      // Stop playing
-      if (challengerAudio) {
-        challengerAudio.pause()
-        challengerAudio.currentTime = 0
-      }
-      setIsPlayingChallenger(false)
-      return
-    }
-
-    // Stop opponent audio if playing
-    if (opponentAudio) {
-      opponentAudio.pause()
-      opponentAudio.currentTime = 0
-      setIsPlayingOpponent(false)
-    }
-
-    // Get the full URL for the challenger track
-    const { data: urlData } = supabase.storage
-      .from('audio')
-      .getPublicUrl(battle.challenger_track)
-    
-    const audioUrl = urlData.publicUrl
-
-    // Create and play challenger audio
-    const audio = new Audio(audioUrl)
-    audio.addEventListener('ended', () => setIsPlayingChallenger(false))
-    audio.addEventListener('error', () => {
-      console.error('Error playing challenger track')
-      setIsPlayingChallenger(false)
-    })
-    
-    audio.play().then(() => {
-      setChallengerAudio(audio)
-      setIsPlayingChallenger(true)
-    }).catch((error) => {
-      console.error('Failed to play challenger track:', error)
-      alert('Failed to play track. Please try again.')
-    })
-  }
-
-  const handlePlayOpponent = () => {
-    if (!battle.opponent_track) {
-      alert('No opponent track available')
-      return
-    }
-
-    if (isPlayingOpponent) {
-      // Stop playing
-      if (opponentAudio) {
-        opponentAudio.pause()
-        opponentAudio.currentTime = 0
-      }
-      setIsPlayingOpponent(false)
-      return
-    }
-
-    // Stop challenger audio if playing
-    if (challengerAudio) {
-      challengerAudio.pause()
-      challengerAudio.currentTime = 0
-      setIsPlayingChallenger(false)
-    }
-
-    // Get the full URL for the opponent track
-    const { data: urlData } = supabase.storage
-      .from('audio')
-      .getPublicUrl(battle.opponent_track)
-    
-    const audioUrl = urlData.publicUrl
-
-    // Create and play opponent audio
-    const audio = new Audio(audioUrl)
-    audio.addEventListener('ended', () => setIsPlayingOpponent(false))
-    audio.addEventListener('error', () => {
-      console.error('Error playing opponent track')
-      setIsPlayingOpponent(false)
-    })
-    
-    audio.play().then(() => {
-      setOpponentAudio(audio)
-      setIsPlayingOpponent(true)
-    }).catch((error) => {
-      console.error('Failed to play opponent track:', error)
-      alert('Failed to play track. Please try again.')
-    })
-  }
-
-  const handleAcceptBattle = () => {
-    if (!user) {
-      alert('You must be logged in to accept a battle')
-      return
-    }
-    setSelectedBattle(battle)
-    setShowAcceptBattleModal(true)
-  }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Link href={`/battle/${battle.id}`}>
-        <Card className="bg-black/20 backdrop-blur-md border-white/10 overflow-hidden hover:bg-black/30 transition-all duration-300 cursor-pointer">
-        <CardHeader className="flex flex-row items-center justify-between py-4 px-5">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={battle.challenger?.avatar_id ? `/api/avatars/${battle.challenger.avatar_id}` : undefined} />
-              <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-                {battle.challenger?.username?.charAt(0).toUpperCase() || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <Link href={`/profile/${battle.challenger?.username.toLowerCase()}`} className="text-sm font-semibold text-white hover:text-orange-400 transition-colors">
-              {battle.challenger?.username}
-            </Link>
-            <span className="text-xs text-gray-400">vs</span>
-            {battle.opponent ? (
-              <>
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={battle.opponent?.avatar_id ? `/api/avatars/${battle.opponent.avatar_id}` : undefined} />
-                  <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-                    {battle.opponent?.username?.charAt(0).toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <Link href={`/profile/${battle.opponent?.username.toLowerCase()}`} className="text-sm font-semibold text-white hover:text-orange-400 transition-colors">
-                  {battle.opponent?.username}
-                </Link>
-              </>
-            ) : (
-              <span className="text-sm text-gray-400">Waiting for challenger...</span>
-            )}
-
-          </div>
-          <div className="flex items-center gap-2">
-            {isOpen && <Badge className="rounded-full bg-green-500/20 text-green-300 border-green-500/30">Open</Badge>}
-            {isActive && battle.endsAt && timeLeft && (
-              <div className="flex items-center gap-2 text-xs text-gray-400">
-                <Timer className="h-3.5 w-3.5" /> {timeLeft}
-              </div>
-            )}
-            {isFinished && (
-              <div className="flex items-center gap-2">
-                <Crown className="h-4 w-4 text-yellow-400" />
-                <Badge className="rounded-full bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
-                  {battle.winner} won
-                </Badge>
-              </div>
-            )}
-          </div>
-        </CardHeader>
-        
-        <CardContent className="px-5 pb-4">
-          {/* Battle Title and Info */}
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-white mb-1">{battle.title}</h3>
-            <p className="text-sm text-gray-400">{battle.beat?.title} by {battle.beat?.artist}</p>
-            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-              <span className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                {formatCreationTime(new Date(battle.created_at))}
-              </span>
-              {isActive && battle.ends_at && (
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  Ends {new Date(battle.ends_at).toLocaleDateString()}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Battle Participants */}
-          {battle.opponent ? (
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              {/* Challenger */}
-              <div className="text-center">
-                <Avatar className="h-12 w-12 mx-auto mb-2">
-                  <AvatarImage src={battle.challenger?.avatar_id ? `/api/avatars/${battle.challenger.avatar_id}` : undefined} />
-                  <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-                    {battle.challenger?.username?.charAt(0).toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <p className="text-sm font-medium text-white mb-1">{battle.challenger?.username}</p>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="rounded-full"
-                  onClick={handlePlayChallenger}
-                >
-                  {isPlayingChallenger ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                </Button>
-              </div>
-              
-              {/* VS */}
-              <div className="flex items-center justify-center">
-                <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-full p-2">
-                  <span className="text-white font-bold text-sm">VS</span>
-                </div>
-              </div>
-              
-              {/* Opponent */}
-              <div className="text-center">
-                <Avatar className="h-12 w-12 mx-auto mb-2">
-                  <AvatarImage src={battle.opponent?.avatar_id ? `/api/avatars/${battle.opponent.avatar_id}` : undefined} />
-                  <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-                    {battle.opponent?.username?.charAt(0).toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <p className="text-sm font-medium text-white mb-1">{battle.opponent?.username}</p>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="rounded-full"
-                  onClick={handlePlayOpponent}
-                >
-                  {isPlayingOpponent ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center mb-4">
-              <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-full p-3 w-16 h-16 mx-auto mb-3 flex items-center justify-center">
-                <span className="text-white font-bold text-lg">VS</span>
-              </div>
-              <p className="text-gray-400 text-sm">Waiting for opponent...</p>
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="space-y-3">
-            {/* Download Beat */}
-            <Button 
-              variant="outline" 
-              className="w-full rounded-xl border-white/20 hover:bg-white/10 text-white"
-              onClick={() => {
-                if (battle.beat?.file_path) {
-                  const { data: urlData } = supabase.storage
-                    .from('audio')
-                    .getPublicUrl(battle.beat.file_path)
-                  window.open(urlData.publicUrl, '_blank')
-                } else {
-                  alert('Beat download not available')
-                }
-              }}
-            >
-              <Headphones className="h-4 w-4 mr-2" />
-              Download Beat
-            </Button>
-
-            {/* Gift Flames */}
-            <div className="bg-black/20 rounded-xl p-3 border border-white/10">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-400">Gift flames</span>
-                <div className="flex items-center gap-1">
-                  <Flame className="h-3 w-3 text-orange-500" />
-                  <span className="text-xs text-gray-400">0 gifted</span>
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="rounded-xl border-orange-500/30 hover:bg-orange-500/20 text-orange-400"
-                  onClick={() => console.log('Gift 5 flames')}
-                >
-                  Gift 5
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="rounded-xl border-orange-500/30 hover:bg-orange-500/20 text-orange-400"
-                  onClick={() => console.log('Gift 10 flames')}
-                >
-                  Gift 10
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="rounded-xl border-orange-500/30 hover:bg-orange-500/20 text-orange-400"
-                  onClick={() => console.log('Gift 25 flames')}
-                >
-                  Gift 25
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Vote meter - only show to battle creator or after user has voted */}
-          {battle.opponent && user && (hasVoted || user.id === battle.challenger_id) && (
-            <div className="mb-4">
-              <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-                <span>{battle.challenger?.username}: {battle.challenger_votes || 0} votes</span>
-                <span>{battle.opponent?.username}: {battle.opponent_votes || 0} votes</span>
-              </div>
-              <div className="w-full bg-white/10 rounded-full h-2">
-                <div 
-                  className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full transition-all duration-500" 
-                  style={{ 
-                    width: `${battle.challenger_votes && battle.opponent_votes ? 
-                      (battle.challenger_votes / (battle.challenger_votes + battle.opponent_votes)) * 100 : 50}%` 
-                  }}
-                ></div>
-              </div>
-            </div>
-          )}
-        </CardContent>
-        
-        <div className="px-5 pb-5">
-          {isOpen ? (
-            <div className="w-full flex items-center justify-between">
-              <span className="text-sm text-gray-400">Open challenge — accept to lock in.</span>
-              <Button 
-                className="rounded-xl bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
-                onClick={handleAcceptBattle}
-              >
-                Accept Battle
-              </Button>
-            </div>
-          ) : isActive ? (
-            <div className="w-full space-y-3">
-              {user ? (
-                hasVoted ? (
-                  <div className="text-center py-4">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring", stiffness: 200 }}
-                      className="text-sm text-green-400 mb-2 flex items-center justify-center gap-2"
-                    >
-                      <motion.div
-                        initial={{ rotate: 0 }}
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        ✓
-                      </motion.div>
-                      Vote submitted for {userVote === 'challenger' ? battle.challenger?.username : battle.opponent?.username}!
-                    </motion.div>
-                    <div className="text-xs text-gray-400">Thank you for voting</div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="text-sm text-gray-400">Cast your vote:</div>
-                    <div className="flex items-center gap-3">
-                      <motion.div
-                        className="flex-1"
-                        animate={voteAnimation === 'challenger' ? { scale: [1, 1.05, 1] } : {}}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <Button 
-                          variant="outline" 
-                          className={`w-full rounded-xl border-white/20 hover:bg-white/10 disabled:opacity-50 ${
-                            voteAnimation === 'challenger' ? 'bg-green-500/20 border-green-500/50' : ''
-                          }`}
-                          onClick={() => handleVote('challenger', battle.challenger?.username || '')}
-                          disabled={isVoting}
-                        >
-                          <motion.div
-                            animate={voteAnimation === 'challenger' ? { rotate: 360 } : {}}
-                            transition={{ duration: 1, repeat: isVoting ? Infinity : 0 }}
-                          >
-                            <Flame className="h-4 w-4 mr-2" />
-                          </motion.div>
-                          {isVoting && voteAnimation === 'challenger' ? 'Voting...' : `Vote for ${battle.challenger?.username}`}
-                        </Button>
-                      </motion.div>
-                      
-                      <motion.div
-                        className="flex-1"
-                        animate={voteAnimation === 'opponent' ? { scale: [1, 1.05, 1] } : {}}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <Button 
-                          variant="outline" 
-                          className={`w-full rounded-xl border-white/20 hover:bg-white/10 disabled:opacity-50 ${
-                            voteAnimation === 'opponent' ? 'bg-green-500/20 border-green-500/50' : ''
-                          }`}
-                          onClick={() => handleVote('opponent', battle.opponent?.username || 'Opponent')}
-                          disabled={isVoting}
-                        >
-                          <motion.div
-                            animate={voteAnimation === 'opponent' ? { rotate: 360 } : {}}
-                            transition={{ duration: 1, repeat: isVoting ? Infinity : 0 }}
-                          >
-                            <Flame className="h-4 w-4 mr-2" />
-                          </motion.div>
-                          {isVoting && voteAnimation === 'opponent' ? 'Voting...' : `Vote for ${battle.opponent?.username}`}
-                        </Button>
-                      </motion.div>
-                    </div>
-                  </>
-                )
-              ) : (
-                <div className="text-sm text-gray-400">Sign in to vote</div>
-              )}
-              <Button variant="ghost" className="w-full rounded-xl text-white hover:bg-white/10">
-                <ArrowRight className="h-4 w-4 mr-2" />
-                View Battle Details
-              </Button>
-            </div>
-          ) : (
-            <div className="w-full flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm">
-                <Crown className="h-4 w-4 text-yellow-400" />
-                Winner: <span className="font-semibold ml-1 text-white">{battle.winner}</span>
-              </div>
-              <Button variant="ghost" className="rounded-xl text-white hover:bg-white/10">
-                <ArrowRight className="h-4 w-4 mr-2" />
-                View Details
-              </Button>
-            </div>
-          )}
-        </div>
-      </Card>
-      </Link>
-    </motion.div>
-  )
-}
-
 export default function ArenaPage() {
   const { currentLeague, leagues, setCurrentLeague } = useLeague()
   const { user } = useUser()
-  const [activeTab, setActiveTab] = useState('active')
+  const [activeTab, setActiveTab] = useState('all')
   const [isLeagueDropdownOpen, setIsLeagueDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchExpanded, setIsSearchExpanded] = useState(false)
-  const [finishedFilter, setFinishedFilter] = useState('all') // 'all', '30days', 'season1', 'season2'
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false)
+  const [sortBy, setSortBy] = useState('newest')
+  const [finishedFilter, setFinishedFilter] = useState('all')
   const [showCreateBattleModal, setShowCreateBattleModal] = useState(false)
   const [showAcceptBattleModal, setShowAcceptBattleModal] = useState(false)
   const [selectedBattle, setSelectedBattle] = useState<Battle | null>(null)
@@ -699,9 +132,11 @@ export default function ArenaPage() {
     
     // Filter by active tab
     switch (activeTab) {
+      case 'all':
+        // Show all battles except finished ones
+        return filtered.filter(b => b.status !== 'closed')
       case 'active':
-        // Show all battles that are not finished (active + pending)
-        return filtered.filter(b => b.status === 'active' || b.status === 'pending')
+        return filtered.filter(b => b.status === 'active' || b.status === 'challenge')
       case 'open':
         return filtered.filter(b => b.status === 'pending')
       case 'finished':
@@ -721,33 +156,78 @@ export default function ArenaPage() {
       default:
         return filtered
     }
+    
+    // Apply sorting based on filter
+    switch (sortBy) {
+      case 'newest':
+        return filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      case 'soonToFinish':
+        return filtered.sort((a, b) => {
+          if (!a.ends_at || !b.ends_at) return 0
+          return new Date(a.ends_at).getTime() - new Date(b.ends_at).getTime()
+        })
+      case 'byLeague':
+        // Sort by league (you can implement league-specific sorting here)
+        return filtered.sort((a, b) => a.title.localeCompare(b.title))
+      default:
+        return filtered
+    }
+  }
+
+  // Handle accepting a battle
+  const handleAcceptBattle = (battle: any) => {
+    if (!user) {
+      alert('You must be logged in to accept a battle')
+      return
+    }
+    setSelectedBattle(battle)
+    setShowAcceptBattleModal(true)
+  }
+
+  // Handle voting on a battle
+  const handleVote = async (battleId: string, vote: 'challenger' | 'opponent') => {
+    if (!user) {
+      alert('You must be logged in to vote')
+      return
+    }
+    
+    try {
+      // TODO: Implement voting logic
+      console.log(`Voting ${vote} for battle ${battleId}`)
+      alert('Voting feature coming soon!')
+    } catch (error) {
+      console.error('Error voting:', error)
+      alert('Failed to vote. Please try again.')
+    }
   }
 
   return (
     <div className="flex-1">
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8 lg:pl-8 lg:pr-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          className="text-left mb-12"
         >
-          <h1 className="text-5xl font-bold text-white mb-6">Battle Arena</h1>
-          <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+          <h1 className="text-4xl font-bold text-white mb-4">Battle Arena</h1>
+          <p className="text-lg text-gray-300 mb-6 max-w-2xl">
             Compete in epic rap battles, earn flames, and climb the leaderboard. 
-            Each battle runs for 6 days from creation - create new challenges or accept existing ones.
+            Find the perfect sound for your next track or battle.
           </p>
-          <div className="flex items-center justify-center">
-            <Button 
-              size="lg" 
-              className="px-8 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
-              onClick={() => setShowCreateBattleModal(true)}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Create Battle
-            </Button>
-          </div>
+          {user && (
+            <div className="flex items-center gap-4">
+              <Button 
+                size="lg" 
+                className="px-6 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
+                onClick={() => setShowCreateBattleModal(true)}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Create Battle
+              </Button>
+            </div>
+          )}
         </motion.div>
 
         {/* Search, Tabs, and League Filter - All on One Line */}
@@ -769,25 +249,43 @@ export default function ArenaPage() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <input
                     type="text"
-                    className="w-64 pl-10 pr-4 py-2 bg-black/20 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
-                    placeholder="Search battles, artists, beats..."
+                    className="w-64 pl-10 pr-12 py-2 bg-black/20 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
+                    placeholder="Search battles, users, beats..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     autoFocus
-                    onBlur={() => {
-                      // Keep expanded if there's text, collapse if empty
-                      if (!searchQuery.trim()) {
-                        setIsSearchExpanded(false)
-                      }
-                    }}
                   />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      setIsSearchExpanded(false)
+                      setSearchQuery('')
+                    }}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white hover:bg-white/10 h-6 w-6"
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
                 </div>
               )}
             </div>
             
+            {/* Filter Icon */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+              className={`${isFilterExpanded ? 'text-white bg-white/10' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}
+            >
+              <Filter className="w-5 h-5" />
+            </Button>
+            
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
               <TabsList className="rounded-2xl bg-black/20 backdrop-blur-md border border-white/10">
+                <TabsTrigger className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white" value="all">
+                  All Battles
+                </TabsTrigger>
                 <TabsTrigger className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white" value="active">
                   Active Battles
                 </TabsTrigger>
@@ -799,47 +297,137 @@ export default function ArenaPage() {
                 </TabsTrigger>
               </TabsList>
             </Tabs>
-            
-            {/* League Filter */}
-            {leagues.length > 0 && (
-              <div className="relative" ref={dropdownRef}>
-                <Button
-                  variant="outline"
-                  className="bg-black/20 backdrop-blur-md border-white/20 hover:bg-white/10 text-white px-4 py-2 rounded-xl"
-                  onClick={() => setIsLeagueDropdownOpen(!isLeagueDropdownOpen)}
+
+            {/* League Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <Button
+                variant="ghost"
+                onClick={() => setIsLeagueDropdownOpen(!isLeagueDropdownOpen)}
+                className="flex items-center gap-2 text-white hover:bg-white/10"
+              >
+                <span>{currentLeague?.name || 'US/UK League'}</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${isLeagueDropdownOpen ? 'rotate-180' : ''}`} />
+              </Button>
+              
+              {isLeagueDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute right-0 top-full mt-2 bg-black/20 backdrop-blur-md border border-white/20 rounded-xl p-2 min-w-[200px] z-50"
                 >
-                  <span className="mr-2">{currentLeague?.flag_emoji || '🏴󠁧󠁢󠁥󠁮󠁧󠁿'}</span>
-                  {currentLeague?.name || 'US/UK League'}
-                  <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-                
-                {isLeagueDropdownOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-64 bg-black/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl z-50">
-                    <div className="p-2">
-                      {leagues.map((league) => (
-                        <button
-                          key={league.id}
-                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left hover:bg-white/10 transition-colors ${
-                            currentLeague?.id === league.id ? 'bg-white/10' : ''
-                          }`}
-                          onClick={() => {
-                            setCurrentLeague(league)
-                            setIsLeagueDropdownOpen(false)
-                          }}
-                        >
-                          <span className="text-lg">{league.flag_emoji}</span>
-                          <span className="text-white">{league.name}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+                  {leagues.map((league) => (
+                    <button
+                      key={league.id}
+                      onClick={() => {
+                        setCurrentLeague(league)
+                        setIsLeagueDropdownOpen(false)
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        currentLeague?.id === league.id ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      {league.name}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </div>
           </div>
-          
-          {/* Tabs Content */}
+        </div>
+        
+        {/* Filter Dropdown */}
+        {isFilterExpanded && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+            className="mt-3 flex items-center gap-3"
+          >
+            <div className="relative">
+              <div className="bg-black/20 backdrop-blur-md border border-white/20 rounded-xl p-3 min-w-[200px]">
+                <div className="space-y-2">
+                  <button
+                    onClick={() => { setSortBy('newest'); setIsFilterExpanded(false); }}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      sortBy === 'newest' ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    🕒 Newest
+                  </button>
+                  <button
+                    onClick={() => { setSortBy('soonToFinish'); setIsFilterExpanded(false); }}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      sortBy === 'soonToFinish' ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    ⏰ Soon to Finish
+                  </button>
+                  <button
+                    onClick={() => { setSortBy('byLeague'); setIsFilterExpanded(false); }}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      sortBy === 'byLeague' ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    🏆 By League
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+        
+        {/* Battle Listings */}
+        <div className="bg-black/20 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsContent value="all" className="mt-6">
+              {isLoading ? (
+                <div className="text-center py-8 text-gray-400">
+                  Loading battles...
+                </div>
+              ) : getFilteredBattles().length === 0 ? (
+                <div className="text-center py-16">
+                  <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-12 border border-white/10">
+                    <Users className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-400 mb-3">No Battles Found</h3>
+                    <p className="text-gray-500 mb-8 max-w-md mx-auto text-sm">
+                      No battles found. Create a battle or wait for someone to challenge you!
+                    </p>
+                    <Button 
+                      onClick={() => setShowCreateBattleModal(true)}
+                      className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
+                    >
+                      <Plus className="w-5 h-5 mr-2" />
+                      Create Battle
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-7 text-xs font-medium text-gray-400 uppercase tracking-wider mb-4 px-6">
+                    <div className="col-span-1 text-center pr-8">Challenger</div>
+                    <div className="col-span-1 text-center pr-8">VS</div>
+                    <div className="col-span-1 text-center pr-12">Opponent</div>
+                    <div className="col-span-1 text-center pr-4">Type</div>
+                    <div className="col-span-1 text-center pr-4">Status</div>
+                    <div className="col-span-1 text-center pr-4">Finishes</div>
+                    <div className="col-span-1 text-center">Play</div>
+                  </div>
+                  <div>
+                    {getFilteredBattles().map((battle) => (
+                      <BattleCard 
+                        key={battle.id} 
+                        battle={battle}
+                        onAcceptBattle={handleAcceptBattle}
+                        onVote={handleVote}
+                        hasVoted={false}
+                        userVote={undefined}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </TabsContent>
 
             <TabsContent value="active" className="mt-6">
               {isLoading ? (
@@ -849,26 +437,44 @@ export default function ArenaPage() {
               ) : getFilteredBattles().length === 0 ? (
                 <div className="text-center py-16">
                   <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-12 border border-white/10">
-                    <Mic className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+                    <Users className="w-12 h-12 text-gray-500 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-400 mb-3">No Active Battles</h3>
                     <p className="text-gray-500 mb-8 max-w-md mx-auto text-sm">
-                      No battles are currently active. Create a new battle or accept an open challenge!
+                      No battles are currently active. Create a battle or wait for someone to challenge you!
                     </p>
                     <Button 
-                      onClick={() => setShowCreateModal(true)}
+                      onClick={() => setShowCreateBattleModal(true)}
                       className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
                     >
                       <Plus className="w-5 h-5 mr-2" />
-                      Create First Battle
+                      Create Battle
                     </Button>
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {getFilteredBattles().map((battle) => (
-                    <BattleCard key={battle.id} battle={battle} />
-                  ))}
-                </div>
+                <>
+                  <div className="grid grid-cols-7 text-xs font-medium text-gray-400 uppercase tracking-wider mb-4 px-6">
+                    <div className="col-span-1 text-center pr-8">Challenger</div>
+                    <div className="col-span-1 text-center pr-8">VS</div>
+                    <div className="col-span-1 text-center pr-12">Opponent</div>
+                    <div className="col-span-1 text-center pr-4">Type</div>
+                    <div className="col-span-1 text-center pr-4">Status</div>
+                    <div className="col-span-1 text-center pr-4">Finishes</div>
+                    <div className="col-span-1 text-center">Play</div>
+                  </div>
+                  <div>
+                    {getFilteredBattles().map((battle) => (
+                      <BattleCard 
+                        key={battle.id} 
+                        battle={battle}
+                        onAcceptBattle={handleAcceptBattle}
+                        onVote={handleVote}
+                        hasVoted={false}
+                        userVote={undefined}
+                      />
+                    ))}
+                  </div>
+                </>
               )}
             </TabsContent>
 
@@ -886,7 +492,7 @@ export default function ArenaPage() {
                       No one is looking for a battle right now. Create a challenge and wait for someone to accept!
                     </p>
                     <Button 
-                      onClick={() => setShowCreateModal(true)}
+                      onClick={() => setShowCreateBattleModal(true)}
                       className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
                     >
                       <Plus className="w-5 h-5 mr-2" />
@@ -895,11 +501,29 @@ export default function ArenaPage() {
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {getFilteredBattles().map((battle) => (
-                    <BattleCard key={battle.id} battle={battle} />
-                  ))}
-                </div>
+                <>
+                  <div className="grid grid-cols-7 text-xs font-medium text-gray-400 uppercase tracking-wider mb-4 px-6">
+                    <div className="col-span-1 text-center pr-8">Challenger</div>
+                    <div className="col-span-1 text-center pr-8">VS</div>
+                    <div className="col-span-1 text-center pr-12">Opponent</div>
+                    <div className="col-span-1 text-center pr-4">Type</div>
+                    <div className="col-span-1 text-center pr-4">Status</div>
+                    <div className="col-span-1 text-center pr-4">Finishes</div>
+                    <div className="col-span-1 text-center">Play</div>
+                  </div>
+                  <div>
+                    {getFilteredBattles().map((battle) => (
+                      <BattleCard 
+                        key={battle.id} 
+                        battle={battle}
+                        onAcceptBattle={handleAcceptBattle}
+                        onVote={handleVote}
+                        hasVoted={false}
+                        userVote={undefined}
+                      />
+                    ))}
+                  </div>
+                </>
               )}
             </TabsContent>
 
@@ -917,41 +541,55 @@ export default function ArenaPage() {
                       No battles have been completed yet. Create some battles and let the competition begin!
                     </p>
                     <Button 
-                      onClick={() => setShowCreateModal(true)}
+                      onClick={() => setShowCreateBattleModal(true)}
                       className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
                     >
                       <Plus className="w-5 h-5 mr-2" />
-                      Start a Battle
+                      Create First Battle
                     </Button>
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {getFilteredBattles().map((battle) => (
-                    <BattleCard key={battle.id} battle={battle} />
-                  ))}
-                </div>
+                <>
+                  <div className="grid grid-cols-7 text-xs font-medium text-gray-400 uppercase tracking-wider mb-4 px-6">
+                    <div className="col-span-1 text-center pr-8">Challenger</div>
+                    <div className="col-span-1 text-center pr-8">VS</div>
+                    <div className="col-span-1 text-center pr-12">Opponent</div>
+                    <div className="col-span-1 text-center pr-4">Type</div>
+                    <div className="col-span-1 text-center pr-4">Status</div>
+                    <div className="col-span-1 text-center pr-4">Finishes</div>
+                    <div className="col-span-1 text-center">Play</div>
+                  </div>
+                  <div>
+                    {getFilteredBattles().map((battle) => (
+                      <BattleCard 
+                        key={battle.id} 
+                        battle={battle}
+                        onAcceptBattle={handleAcceptBattle}
+                        onVote={handleVote}
+                        hasVoted={false}
+                        userVote={undefined}
+                      />
+                    ))}
+                  </div>
+                </>
               )}
             </TabsContent>
           </Tabs>
         </div>
       </div>
 
-      {/* Sticky Create Battle Button */}
-      <motion.div
-        initial={{ opacity: 0, y: 100 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
-        className="fixed bottom-6 right-6 z-50"
-      >
-        <Button 
-          size="lg" 
-          className="rounded-full w-16 h-16 shadow-2xl hover:scale-110 transition-transform duration-200 bg-white/20 hover:bg-white/30 text-white border border-white/30"
-          onClick={() => setShowCreateBattleModal(true)}
-        >
-          <Plus className="w-6 h-6" />
-        </Button>
-      </motion.div>
+      {/* Create Battle Modal */}
+      <CreateBattleModal
+        isOpen={showCreateBattleModal}
+        onClose={() => setShowCreateBattleModal(false)}
+        onBattleCreated={() => {
+          setShowCreateBattleModal(false)
+          setShowSuccessMessage(true)
+          loadBattles()
+          setTimeout(() => setShowSuccessMessage(false), 3000)
+        }}
+      />
 
       {/* Success Message */}
       {showSuccessMessage && (
@@ -963,49 +601,15 @@ export default function ArenaPage() {
         >
           <div className="flex items-center gap-3">
             <div className="w-6 h-6 bg-green-400 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-4 h-4 text-white" />
+              <span className="text-white text-sm">✓</span>
             </div>
             <div>
-              <p className="text-white font-medium">Battle Created!</p>
-              <p className="text-green-200 text-sm">Your battle is now live in the arena</p>
+              <p className="text-white font-medium">Success!</p>
+              <p className="text-green-200 text-sm">Action completed successfully</p>
             </div>
           </div>
         </motion.div>
       )}
-
-      {/* Create Battle Modal */}
-      <CreateBattleModal
-        isOpen={showCreateBattleModal}
-        onClose={() => setShowCreateBattleModal(false)}
-        onBattleCreated={() => {
-          // Refresh battles list
-          loadBattles()
-          setShowSuccessMessage(true)
-          console.log('Battle created successfully!')
-          
-          // Hide success message after 5 seconds
-          setTimeout(() => setShowSuccessMessage(false), 5000)
-        }}
-      />
-
-      {/* Accept Battle Modal */}
-      <AcceptBattleModal
-        isOpen={showAcceptBattleModal}
-        onClose={() => {
-          setShowAcceptBattleModal(false)
-          setSelectedBattle(null)
-        }}
-        battle={selectedBattle}
-        onBattleAccepted={() => {
-          // Refresh battles list
-          loadBattles()
-          setShowSuccessMessage(true)
-          console.log('Battle accepted successfully!')
-          
-          // Hide success message after 5 seconds
-          setTimeout(() => setShowSuccessMessage(false), 5000)
-        }}
-      />
     </div>
   )
 }

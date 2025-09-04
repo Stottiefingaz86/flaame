@@ -4,6 +4,8 @@ import { cookies } from 'next/headers'
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('Beat upload request started')
+    
     const cookieStore = await cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -30,110 +32,115 @@ export async function POST(request: NextRequest) {
     
     // Get authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
+    console.log('Auth check:', { user: user?.id, error: authError })
     
     if (authError || !user) {
+      console.log('Auth failed:', authError)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Parse form data
     const formData = await request.formData()
     const title = formData.get('title') as string
-    const artist = formData.get('artist') as string
     const description = formData.get('description') as string
-    const bpm = parseInt(formData.get('bpm') as string) || null
-    const key = formData.get('key') as string
-    const genre = formData.get('genre') as string
-    const costFlames = parseInt(formData.get('costFlames') as string) || 0
     const isFree = formData.get('isFree') === 'true'
-    const isOriginal = formData.get('isOriginal') === 'true'
+    const flaamesPrice = parseInt(formData.get('flaamesPrice') as string) || 0
     const audioFile = formData.get('audioFile') as File
 
+    console.log('Form data received:', { 
+      title, 
+      description, 
+      isFree, 
+      flaamesPrice, 
+      fileName: audioFile?.name, 
+      fileSize: audioFile?.size,
+      fileType: audioFile?.type
+    })
+
     // Validate required fields
-    if (!title || !artist || !audioFile) {
-      return NextResponse.json({ error: 'Title, artist, and audio file are required' }, { status: 400 })
+    if (!title || !audioFile) {
+      console.log('Validation failed: missing title or audio file')
+      return NextResponse.json({ error: 'Title and audio file are required' }, { status: 400 })
+    }
+
+    // Validate file size (50MB limit for beats bucket)
+    const maxSize = 50 * 1024 * 1024 // 50MB
+    if (audioFile.size > maxSize) {
+      console.log('File too large:', audioFile.size, 'bytes')
+      return NextResponse.json({ error: 'File size must be less than 50MB' }, { status: 400 })
     }
 
     // Validate file type
-    const allowedTypes = ['audio/mpeg', 'audio/wav', 'audio/mp3', 'audio/aac', 'video/mp4', 'video/quicktime']
+    const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/flac', 'audio/aac', 'video/mp4', 'video/quicktime']
     if (!allowedTypes.includes(audioFile.type)) {
-      return NextResponse.json({ error: 'Invalid file type. Only MP3, WAV, AAC, MP4, and MOV files are allowed.' }, { status: 400 })
+      console.log('Invalid file type:', audioFile.type)
+      return NextResponse.json({ error: 'Invalid file type. Please upload an audio file (MP3, WAV, FLAC, AAC, MP4, MOV)' }, { status: 400 })
     }
 
-    // Validate file size (100MB max)
-    const maxSize = 100 * 1024 * 1024 // 100MB
-    if (audioFile.size > maxSize) {
-      return NextResponse.json({ error: 'File size too large. Maximum size is 100MB.' }, { status: 400 })
-    }
+    console.log('All validations passed, proceeding with upload...')
 
-    // Generate unique filename
-    const fileExt = audioFile.name.split('.').pop()
-    const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
-
-    // Upload file to Supabase Storage
+    // Upload file to Supabase Storage - using 'beats' bucket
+    const fileName = `${Date.now()}-${audioFile.name}`
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('audio')
-      .upload(fileName, audioFile, {
-        cacheControl: '3600',
-        upsert: false
-      })
+      .from('beats')
+      .upload(fileName, audioFile)
 
     if (uploadError) {
-      console.error('File upload error:', uploadError)
+      console.error('Storage upload error:', uploadError)
       return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 })
     }
 
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('audio')
+    console.log('File uploaded to storage:', uploadData)
+
+    // Get public URL from 'beats' bucket
+    const { data: urlData } = supabase.storage
+      .from('beats')
       .getPublicUrl(fileName)
 
+    const publicUrl = urlData.publicUrl
+    console.log('Public URL generated:', publicUrl)
+
     // Create beat record in database
-    const { data: beat, error: beatError } = await supabase
+    const { data: beatData, error: insertError } = await supabase
       .from('beats')
       .insert({
         title,
-        artist,
         description,
-        bpm,
-        key,
-        genre,
-        cost_flames: isFree ? 0 : costFlames,
-        is_free: isFree,
-        is_original: isOriginal,
-        copyright_verified: isOriginal, // Auto-verify original content
-        file_path: fileName,
+        artist: user.email?.split('@')[0] || 'Unknown Artist',
+        audio_url: publicUrl,
+        file_name: fileName,
         file_size: audioFile.size,
-        uploader_id: user.id
+        file_type: audioFile.type,
+        is_free: isFree,
+        flaames_price: flaamesPrice,
+        producer_id: user.id,
+        created_at: new Date().toISOString()
       })
       .select()
       .single()
 
-    if (beatError) {
-      console.error('Beat creation error:', beatError)
+    if (insertError) {
+      console.error('Database insert error:', insertError)
       // Clean up uploaded file if database insert fails
       await supabase.storage.from('beats').remove([fileName])
-      return NextResponse.json({ error: 'Failed to create beat record' }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to save beat record' }, { status: 500 })
     }
 
-    // If not original content, create copyright verification request
-    if (!isOriginal) {
-      await supabase
-        .from('copyright_verifications')
-        .insert({
-          beat_id: beat.id,
-          status: 'pending',
-          notes: 'Pending copyright verification for uploaded content'
-        })
-    }
+    console.log('Beat record created:', beatData)
 
-    return NextResponse.json({ 
+    const response = { 
       success: true, 
-      beat,
-      publicUrl,
-      message: isOriginal ? 'Beat uploaded successfully!' : 'Beat uploaded! Pending copyright verification.'
-    })
+      message: 'Beat uploaded successfully!',
+      beat: beatData
+    }
+    
+    console.log('Sending success response:', response)
+    return NextResponse.json(response)
 
   } catch (error) {
     console.error('Beat upload error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
+

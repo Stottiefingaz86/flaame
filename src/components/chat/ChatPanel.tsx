@@ -34,6 +34,7 @@ import {
 import { chatService, ChatMessage, BattleChallenge } from '@/lib/chat'
 import { supabase } from '@/lib/supabase/client'
 import { useUser } from '@/contexts/UserContext'
+import { useAudio } from '@/contexts/AudioContext'
 
 interface User {
   id: string
@@ -61,6 +62,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
   const [isMinimized, setIsMinimized] = useState(false)
   const [message, setMessage] = useState('')
   const { user, isLoading } = useUser()
+  const { currentTrack } = useAudio()
   const [activeTab, setActiveTab] = useState<'chat' | 'battles'>('chat')
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [showEmojiShop, setShowEmojiShop] = useState(false)
@@ -416,7 +418,20 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
       <div className="w-[var(--chat-width)] bg-black/95 backdrop-blur-xl border-l border-white/10 flex items-center justify-center min-h-[calc(100vh-80px)]">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <div className="text-white">Loading chat...</div>
+          <div className="text-white mb-2">Loading chat...</div>
+          <div className="text-gray-400 text-sm">This may take a moment</div>
+          
+          {/* Fallback after 3 seconds */}
+          <div className="mt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.location.reload()}
+              className="text-xs border-white/20 text-white hover:bg-white/10"
+            >
+              Refresh if stuck
+            </Button>
+          </div>
         </div>
       </div>
     )
@@ -438,10 +453,10 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="w-[var(--chat-width)] bg-black/80 backdrop-blur-xl flex flex-col h-screen border-l border-white/5 fixed top-0 right-0 z-50"
+            className="w-[var(--chat-width)] bg-black/20 backdrop-blur-xl flex flex-col h-screen border-l border-white/20 fixed top-0 right-0 z-50"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-white/10 bg-black/50">
+            <div className="flex items-center justify-between p-4 border-b border-white/20 bg-black/30 backdrop-blur-md">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-full bg-gradient-to-r from-orange-500 to-red-500">
                   <MessageSquare className="w-4 h-4 text-white" />
@@ -487,7 +502,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                           {muted ? <BellOff className="w-4 h-4" /> : <Bell className="w-4 h-4" />}
                         </Button>
                       </div>
-                      <div className="border-t border-white/10 pt-2">
+                      <div className="border-t border-white/10 pt-2 pb-20">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -507,7 +522,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
             {(
               <>
                 {/* Tabs */}
-                <div className="flex border-b border-white/10 bg-black/30">
+                <div className="flex border-b border-white/20 bg-black/20 backdrop-blur-md">
                   <button 
                     onClick={() => setActiveTab('chat')} 
                     className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
@@ -605,7 +620,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                             </Link>
                           </div>
                         ) : (
-                          <div className="space-y-2">
+                          <div className={`space-y-2 ${currentTrack ? 'pb-20' : ''}`}>
                             <div className="flex gap-2">
                               <Button 
                                 variant="ghost" 

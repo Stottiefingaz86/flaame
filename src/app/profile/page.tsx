@@ -23,6 +23,7 @@ import {
 import { supabase } from '@/lib/supabase/client'
 import { useUser } from '@/contexts/UserContext'
 import { useRouter } from 'next/navigation'
+import ProfileBeatCard from '@/components/profile/ProfileBeatCard'
 
 interface Battle {
   id: string
@@ -36,11 +37,14 @@ interface Battle {
 interface Beat {
   id: string
   title: string
-  tags: string[]
-  price: number
+  description: string
   is_free: boolean
+  cost_flames?: number
   download_count: number
+  like_count: number
   created_at: string
+  audio_url: string
+  duration?: number
 }
 
 export default function ProfilePage() {
@@ -95,8 +99,19 @@ export default function ProfilePage() {
       // Load beats (if user is a producer)
       const { data: beatsData } = await supabase
         .from('beats')
-        .select('*')
-        .eq('producer_id', user.id)
+        .select(`
+          id,
+          title,
+          description,
+          is_free,
+          cost_flames,
+          download_count,
+          like_count,
+          created_at,
+          audio_url,
+          duration
+        `)
+        .eq('uploader_id', user.id)
         .order('created_at', { ascending: false })
         .limit(10)
 
@@ -108,6 +123,14 @@ export default function ProfilePage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleBeatUpdate = () => {
+    loadUserData() // Refresh the beats list
+  }
+
+  const handleBeatDelete = (beatId: string) => {
+    setBeats(prev => prev.filter(beat => beat.id !== beatId))
   }
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -451,31 +474,12 @@ export default function ProfilePage() {
                   ) : (
                     <div className="space-y-3">
                       {beats.map((beat) => (
-                        <div key={beat.id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
-                          <div>
-                            <h3 className="text-white font-semibold">{beat.title}</h3>
-                            <div className="flex items-center gap-2 mt-1">
-                              <span className={`px-2 py-1 rounded text-xs ${
-                                beat.is_free ? 'bg-green-500/20 text-green-400' : 'bg-orange-500/20 text-orange-400'
-                              }`}>
-                                {beat.is_free ? 'Free' : `$${beat.price}`}
-                              </span>
-                              {beat.tags.map((tag) => (
-                                <span key={tag} className="px-2 py-1 bg-white/10 rounded text-xs text-gray-300">
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-white font-semibold">
-                              {beat.download_count} downloads
-                            </div>
-                            <div className="text-gray-400 text-sm">
-                              {new Date(beat.created_at).toLocaleDateString()}
-                            </div>
-                          </div>
-                        </div>
+                        <ProfileBeatCard 
+                          key={beat.id} 
+                          beat={beat} 
+                          onUpdate={handleBeatUpdate}
+                          onDelete={handleBeatDelete}
+                        />
                       ))}
                     </div>
                   )}

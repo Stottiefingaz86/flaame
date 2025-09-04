@@ -63,9 +63,9 @@ export default function PersistentPlayer() {
             {/* Track Info */}
             <div className="flex items-center gap-4 flex-1 min-w-0">
               <Avatar className="w-12 h-12 border-2 border-white/20">
-                <AvatarImage src={user?.avatar_id ? `/api/avatars/${user.avatar_id}` : undefined} />
+                <AvatarImage src={currentTrack?.avatarId ? `/api/avatars/${currentTrack.avatarId}` : undefined} />
                 <AvatarFallback className="bg-gradient-to-br from-orange-500 to-red-500 text-white text-lg">
-                  {user?.username?.charAt(0).toUpperCase() || 'U'}
+                  {currentTrack?.username?.charAt(0).toUpperCase() || currentTrack?.artist?.charAt(0).toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">

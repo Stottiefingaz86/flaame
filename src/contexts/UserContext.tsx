@@ -28,49 +28,38 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      setIsLoading(true)
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
-      
-      if (authError) {
-        console.error('Auth error:', authError)
-        setUser(null)
-        return
-      }
+      const { data: { user: authUser } } = await supabase.auth.getUser()
       
       if (authUser) {
-        // Get user profile data
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', authUser.id)
           .single()
 
-        if (error) {
-          console.error('Error fetching profile:', error)
-          // If profile doesn't exist, create a basic one
-          if (error.code === 'PGRST116') {
-            const { data: newProfile, error: createError } = await supabase
-              .from('profiles')
-              .insert({
-                id: authUser.id,
-                username: authUser.user_metadata?.username || authUser.email?.split('@')[0] || 'User',
-                flames: 100,
-                rank: 'Newcomer',
-                is_verified: false
-              })
-              .select()
-              .single()
-            
-            if (createError) {
-              console.error('Error creating profile:', createError)
-              setUser(null)
-            } else {
-              setUser(newProfile)
-            }
-          } else {
+        if (error && error.code === 'PGRST116') {
+          // Profile doesn't exist, create one
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert({
+              id: authUser.id,
+              username: authUser.user_metadata?.username || authUser.email?.split('@')[0] || 'User',
+              flames: 5,
+              rank: 'Newcomer',
+              is_verified: false
+            })
+            .select()
+            .single()
+          
+          if (createError) {
+            console.error('Error creating profile:', createError)
             setUser(null)
+          } else {
+            setUser(newProfile)
           }
         } else if (profile) {
+          // Check for daily login reward
+          await checkDailyLoginReward(profile)
           setUser(profile)
         }
       } else {
@@ -84,13 +73,47 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const checkDailyLoginReward = async (profile: any) => {
+    try {
+      const today = new Date().toISOString().split('T')[0]
+      const lastLogin = profile.last_login_date
+      
+      // If user hasn't logged in today, give them a reward
+      if (!lastLogin || lastLogin !== today) {
+        const { data, error } = await supabase.rpc('handle_daily_login_reward', {
+          user_id: profile.id
+        })
+        
+        if (!error && data > 0) {
+          // Update local user state with new flames
+          setUser(prev => prev ? { ...prev, flames: (prev.flames || 0) + data } : null)
+          console.log(`Daily login reward: +${data} flames!`)
+        }
+      }
+    } catch (error) {
+      console.error('Error checking daily login reward:', error)
+    }
+  }
+
   useEffect(() => {
     let mounted = true
 
     const initializeAuth = async () => {
       try {
         setIsLoading(true)
+        
+        // Add a timeout to prevent infinite loading
+        const timeoutId = setTimeout(() => {
+          if (mounted) {
+            console.warn('Auth initialization timed out, setting loading to false')
+            setIsLoading(false)
+          }
+        }, 5000) // 5 second timeout
+        
         await refreshUser()
+        
+        // Clear timeout if successful
+        clearTimeout(timeoutId)
       } catch (error) {
         console.error('Error initializing auth:', error)
         if (mounted) {
@@ -109,24 +132,48 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
         console.log('Auth state changed:', event, session?.user?.id)
         
-        if (session?.user) {
-          // Get user profile data
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
+        try {
+          if (event === 'INITIAL_SESSION' && session?.user) {
+            // This is the initial session, we need to load the user profile
+            console.log('Initial session detected, loading user profile...')
+            const { data: profile, error } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single()
 
-          if (error) {
-            console.error('Error fetching profile:', error)
+            if (error) {
+              console.error('Error fetching profile:', error)
+              setUser(null)
+            } else if (profile) {
+              console.log('Profile loaded from initial session:', profile.username)
+              setUser(profile)
+            }
+          } else if (session?.user) {
+            // Get user profile data
+            const { data: profile, error } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single()
+
+            if (error) {
+              console.error('Error fetching profile:', error)
+              setUser(null)
+            } else if (profile) {
+              console.log('Profile loaded from auth change:', profile.username)
+              setUser(profile)
+            }
+          } else {
+            console.log('No session, setting user to null')
             setUser(null)
-          } else if (profile) {
-            setUser(profile)
           }
-        } else {
+        } catch (error) {
+          console.error('Error in auth state change:', error)
           setUser(null)
+        } finally {
+          setIsLoading(false)
         }
-        setIsLoading(false)
       }
     )
 

@@ -27,6 +27,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { useUser } from '@/contexts/UserContext'
+import FeaturedProducer from '@/components/home/FeaturedProducer'
 
 export default function HomePage() {
   const { user } = useUser()
@@ -346,6 +347,16 @@ export default function HomePage() {
               </div>
             </CardContent>
           </Card>
+        </motion.div>
+
+        {/* Featured Producer Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.7 }}
+          className="mb-16"
+        >
+          <FeaturedProducer />
         </motion.div>
 
         {/* Blog Posts Section */}

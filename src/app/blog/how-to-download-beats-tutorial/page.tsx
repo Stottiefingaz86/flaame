@@ -64,7 +64,7 @@ export default function BeatTutorialPost() {
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              January 15, 2024
+              January 15, 2025
             </div>
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4" />

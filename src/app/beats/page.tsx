@@ -259,18 +259,18 @@ export default function BeatsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-left mb-12"
+          className="text-center md:text-left mb-8 md:mb-12"
         >
-          <h1 className="text-4xl font-bold text-white mb-4">Beats</h1>
-          <p className="text-lg text-gray-300 mb-6 max-w-2xl">
+          <h1 className="text-2xl md:text-4xl font-bold text-white mb-3 md:mb-4">Beats</h1>
+          <p className="text-sm md:text-lg text-gray-300 mb-4 md:mb-6 max-w-2xl mx-auto md:mx-0">
             Discover and download amazing beats from talented producers. 
             Find the perfect sound for your next track or battle.
           </p>
           {user && (
-            <div className="flex items-center gap-4">
+            <div className="flex flex-row items-center justify-center md:justify-start gap-3 md:gap-4">
               <Button 
                 size="lg" 
-                className="px-6 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
+                className="px-4 md:px-6 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-sm md:text-base"
                 onClick={() => setShowUploadModal(true)}
               >
                 <Upload className="w-4 h-4 mr-2" />
@@ -279,7 +279,7 @@ export default function BeatsPage() {
               <Button 
                 variant="outline"
                 size="lg" 
-                className="px-6 border-white/20 text-white hover:bg-white/10"
+                className="px-4 md:px-6 border-white/20 text-white hover:bg-white/10 text-sm md:text-base"
                 onClick={() => setShowRulesModal(true)}
               >
                 How to Upload a Beat

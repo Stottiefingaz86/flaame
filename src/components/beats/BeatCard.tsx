@@ -15,6 +15,7 @@ import {
 import { createClient } from '@supabase/supabase-js'
 import { useUser } from '@/contexts/UserContext'
 import Link from 'next/link'
+import StyledUsername from '@/components/ui/StyledUsername'
 
 interface Beat {
   id: string
@@ -180,14 +181,16 @@ export default function BeatCard({ beat, onPlay, isPlaying, isCurrentBeat }: Bea
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <Link href={`/profile/${beat.producer?.username?.toLowerCase()}`} className="flex items-center gap-2 mb-2 group">
+            <Link href={`/profile/${encodeURIComponent(beat.producer?.username || '')}`} className="flex items-center gap-2 mb-2 group">
               <Avatar className="h-8 w-8 border border-white/20">
                 <AvatarImage src={`/api/avatars/${beat.producer?.avatar_id}`} alt={beat.producer?.username || 'Unknown Artist'} />
                 <AvatarFallback>{beat.producer?.username?.charAt(0).toUpperCase() || '?'}</AvatarFallback>
               </Avatar>
-              <span className="text-gray-300 text-sm font-medium group-hover:text-white transition-colors">
-                {beat.producer?.username || 'Unknown Artist'}
-              </span>
+              <StyledUsername 
+                username={beat.producer?.username || 'Unknown Artist'} 
+                userId={beat.producer?.id || ''}
+                className="text-gray-300 text-sm font-medium group-hover:text-white transition-colors"
+              />
             </Link>
             <CardTitle className="text-white text-lg mb-1">{beat.title}</CardTitle>
             <div className="flex items-center gap-2 mb-2">

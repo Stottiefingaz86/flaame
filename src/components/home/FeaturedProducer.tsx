@@ -13,9 +13,11 @@ import {
   Download, 
   TrendingUp,
   ArrowRight,
-  Play
+  Play,
+  Pause
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
+import { useAudio } from '@/contexts/AudioContext'
 import Link from 'next/link'
 
 interface FeaturedProducer {
@@ -37,10 +39,42 @@ interface FeaturedProducer {
 export default function FeaturedProducer() {
   const [featuredProducer, setFeaturedProducer] = useState<FeaturedProducer | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const { playAudio, pauseAudio, currentTrackUrl, isPlaying } = useAudio()
 
   useEffect(() => {
     loadFeaturedProducer()
   }, [])
+
+  const handlePlayTrack = async (audioUrl: string, trackName: string, username?: string) => {
+    try {
+      // Check if this track is currently playing
+      if (currentTrackUrl === audioUrl && isPlaying) {
+        pauseAudio()
+      } else {
+        // Play the track
+        playAudio(audioUrl, trackName, username)
+      }
+    } catch (error) {
+      console.error('Error playing track:', error)
+    }
+  }
+
+  const handleDownloadBeat = async (audioUrl: string, title: string, username: string) => {
+    try {
+      const response = await fetch(audioUrl)
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${title} - ${username}.wav`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      console.error('Download failed:', error)
+    }
+  }
 
   const loadFeaturedProducer = async () => {
     try {
@@ -144,21 +178,21 @@ export default function FeaturedProducer() {
       transition={{ duration: 0.5, delay: 0.6 }}
       className="mb-16"
     >
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-bold text-white flex items-center gap-2">
-          <Crown className="w-8 h-8 text-purple-400" />
-          Leading Producer
-        </h2>
-        <Link href="/beats">
-          <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
-            View All Beats
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </Link>
-      </div>
-      
       <Card className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 backdrop-blur-xl border border-purple-500/20">
         <CardContent className="p-8">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold text-white flex items-center gap-2">
+              <Crown className="w-8 h-8 text-purple-400" />
+              Leading Producer
+            </h2>
+            <Link href="/beats">
+              <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                View All Beats
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
               <div className="flex items-center gap-4 mb-6">
@@ -177,27 +211,22 @@ export default function FeaturedProducer() {
                 </div>
               </div>
               
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
-                  <Music className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white">{featuredProducer.total_beats}</div>
-                  <div className="text-gray-400 text-sm">Beats</div>
+              <div className="flex items-center gap-6 mb-6">
+                <div className="flex items-center gap-2 text-gray-400">
+                  <Music className="w-5 h-5" />
+                  <span>{featuredProducer.total_beats} Beats</span>
                 </div>
-                
-                <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
-                  <Heart className="w-8 h-8 text-red-400 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white">{featuredProducer.total_likes}</div>
-                  <div className="text-gray-400 text-sm">Likes</div>
+                <div className="flex items-center gap-2 text-gray-400">
+                  <Heart className="w-5 h-5" />
+                  <span>{featuredProducer.total_likes} Likes</span>
                 </div>
-                
-                <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
-                  <Download className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white">{featuredProducer.total_downloads}</div>
-                  <div className="text-gray-400 text-sm">Downloads</div>
+                <div className="flex items-center gap-2 text-gray-400">
+                  <Download className="w-5 h-5" />
+                  <span>{featuredProducer.total_downloads} Downloads</span>
                 </div>
               </div>
               
-              <Link href={`/profile/${featuredProducer.username.toLowerCase()}`}>
+              <Link href={`/profile/${encodeURIComponent(featuredProducer.username)}`}>
                 <Button className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white">
                   <TrendingUp className="w-4 h-4 mr-2" />
                   View Profile
@@ -247,10 +276,31 @@ export default function FeaturedProducer() {
                   <div className="flex gap-2">
                     <Button 
                       size="sm" 
+                      onClick={() => handlePlayTrack(
+                        featuredProducer.most_popular_beat.audio_url, 
+                        featuredProducer.most_popular_beat.title,
+                        featuredProducer.username
+                      )}
                       className="flex-1 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white"
                     >
-                      <Play className="w-4 h-4 mr-1" />
-                      Play
+                      {currentTrackUrl === featuredProducer.most_popular_beat.audio_url && isPlaying ? (
+                        <Pause className="w-4 h-4 mr-1" />
+                      ) : (
+                        <Play className="w-4 h-4 mr-1" />
+                      )}
+                      {currentTrackUrl === featuredProducer.most_popular_beat.audio_url && isPlaying ? 'Pause' : 'Play'}
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleDownloadBeat(
+                        featuredProducer.most_popular_beat.audio_url,
+                        featuredProducer.most_popular_beat.title,
+                        featuredProducer.username
+                      )}
+                      variant="outline" 
+                      className="border-white/20 text-white hover:bg-white/10"
+                    >
+                      <Download className="w-4 h-4" />
                     </Button>
                     <Link href="/beats">
                       <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">

@@ -50,6 +50,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       audioRef.current = new Audio()
       audioRef.current.preload = 'auto'
       audioRef.current.crossOrigin = 'anonymous'
+      audioRef.current.volume = 0.8 // Set default volume
     }
 
     const audio = audioRef.current
@@ -69,12 +70,17 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
     const handlePlay = () => setIsPlaying(true)
     const handlePause = () => setIsPlaying(false)
+    const handleError = (e: Event) => {
+      console.error('Audio error:', e)
+      setIsPlaying(false)
+    }
 
     audio.addEventListener('timeupdate', handleTimeUpdate)
     audio.addEventListener('loadedmetadata', handleLoadedMetadata)
     audio.addEventListener('ended', handleEnded)
     audio.addEventListener('play', handlePlay)
     audio.addEventListener('pause', handlePause)
+    audio.addEventListener('error', handleError)
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate)
@@ -82,11 +88,14 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       audio.removeEventListener('ended', handleEnded)
       audio.removeEventListener('play', handlePlay)
       audio.removeEventListener('pause', handlePause)
+      audio.removeEventListener('error', handleError)
     }
   }, [])
 
   const playTrack = (track: AudioTrack) => {
     if (!audioRef.current) return
+
+    console.log('Playing track:', track.title, 'URL:', track.audioUrl)
 
     // Stop current track if different
     if (currentTrack?.id !== track.id) {
@@ -98,7 +107,11 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     setCurrentTrack(track)
     setCurrentTrackUrl(track.audioUrl)
     
-    audioRef.current.play().catch(console.error)
+    setIsPlaying(true)
+    audioRef.current.play().catch((error) => {
+      console.error('Error playing audio:', error)
+      setIsPlaying(false)
+    })
   }
 
   const playAudio = (trackUrl: string, trackName: string, username?: string, avatarId?: string) => {
@@ -125,6 +138,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
     setCurrentTrack(trackObject)
     
+    // Set playing state and play audio
+    setIsPlaying(true)
     audioRef.current.play().catch(console.error)
   }
 
@@ -137,6 +152,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const pauseAudio = () => {
     if (audioRef.current) {
       audioRef.current.pause()
+      setIsPlaying(false)
     }
   }
 

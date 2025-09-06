@@ -10,6 +10,6 @@ const nextConfig = {
     // your project has type errors.
     ignoreBuildErrors: true,
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

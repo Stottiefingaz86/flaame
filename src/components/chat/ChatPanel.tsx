@@ -16,8 +16,6 @@ import {
   Crown,
   Users,
   X,
-  Plus,
-  Sword,
   Zap,
   LogIn,
   Smile,
@@ -31,10 +29,12 @@ import {
   Bell,
   BellOff
 } from 'lucide-react'
-import { chatService, ChatMessage, BattleChallenge } from '@/lib/chat'
+import { chatService, ChatMessage } from '@/lib/chat'
 import { supabase } from '@/lib/supabase/client'
 import { useUser } from '@/contexts/UserContext'
 import { useAudio } from '@/contexts/AudioContext'
+import { useChat } from '@/contexts/ChatContext'
+import StyledUsername from '@/components/ui/StyledUsername'
 
 interface User {
   id: string
@@ -63,16 +63,17 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
   const [message, setMessage] = useState('')
   const { user, isLoading } = useUser()
   const { currentTrack } = useAudio()
-  const [activeTab, setActiveTab] = useState<'chat' | 'battles'>('chat')
+  const { toggleChat } = useChat()
+  const [activeTab, setActiveTab] = useState<'chat' | 'online'>('chat')
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [showEmojiShop, setShowEmojiShop] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [pendingBattles, setPendingBattles] = useState<BattleChallenge[]>([])
   const [availableEmojis, setAvailableEmojis] = useState<Emoji[]>([])
   const [isSending, setIsSending] = useState(false)
   const [showChatSettings, setShowChatSettings] = useState(false)
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [muted, setMuted] = useState(false)
+  const [onlineUsers, setOnlineUsers] = useState<User[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const settingsRef = useRef<HTMLDivElement>(null)
@@ -139,9 +140,20 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
     } else {
       // If no user, clear data and stop loading
       setMessages([])
-      setPendingBattles([])
       setAvailableEmojis([])
+      setOnlineUsers([])
     }
+  }, [user])
+
+  // Refresh online users every 30 seconds
+  useEffect(() => {
+    if (!user) return
+
+    const interval = setInterval(() => {
+      loadOnlineUsers()
+    }, 30000) // 30 seconds
+
+    return () => clearInterval(interval)
   }, [user])
 
   // Subscribe to real-time updates
@@ -167,11 +179,6 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
       })
     })
 
-    // Subscribe to battle challenges
-    const challengeSubscription = chatService.subscribeToChallenges((newChallenge) => {
-      console.log('New challenge received:', newChallenge)
-      setPendingBattles(prev => [newChallenge, ...prev])
-    })
 
     return () => {
       console.log('Cleaning up chat subscriptions')
@@ -179,13 +186,63 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
     }
   }, [user])
 
+  const loadOnlineUsers = async () => {
+    try {
+      // Get users who have been active in the last 5 minutes
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString()
+      
+      const { data: profiles, error } = await supabase
+        .from('profiles')
+        .select('id, username, avatar_id, flames, rank, last_login')
+        .gte('last_login', fiveMinutesAgo)
+        .order('last_login', { ascending: false })
+        .limit(20)
+
+      if (error) {
+        console.error('Error loading online users:', error)
+        return
+      }
+
+      // Filter out duplicate users and ensure current user is included if they're logged in
+      const uniqueUsers = new Map()
+      
+      // Add current user if they're logged in
+      if (user) {
+        uniqueUsers.set(user.id, {
+          id: user.id,
+          username: user.username || 'Unknown',
+          avatar_id: user.avatar_id,
+          flames: user.flames || 0,
+          rank: user.rank || 'Newcomer',
+          last_login: new Date().toISOString()
+        })
+      }
+      
+      // Add other recently active users
+      if (profiles) {
+        profiles.forEach(profile => {
+          if (!uniqueUsers.has(profile.id)) {
+            uniqueUsers.set(profile.id, profile)
+          }
+        })
+      }
+      
+      // Convert map to array and sort by last_login
+      const onlineUsersList = Array.from(uniqueUsers.values())
+        .sort((a, b) => new Date(b.last_login).getTime() - new Date(a.last_login).getTime())
+      
+      setOnlineUsers(onlineUsersList)
+    } catch (error) {
+      console.error('Error loading online users:', error)
+    }
+  }
+
   const loadInitialData = async () => {
     try {
       // Set a timeout to prevent infinite loading
       const timeoutId = setTimeout(() => {
         console.log('Chat data loading timeout - using defaults')
         setMessages([])
-        setPendingBattles([])
         setAvailableEmojis([
           { id: 'default-1', emoji: '🔥', name: 'Fire', cost: 0, rarity: 'common' as const, isUnlocked: true },
           { id: 'default-2', emoji: '💯', name: 'Hundred', cost: 0, rarity: 'common' as const, isUnlocked: true },
@@ -200,9 +257,9 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
       clearTimeout(timeoutId)
       setMessages(recentMessages)
 
-      // Load pending battles
-      const battles = await chatService.getPendingChallenges()
-      setPendingBattles(battles)
+
+      // Load online users
+      await loadOnlineUsers()
 
       // Load user's emojis
       const userEmojis = await chatService.getUserEmojis()
@@ -254,7 +311,6 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
       console.error('Error loading chat data:', error)
       // Set defaults on error
       setMessages([])
-      setPendingBattles([])
       setAvailableEmojis([
         { id: 'default-1', emoji: '🔥', name: 'Fire', cost: 0, rarity: 'common' as const, isUnlocked: true },
         { id: 'default-2', emoji: '💯', name: 'Hundred', cost: 0, rarity: 'common' as const, isUnlocked: true },
@@ -288,6 +344,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
       message_type: 'message',
       created_at: new Date().toISOString(),
       user: {
+        id: user.id,
         username: user.username,
         avatar_id: user.avatar_id,
         is_verified: user.is_verified,
@@ -322,12 +379,12 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
     if (!user) return
 
     if (emoji.isUnlocked) {
-      try {
-        await chatService.sendEmoji(emoji.id)
-        // Play sound for sent emoji
-        playNotificationSound()
-      } catch (error) {
-        console.error('Error sending emoji:', error)
+      // Add emoji to message input instead of sending directly
+      setMessage(prev => prev + emoji.emoji)
+      setShowEmojiPicker(false)
+      // Focus back to input
+      if (inputRef.current) {
+        inputRef.current.focus()
       }
     } else {
       setShowEmojiShop(true)
@@ -363,28 +420,6 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
     }
   }
 
-  const createBattle = () => {
-    // This would open a battle creation modal
-    console.log('Create battle clicked')
-  }
-
-  const handleAcceptChallenge = async (challengeId: string) => {
-    try {
-      await chatService.acceptChallenge(challengeId)
-      setPendingBattles(prev => prev.filter(b => b.id !== challengeId))
-    } catch (error) {
-      console.error('Error accepting challenge:', error)
-    }
-  }
-
-  const handleDeclineChallenge = async (challengeId: string) => {
-    try {
-      await chatService.declineChallenge(challengeId)
-      setPendingBattles(prev => prev.filter(b => b.id !== challengeId))
-    } catch (error) {
-      console.error('Error declining challenge:', error)
-    }
-  }
 
   const getRankColor = (rank: string) => {
     switch (rank) {
@@ -475,6 +510,17 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                 >
                   <Settings className="w-4 h-4" />
                 </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    console.log('Close chat button clicked')
+                    toggleChat()
+                  }}
+                  className="text-white hover:bg-white/10"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
 
                 {/* Chat Settings Dropdown */}
                 {showChatSettings && (
@@ -506,7 +552,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={onToggle}
+                          onClick={toggleChat}
                           className="w-full justify-start text-red-400 hover:bg-red-500/10"
                         >
                           <X className="w-4 h-4 mr-2" />
@@ -532,12 +578,12 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                     Chat
                   </button>
                   <button 
-                    onClick={() => setActiveTab('battles')} 
+                    onClick={() => setActiveTab('online')} 
                     className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
-                      activeTab === 'battles' ? 'text-white border-b-2 border-orange-500' : 'text-gray-400 hover:text-white'
+                      activeTab === 'online' ? 'text-white border-b-2 border-orange-500' : 'text-gray-400 hover:text-white'
                     }`}
                   >
-                    Battles
+                    Online
                   </button>
                 </div>
 
@@ -563,9 +609,13 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-1 mb-1">
-                                <span className="text-xs font-medium text-white">{msg.user?.username}</span>
+                                <StyledUsername 
+                  username={msg.user?.username || ''} 
+                  userId={msg.user?.id || ''}
+                  className="text-xs font-medium text-white"
+                />
                                 {msg.user?.is_verified && (
-                                  <Badge className="h-3 px-1 text-xs bg-blue-500/20 text-blue-300 border-blue-500/30">✓</Badge>
+                                  <span className="text-yellow-400 text-sm">👑</span>
                                 )}
                                 <span className={`text-xs ${getRankColor(msg.user?.rank || '')}`}>{msg.user?.rank}</span>
                                 <span className="text-xs text-gray-500">{formatTime(msg.created_at)}</span>
@@ -589,7 +639,11 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                                     <span className="text-xs font-medium text-white">Battle Challenge</span>
                                   </div>
                                   <p className="text-xs text-gray-300">
-                                    <span className="text-orange-400">{msg.user?.username}</span> challenged{' '}
+                                    <StyledUsername 
+                  username={msg.user?.username || ''} 
+                  userId={msg.user?.id || ''}
+                  className="text-orange-400"
+                /> challenged{' '}
                                     <span className="text-blue-400">opponent</span> to a battle!
                                   </p>
                                 </div>
@@ -694,27 +748,21 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                       </div>
                     </div>
                   ) : (
-                    /* Battles Tab */
+                    /* Online Tab */
                     <div className="h-full p-4 space-y-4 overflow-y-auto h-[calc(100vh-120px)]">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-white font-semibold text-sm">Active Battles</h4>
-                        {user && (
-                          <Button 
-                            onClick={createBattle} 
-                            size="sm" 
-                            className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-xs"
-                          >
-                            <Plus className="w-3 h-3 mr-1" />
-                            Create
-                          </Button>
-                        )}
+                        <h4 className="text-white font-semibold text-sm">Online Users</h4>
+                        <div className="flex items-center gap-2 text-xs text-gray-400">
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                          {onlineUsers.length} online
+                        </div>
                       </div>
 
                       {!user ? (
                         <div className="text-center py-6">
                           <div className="flex items-center justify-center gap-2 mb-2">
                             <LogIn className="w-5 h-5 text-gray-400" />
-                            <p className="text-sm text-gray-400">Sign in to view and create battles</p>
+                            <p className="text-sm text-gray-400">Sign in to see online users</p>
                           </div>
                           <Link href="/auth">
                             <Button size="sm" variant="outline" className="border-white/20 hover:bg-white/10">
@@ -724,48 +772,49 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                         </div>
                       ) : (
                         <div className="space-y-3">
-                          {pendingBattles.length === 0 ? (
+                          {onlineUsers.length === 0 ? (
                             <div className="text-center py-6 text-gray-400 text-sm">
-                              No pending battles
+                              No users online
                             </div>
                           ) : (
-                            pendingBattles.map((battle) => (
-                              <Card key={battle.id} className="bg-black/20 border-white/10">
+                            onlineUsers.map((onlineUser) => (
+                              <Card key={onlineUser.id} className="bg-black/20 border-white/10">
                                 <CardContent className="p-3">
-                                  <div className="flex items-center justify-between mb-2">
-                                    <div className="flex items-center gap-2">
-                                      <Sword className="w-4 h-4 text-orange-400" />
-                                      <span className="text-sm font-medium text-white">
-                                        {battle.challenger?.username} vs {battle.opponent?.username}
-                                      </span>
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                      <div className="relative">
+                                        <Avatar className="w-8 h-8">
+                                          <AvatarImage src={onlineUser.avatar_url || ''} />
+                                          <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
+                                            {onlineUser.username?.charAt(0).toUpperCase() || '?'}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-black"></div>
+                                      </div>
+                                      <div>
+                                        <div className="flex items-center gap-2">
+                                          <StyledUsername 
+                                            username={onlineUser.username || 'Unknown'} 
+                                            userId={onlineUser.id}
+                                            className="text-white text-sm font-medium"
+                                          />
+                                          {onlineUser.is_verified && (
+                                            <span className="text-yellow-400 text-sm">👑</span>
+                                          )}
+                                          <Badge className="text-xs bg-orange-500/20 text-orange-300 border-orange-500/30">
+                                            {onlineUser.rank || 'Newcomer'}
+                                          </Badge>
+                                        </div>
+                                        <div className="text-xs text-gray-400">
+                                          {onlineUser.flames || 0} flames
+                                        </div>
+                                      </div>
                                     </div>
-                                    <Badge className="text-xs bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
-                                      Pending
-                                    </Badge>
-                                  </div>
-                                  <div className="text-xs text-gray-400 space-y-1">
-                                    {battle.beat && <div>Beat: {battle.beat.title}</div>}
-                                    <div>Stakes: {battle.stakes} flames</div>
-                                  </div>
-                                  {user && battle.opponent_id === user.id && (
-                                    <div className="flex gap-2 mt-3">
-                                      <Button 
-                                        size="sm" 
-                                        className="flex-1 bg-green-500/20 text-green-300 border-green-500/30 hover:bg-green-500/30 text-xs"
-                                        onClick={() => handleAcceptChallenge(battle.id)}
-                                      >
-                                        Accept
-                                      </Button>
-                                      <Button 
-                                        size="sm" 
-                                        variant="outline" 
-                                        className="flex-1 border-red-500/30 text-red-300 hover:bg-red-500/10 text-xs"
-                                        onClick={() => handleDeclineChallenge(battle.id)}
-                                      >
-                                        Decline
-                                      </Button>
+                                    <div className="flex items-center gap-1">
+                                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                      <span className="text-xs text-green-400">Active</span>
                                     </div>
-                                  )}
+                                  </div>
                                 </CardContent>
                               </Card>
                             ))

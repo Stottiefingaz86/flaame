@@ -1,69 +1,72 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Headphones, Flame, Download, Play, Pause } from 'lucide-react'
+import { Headphones, Flame, Shirt, CreditCard } from 'lucide-react'
+import { PrintfulService, PrintfulProduct } from '@/lib/printful'
+import CheckoutModal from '@/components/store/CheckoutModal'
+import { useUser } from '@/contexts/UserContext'
 
 export default function StorePage() {
-  const [activeTab, setActiveTab] = useState('beats')
+  const { user } = useUser()
+  const [activeTab, setActiveTab] = useState('personalize')
+  const [merchProducts, setMerchProducts] = useState<PrintfulProduct[]>([])
+  const [isLoadingMerch, setIsLoadingMerch] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState<PrintfulProduct | null>(null)
+  const [showCheckout, setShowCheckout] = useState(false)
 
-  const storeItems = {
-    beats: [
-      {
-        id: 1,
-        title: 'Booming Beat',
-        artist: 'Producer X',
-        price: 50,
-        duration: '3:45',
-        genre: 'Hip-Hop',
-        image: '/api/beats/1'
-      },
-      {
-        id: 2,
-        title: 'Dark Trap',
-        artist: 'Producer Y',
-        price: 75,
-        duration: '4:20',
-        genre: 'Trap',
-        image: '/api/beats/2'
-      },
-      {
-        id: 3,
-        title: 'Smooth Jazz',
-        artist: 'Producer Z',
-        price: 60,
-        duration: '3:15',
-        genre: 'Jazz',
-        image: '/api/beats/3'
+  // Load merch products when merch tab is selected
+  useEffect(() => {
+    if (activeTab === 'merch' && merchProducts.length === 0) {
+      loadMerchProducts()
+    }
+  }, [activeTab, merchProducts.length])
+
+
+  const loadMerchProducts = async () => {
+    setIsLoadingMerch(true)
+    try {
+      console.log('Loading merch products...')
+      
+      // Call our server-side API instead of Printful directly
+      const response = await fetch('/api/printful/products')
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`)
       }
-    ]
+      
+      const data = await response.json()
+      console.log('API response:', data)
+      
+      if (data.error) {
+        throw new Error(data.error)
+      }
+      
+      setMerchProducts(data.products || [])
+    } catch (error) {
+      console.error('Failed to load merch products:', error)
+    } finally {
+      setIsLoadingMerch(false)
+    }
   }
 
-  const flamePackages = [
-    { amount: 100, price: 10, bonus: 0 },
-    { amount: 250, price: 20, bonus: 25 },
-    { amount: 500, price: 35, bonus: 75 },
-    { amount: 1000, price: 60, bonus: 200 },
-    { amount: 2500, price: 125, bonus: 750 }
-  ]
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-white mb-4">Flaame Store</h1>
-        <p className="text-gray-400 text-lg">Get beats and buy flames to support your favorite battles</p>
+        <p className="text-gray-400 text-lg">Personalize your profile and buy flames to support your favorite battles</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 rounded-2xl bg-black/20 backdrop-blur-md border border-white/10">
+        <TabsList className="grid w-full grid-cols-3 rounded-2xl bg-black/20 backdrop-blur-md border border-white/10">
           <TabsTrigger 
-            value="beats" 
+            value="personalize" 
             className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white"
           >
             <Headphones className="w-4 h-4 mr-2" />
-            Beats
+            Personalize
           </TabsTrigger>
           <TabsTrigger 
             value="flames" 
@@ -72,64 +75,118 @@ export default function StorePage() {
             <Flame className="w-4 h-4 mr-2" />
             Buy Flames
           </TabsTrigger>
+          <TabsTrigger 
+            value="merch" 
+            className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white"
+          >
+            <Shirt className="w-4 h-4 mr-2" />
+            Merch
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="beats" className="mt-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {storeItems.beats.map((beat) => (
-              <Card key={beat.id} className="bg-black/20 backdrop-blur-md border border-white/10 hover:bg-black/30 transition-all duration-300">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-white text-lg">{beat.title}</CardTitle>
-                  <p className="text-gray-400 text-sm">by {beat.artist}</p>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between text-sm text-gray-400">
-                    <span>{beat.duration}</span>
-                    <span>{beat.genre}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-orange-400">{beat.price}</span>
-                    <div className="flex space-x-2">
-                      <Button size="sm" variant="outline" className="text-white border-white/20">
-                        <Play className="w-3 h-3 mr-1" />
-                        Preview
-                      </Button>
-                      <Button size="sm" className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">
-                        <Download className="w-3 h-3 mr-1" />
-                        Buy
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+        <TabsContent value="personalize" className="mt-8">
+          <div className="text-center py-12">
+            <Headphones className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-400 mb-2">Personalize Your Profile</h3>
+            <p className="text-gray-500">Customize your avatar and username with unique effects and badges</p>
+            <div className="mt-6">
+              <span className="inline-block bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full px-6 py-3 text-lg font-semibold">
+                Coming Soon
+              </span>
+            </div>
           </div>
         </TabsContent>
 
         <TabsContent value="flames" className="mt-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {flamePackages.map((pkg, index) => (
-              <Card key={index} className="bg-black/20 backdrop-blur-md border border-white/10 hover:bg-black/30 transition-all duration-300">
-                <CardHeader className="text-center pb-3">
-                  <CardTitle className="text-white text-2xl flex items-center justify-center">
-                    <Flame className="w-6 h-6 text-orange-400 mr-2" />
-                    {pkg.amount}
-                  </CardTitle>
-                  {pkg.bonus > 0 && (
-                    <p className="text-green-400 text-sm">+{pkg.bonus} Bonus!</p>
-                  )}
-                </CardHeader>
-                <CardContent className="text-center space-y-4">
-                  <div className="text-3xl font-bold text-white">${pkg.price}</div>
-                  <Button className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">
-                    Buy Package
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="text-center py-12">
+            <Flame className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-400 mb-2">Buy Flames</h3>
+            <p className="text-gray-500">Purchase flames to support battles and unlock premium features</p>
+            <div className="mt-6">
+              <span className="inline-block bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full px-6 py-3 text-lg font-semibold">
+                Coming Soon
+              </span>
+            </div>
           </div>
         </TabsContent>
+
+        <TabsContent value="merch" className="mt-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-white mb-4">Flaame Merch</h2>
+            <p className="text-gray-400">Represent your favorite battle platform with official Flaame merchandise</p>
+          </div>
+          
+          {isLoadingMerch ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="text-center py-12">
+                  <div className="animate-pulse">
+                    <div className="w-full h-64 bg-gray-700 rounded-lg mb-4"></div>
+                    <div className="h-4 bg-gray-700 rounded w-3/4 mx-auto mb-2"></div>
+                    <div className="h-4 bg-gray-700 rounded w-1/2 mx-auto mb-4"></div>
+                    <div className="h-10 bg-gray-700 rounded w-1/3 mx-auto"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : merchProducts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {merchProducts.map((product) => (
+                <Card key={product.id} className="bg-black/20 backdrop-blur-md border border-white/10 hover:bg-black/30 transition-all duration-300">
+                  <CardHeader className="pb-3">
+                    <div className="aspect-square overflow-hidden rounded-lg mb-3">
+                      <img 
+                        src={product.thumbnail_url} 
+                        alt={product.name}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <CardTitle className="text-white text-lg line-clamp-2">{product.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl font-bold text-orange-400">
+                        {product.currency} {product.retail_price}
+                      </span>
+                      <span className="text-gray-400 text-sm">
+                        {product.variants.length} variants
+                      </span>
+                    </div>
+                    <Button 
+                      className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                      onClick={() => {
+                        setSelectedProduct(product)
+                        setShowCheckout(true)
+                      }}
+                    >
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Buy Now
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Shirt className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-400 mb-2">No merch available</h3>
+              <p className="text-gray-500">Check back soon for new Flaame merchandise!</p>
+            </div>
+          )}
+        </TabsContent>
       </Tabs>
+
+      {/* Checkout Modal */}
+      {selectedProduct && (
+        <CheckoutModal
+          isOpen={showCheckout}
+          onClose={() => {
+            setShowCheckout(false)
+            setSelectedProduct(null)
+          }}
+          product={selectedProduct}
+        />
+      )}
     </div>
   )
 }

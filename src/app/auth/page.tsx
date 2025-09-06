@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,12 +12,14 @@ import {
   ArrowRight
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function AuthPage() {
+function AuthPageContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
   const [isSignUp, setIsSignUp] = useState(false)
+  const [isForgotPassword, setIsForgotPassword] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [username, setUsername] = useState('')
@@ -26,8 +28,7 @@ export default function AuthPage() {
 
   // Check URL parameters for mode
   React.useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const mode = urlParams.get('mode')
+    const mode = searchParams.get('mode')
     const newIsSignUp = mode === 'signup'
     
     // Only clear messages if the mode actually changed
@@ -37,7 +38,7 @@ export default function AuthPage() {
     }
     
     setIsSignUp(newIsSignUp)
-  }, [window.location.search])
+  }, [searchParams, isSignUp])
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,6 +46,11 @@ export default function AuthPage() {
     setError('')
 
     try {
+      if (isForgotPassword) {
+        await handleForgotPassword(e)
+        return
+      }
+      
       if (isSignUp) {
         // Sign up with email confirmation
         const { data, error } = await supabase.auth.signUp({
@@ -54,7 +60,7 @@ export default function AuthPage() {
             data: {
               username: username
             },
-            emailRedirectTo: `https://flaame-qucai5v3w-chris-projects-e99bc8f6.vercel.app/auth/callback`
+            emailRedirectTo: 'https://www.flaame.co/auth/callback'
           }
         })
         
@@ -108,13 +114,41 @@ export default function AuthPage() {
     }
   }
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setError('')
+
+    try {
+      console.log('Attempting to send reset email to:', email)
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: 'https://www.flaame.co/auth/reset-password'
+      })
+      
+      console.log('Reset email response:', { data, error })
+      
+      if (error) {
+        console.error('Reset email error:', error)
+        throw error
+      }
+      
+      setSuccessMessage('Password reset email sent! Check your inbox and follow the link to reset your password.')
+      setEmail('')
+    } catch (error: unknown) {
+      console.error('Reset email catch error:', error)
+      setError(error instanceof Error ? error.message : 'Failed to send reset email')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleSocialLogin = async (provider: 'facebook') => {
     setIsLoading(true)
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: 'https://www.flaame.co/auth/callback',
           scopes: 'public_profile' // Only request public_profile, not email
         }
       })
@@ -128,7 +162,7 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-900">
+    <div className={`min-h-screen flex items-start justify-center pt-20 ${isForgotPassword ? 'bg-gradient-to-br from-blue-900 via-black to-blue-900' : 'bg-gradient-to-br from-gray-900 via-black to-gray-900'}`}>
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -137,16 +171,21 @@ export default function AuthPage() {
           className="max-w-md mx-auto text-center"
         >
           {/* Logo */}
-          <div className="mb-8">
-            <div className="mb-6">
+          <div className="mb-6">
+            <div className="mb-4">
               <img
                 src="/flaame_logo.png"
                 alt="Flaame"
-                className="h-24 mx-auto mb-4"
+                className="h-20 mx-auto mb-3"
               />
             </div>
+            {isForgotPassword && (
+              <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                <p className="text-blue-400 text-sm font-medium">🔐 Password Reset</p>
+              </div>
+            )}
             <p className="text-gray-300 text-lg">
-              Join the battle. {isSignUp ? 'Create your account to start.' : 'Sign in to continue.'}
+              {isForgotPassword ? 'Enter your email address and we\'ll send you a password reset link.' : isSignUp ? 'Join the battle. Create your account to start.' : 'Join the battle. Sign in to continue.'}
             </p>
           </div>
 
@@ -160,7 +199,7 @@ export default function AuthPage() {
             onSubmit={handleEmailAuth}
             className="mb-6 space-y-4"
           >
-            {isSignUp && (
+            {isSignUp && !isForgotPassword && (
               <div>
                 <Label htmlFor="username" className="text-left block mb-2 text-gray-300">
                   Nickname
@@ -193,20 +232,35 @@ export default function AuthPage() {
               />
             </div>
             
-            <div>
-              <Label htmlFor="password" className="text-left block mb-2 text-gray-300">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="bg-black/20 border-white/20 text-white placeholder-gray-400"
-                required
-              />
-            </div>
+            {!isForgotPassword && (
+              <div>
+                <Label htmlFor="password" className="text-left block mb-2 text-gray-300">
+                  Password
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="bg-black/20 border-white/20 text-white placeholder-gray-400"
+                  required={!isForgotPassword}
+                />
+                {!isSignUp && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setError('')
+                      setSuccessMessage('')
+                      setIsForgotPassword(true)
+                    }}
+                    className="text-orange-400 hover:text-orange-300 text-sm mt-2"
+                  >
+                    Forgot your password?
+                  </button>
+                )}
+              </div>
+            )}
 
             {error && (
               <div className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg p-3">
@@ -222,7 +276,9 @@ export default function AuthPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <span className="font-semibold">Account Created Successfully!</span>
+                  <span className="font-semibold">
+                    {isForgotPassword ? 'Reset Email Sent!' : 'Account Created Successfully!'}
+                  </span>
                 </div>
                 <p>{successMessage}</p>
               </div>
@@ -236,34 +292,47 @@ export default function AuthPage() {
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  {isSignUp ? 'Creating Account...' : 'Signing In...'}
+                  {isForgotPassword ? 'Sending Reset Email...' : isSignUp ? 'Creating Account...' : 'Signing In...'}
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
                   <Mail className="w-5 h-5" />
-                  {isSignUp ? 'Join Flaame' : 'Sign In'}
+                  {isForgotPassword ? 'Send Reset Email' : isSignUp ? 'Join Flaame' : 'Sign In'}
                   <ArrowRight className="w-5 h-5" />
                 </div>
               )}
             </Button>
           </motion.form>
 
-          {/* Toggle Sign Up/Sign In */}
+          {/* Toggle Sign Up/Sign In or Back to Sign In */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mb-6"
           >
-            <button
-              onClick={() => {
-                const newMode = !isSignUp ? 'signup' : 'signin'
-                window.location.href = `/auth?mode=${newMode}`
-              }}
-              className="text-orange-400 hover:text-orange-300 text-sm"
-            >
-              {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Join Flaame"}
-            </button>
+            {isForgotPassword ? (
+              <button
+                onClick={() => {
+                  setError('')
+                  setSuccessMessage('')
+                  setIsForgotPassword(false)
+                }}
+                className="text-orange-400 hover:text-orange-300 text-sm"
+              >
+                ← Back to Sign In
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  const newMode = !isSignUp ? 'signup' : 'signin'
+                  router.push(`/auth?mode=${newMode}`)
+                }}
+                className="text-orange-400 hover:text-orange-300 text-sm"
+              >
+                {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Join Flaame"}
+              </button>
+            )}
           </motion.div>
 
           {/* Legal */}
@@ -281,5 +350,20 @@ export default function AuthPage() {
         </motion.div>
       </div>
     </div>
+  )
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-900">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    }>
+      <AuthPageContent />
+    </Suspense>
   )
 }

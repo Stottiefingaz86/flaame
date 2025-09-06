@@ -1,0 +1,162 @@
+/* Mobile-specific styles to prevent horizontal scrolling and create app-like experience */
+
+/* Hide scrollbars on mobile */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ensure no horizontal overflow */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Mobile-specific container adjustments */
+@media (max-width: 768px) {
+  /* Remove chat panel padding on mobile */
+  main {
+    padding-right: 0 !important;
+  }
+  
+  /* Adjust footer margins on mobile */
+  footer {
+    margin-right: 0 !important;
+  }
+  
+  /* Ensure cards don't overflow */
+  .card, .bg-black\/20 {
+    max-width: 100%;
+    overflow: hidden;
+  }
+  
+  /* Make tables responsive */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Adjust text sizes for mobile */
+  .text-4xl {
+    font-size: 2rem;
+  }
+  
+  .text-3xl {
+    font-size: 1.875rem;
+  }
+  
+  .text-2xl {
+    font-size: 1.5rem;
+  }
+  
+  /* Ensure buttons are touch-friendly */
+  button, .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Adjust spacing for mobile */
+  .space-y-8 > * + * {
+    margin-top: 1.5rem;
+  }
+  
+  .space-y-6 > * + * {
+    margin-top: 1rem;
+  }
+  
+  /* Make sure images don't overflow */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* Adjust grid layouts for mobile */
+  .grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  .grid-cols-3 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  
+  /* Mobile-specific battle cards */
+  .battle-card {
+    width: 100%;
+    margin: 0;
+  }
+  
+  /* Ensure audio player doesn't overflow */
+  .audio-player {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  /* Mobile navigation adjustments */
+  .mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+  }
+  
+  /* Adjust modal sizes for mobile */
+  .modal {
+    width: 95vw;
+    max-width: 95vw;
+    margin: 1rem;
+  }
+  
+  /* Mobile-specific padding */
+  .mobile-padding {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Ensure no horizontal scroll on any element */
+  .no-horizontal-scroll {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+}
+
+/* Touch-friendly interactions */
+@media (hover: none) and (pointer: coarse) {
+  /* Increase touch targets */
+  button, a, input, select, textarea {
+    min-height: 44px;
+  }
+  
+  /* Remove hover effects on touch devices */
+  .hover\:bg-white\/10:hover {
+    background-color: transparent;
+  }
+  
+  .hover\:text-white:hover {
+    color: inherit;
+  }
+}
+
+/* Landscape mobile adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+  .mobile-nav {
+    position: relative;
+  }
+  
+  .mobile-chat-button {
+    bottom: 1rem;
+  }
+}
+

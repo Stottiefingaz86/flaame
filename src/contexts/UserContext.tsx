@@ -11,6 +11,7 @@ interface User {
   avatar_id?: string
   is_verified: boolean
   instagram_username?: string
+  spotify_url?: string
   preferred_league_id?: string
 }
 
@@ -60,6 +61,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         } else if (profile) {
           // Check for daily login reward
           await checkDailyLoginReward(profile)
+          
+          // Update last_login timestamp
+          await supabase
+            .from('profiles')
+            .update({ last_login: new Date().toISOString() })
+            .eq('id', authUser.id)
+          
           setUser(profile)
         }
       } else {
@@ -97,23 +105,28 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let mounted = true
+    let authTimeout: NodeJS.Timeout
+    let retryCount = 0
+    const MAX_RETRIES = 3
+    const RETRY_DELAY = 1000
 
     const initializeAuth = async () => {
       try {
         setIsLoading(true)
         
         // Add a timeout to prevent infinite loading
-        const timeoutId = setTimeout(() => {
+        authTimeout = setTimeout(() => {
           if (mounted) {
             console.warn('Auth initialization timed out, setting loading to false')
             setIsLoading(false)
           }
-        }, 5000) // 5 second timeout
+        }, 8000) // Increased to 8 seconds
         
         await refreshUser()
         
         // Clear timeout if successful
-        clearTimeout(timeoutId)
+        clearTimeout(authTimeout)
+        retryCount = 0
       } catch (error) {
         console.error('Error initializing auth:', error)
         if (mounted) {
@@ -123,62 +136,105 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
+    const retryAuth = async () => {
+      if (retryCount < MAX_RETRIES && mounted) {
+        retryCount++
+        console.log(`Retrying auth initialization (attempt ${retryCount}/${MAX_RETRIES})`)
+        setTimeout(initializeAuth, RETRY_DELAY * retryCount)
+      } else if (mounted) {
+        console.error('Max auth retries reached, giving up')
+        setIsLoading(false)
+      }
+    }
+
     initializeAuth()
 
-    // Listen for auth changes
+    // Listen for auth changes with debouncing
+    let authChangeTimeout: NodeJS.Timeout
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return
 
-        console.log('Auth state changed:', event, session?.user?.id)
-        
-        try {
-          if (event === 'INITIAL_SESSION' && session?.user) {
-            // This is the initial session, we need to load the user profile
-            console.log('Initial session detected, loading user profile...')
-            const { data: profile, error } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single()
+        // Debounce rapid auth changes
+        clearTimeout(authChangeTimeout)
+        authChangeTimeout = setTimeout(async () => {
+          console.log('Auth state changed:', event, session?.user?.id)
+          
+          try {
+            if (event === 'INITIAL_SESSION' && session?.user) {
+              // This is the initial session, we need to load the user profile
+              console.log('Initial session detected, loading user profile...')
+              const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single()
 
-            if (error) {
-              console.error('Error fetching profile:', error)
-              setUser(null)
-            } else if (profile) {
+              if (error) {
+                console.error('Error fetching profile:', error)
+                setUser(null)
+                // Retry if it's a network error
+                if (error.message.includes('fetch') || error.message.includes('network')) {
+                  retryAuth()
+                }
+                          } else if (profile) {
               console.log('Profile loaded from initial session:', profile.username)
+              
+              // Update last_login timestamp
+              await supabase
+                .from('profiles')
+                .update({ last_login: new Date().toISOString() })
+                .eq('id', session.user.id)
+              
               setUser(profile)
             }
-          } else if (session?.user) {
-            // Get user profile data
-            const { data: profile, error } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single()
+            } else if (session?.user) {
+              // Get user profile data
+              const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single()
 
-            if (error) {
-              console.error('Error fetching profile:', error)
-              setUser(null)
-            } else if (profile) {
+              if (error) {
+                console.error('Error fetching profile:', error)
+                setUser(null)
+                // Retry if it's a network error
+                if (error.message.includes('fetch') || error.message.includes('network')) {
+                  retryAuth()
+                }
+                          } else if (profile) {
               console.log('Profile loaded from auth change:', profile.username)
+              
+              // Update last_login timestamp
+              await supabase
+                .from('profiles')
+                .update({ last_login: new Date().toISOString() })
+                .eq('id', session.user.id)
+              
               setUser(profile)
             }
-          } else {
-            console.log('No session, setting user to null')
+            } else {
+              console.log('No session, setting user to null')
+              setUser(null)
+            }
+          } catch (error) {
+            console.error('Error in auth state change:', error)
             setUser(null)
+            retryAuth()
+          } finally {
+            if (mounted) {
+              setIsLoading(false)
+            }
           }
-        } catch (error) {
-          console.error('Error in auth state change:', error)
-          setUser(null)
-        } finally {
-          setIsLoading(false)
-        }
+        }, 100) // 100ms debounce
       }
     )
 
     return () => {
       mounted = false
+      clearTimeout(authTimeout)
+      clearTimeout(authChangeTimeout)
       subscription.unsubscribe()
     }
   }, [])

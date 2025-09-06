@@ -10,6 +10,7 @@ export interface ChatMessage {
   battle_id?: string
   created_at: string
   user?: {
+    id: string
     username: string
     avatar_id?: string
     is_verified: boolean
@@ -71,7 +72,7 @@ export class ChatService {
             .from('chat_messages')
             .select(`
               *,
-              user:profiles(username, avatar_id, is_verified, rank, flames),
+              user:profiles(id, username, avatar_id, is_verified, rank, flames),
               emoji:emojis(emoji, name, cost)
             `)
             .eq('id', payload.new.id)

@@ -18,7 +18,6 @@ import {
   User,
   Settings,
   Sword,
-  ShoppingCart,
   BookOpen,
   MessageCircle
 } from 'lucide-react'
@@ -26,7 +25,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { useUser } from '@/contexts/UserContext'
 import { useChat } from '@/contexts/ChatContext'
-import { clearAuthCache } from '@/utils/auth'
+import StyledUsername from '@/components/ui/StyledUsername'
 
 interface User {
   id: string
@@ -49,7 +48,6 @@ export default function Navigation() {
     { href: '/arena', label: 'Arena', icon: Mic },
     { href: '/beats', label: 'Beats', icon: Music },
     { href: '/leaderboard', label: 'Leaderboard', icon: Crown },
-    { href: '/store', label: 'Store', icon: ShoppingCart },
   ]
 
   const isActive = (href: string) => {
@@ -69,11 +67,6 @@ export default function Navigation() {
     }
   }
 
-  const handleClearCache = async () => {
-    if (confirm('This will clear all authentication data and reload the page. Continue?')) {
-      await clearAuthCache()
-    }
-  }
 
   const getRankColor = (rank: string) => {
     switch (rank) {
@@ -145,27 +138,31 @@ export default function Navigation() {
                            >
                              <Avatar className="h-8 w-8">
                                <AvatarImage src={user.avatar_id ? `/api/avatars/${user.avatar_id}` : undefined} />
-                               <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                               <AvatarFallback className="bg-white/10 text-white">
                                  {user.username.charAt(0).toUpperCase()}
                                </AvatarFallback>
                              </Avatar>
                            </Button>
 
                            {/* Dropdown Menu */}
-                           <div className="absolute right-0 top-full mt-2 w-64 bg-black/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                           <div className="absolute right-0 top-full mt-2 w-64 bg-black/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[9999]">
                            <div className="p-4 border-b border-white/10">
                              <div className="flex items-center gap-3">
                                <Avatar className="h-10 w-10">
                                  <AvatarImage src={user.avatar_id ? `/api/avatars/${user.avatar_id}` : undefined} />
-                                 <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                                 <AvatarFallback className="bg-white/10 text-white">
                                    {user.username.charAt(0).toUpperCase()}
                                  </AvatarFallback>
                                </Avatar>
                                <div>
                                  <div className="flex items-center gap-2">
-                                   <span className="text-white font-semibold">{user.username}</span>
+                                   <StyledUsername 
+                  username={user.username} 
+                  userId={user.id}
+                  className="text-white font-semibold"
+                />
                                    {user.is_verified && (
-                                     <span className="text-blue-400 text-xs">✓</span>
+                                     <span className="text-yellow-400 text-sm">👑</span>
                                    )}
                                  </div>
                                  <div className="flex items-center gap-2 text-sm">
@@ -184,20 +181,6 @@ export default function Navigation() {
                                  Profile
                                </Button>
                              </Link>
-                             <Link href="/settings">
-                               <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10">
-                                 <Settings className="w-4 h-4 mr-2" />
-                                 Settings
-                               </Button>
-                             </Link>
-                             <Button
-                               variant="ghost"
-                               className="w-full justify-start text-yellow-400 hover:bg-yellow-500/10"
-                               onClick={handleClearCache}
-                             >
-                               <Settings className="w-4 h-4 mr-2" />
-                               Clear Cache
-                             </Button>
                              <Button
                                variant="ghost"
                                className="w-full justify-start text-red-400 hover:bg-red-500/10"
@@ -223,13 +206,6 @@ export default function Navigation() {
                      </>
                    ) : (
                      <div className="flex items-center gap-2">
-                       <Button 
-                         variant="outline" 
-                         className="border-yellow-500/50 hover:bg-yellow-500/10 text-yellow-400 text-xs px-2 py-1"
-                         onClick={handleClearCache}
-                       >
-                         Clear Cache
-                       </Button>
                        <Link href="/auth">
                          <Button variant="outline" className="border-white/20 hover:bg-white/10 text-white">
                            Sign In
@@ -318,12 +294,16 @@ export default function Navigation() {
                       <div className="flex items-center gap-3 px-3 py-2">
                         <Avatar className="h-8 w-8">
                           <AvatarImage src={user.avatar_id ? `/api/avatars/${user.avatar_id}` : undefined} />
-                          <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                          <AvatarFallback className="bg-white/10 text-white">
                             {user.username.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
-                          <div className="text-white font-semibold">{user.username}</div>
+                          <StyledUsername 
+                  username={user.username} 
+                  userId={user.id}
+                  className="text-white font-semibold"
+                />
                           <div className={`text-xs ${getRankColor(user.rank)}`}>{user.rank}</div>
                         </div>
                         <Button 

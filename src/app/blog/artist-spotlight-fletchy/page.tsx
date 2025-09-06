@@ -62,7 +62,7 @@ export default function FletchySpotlightPost() {
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              January 10, 2024
+              January 10, 2025
             </div>
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4" />
@@ -217,8 +217,8 @@ export default function FletchySpotlightPost() {
                 </CardHeader>
                 <CardContent>
                   <ul className="text-gray-300 space-y-2">
-                    <li>• <strong>NATIVE</strong> (2024)</li>
-                    <li>• <strong>Concrete Maze</strong> (2024)</li>
+                    <li>• <strong>NATIVE</strong> (2025)</li>
+                    <li>• <strong>Concrete Maze</strong> (2025)</li>
                     <li>• <strong>Active</strong> (2023)</li>
                     <li>• <strong>Lemonade</strong> (2023)</li>
                   </ul>

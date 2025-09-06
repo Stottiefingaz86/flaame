@@ -7,6 +7,7 @@ import { Play, Clock } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { useUser } from '@/contexts/UserContext'
 import Link from 'next/link'
+import StyledUsername from '@/components/ui/StyledUsername'
 
 interface BattleCardProps {
   battle: any
@@ -89,10 +90,12 @@ export default function BattleCard({ battle, onAcceptBattle, onVote, hasVoted, u
             {battle.challenger?.username?.charAt(0).toUpperCase() || 'U'}
           </AvatarFallback>
         </Avatar>
-        <Link href={`/profile/${battle.challenger?.username}`} className="hover:underline">
-          <span className="text-xs font-medium text-white truncate max-w-[100px] block">
-            {battle.challenger?.username}
-          </span>
+        <Link href={`/profile/${encodeURIComponent(battle.challenger?.username || '')}`} className="hover:underline">
+          <StyledUsername 
+            username={battle.challenger?.username || ''} 
+            userId={battle.challenger?.id || ''}
+            className="text-xs font-medium text-white truncate max-w-[100px] block"
+          />
         </Link>
       </div>
 
@@ -113,12 +116,14 @@ export default function BattleCard({ battle, onAcceptBattle, onVote, hasVoted, u
                 {battle.opponent?.username?.charAt(0).toUpperCase() || 'U'}
               </AvatarFallback>
             </Avatar>
-            <Link href={`/profile/${battle.opponent?.username}`} className="hover:underline">
-              <span className={`text-xs font-medium truncate max-w-[100px] block ${
-                battle.status === 'challenge' ? 'text-gray-500' : 'text-white'
-              }`}>
-                {battle.opponent?.username}
-              </span>
+            <Link href={`/profile/${encodeURIComponent(battle.opponent?.username || '')}`} className="hover:underline">
+              <StyledUsername 
+                username={battle.opponent?.username || ''} 
+                userId={battle.opponent?.id || ''}
+                className={`text-xs font-medium truncate max-w-[100px] block ${
+                  battle.status === 'challenge' ? 'text-gray-500' : 'text-white'
+                }`}
+              />
             </Link>
           </>
         ) : (

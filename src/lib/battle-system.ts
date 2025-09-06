@@ -43,12 +43,18 @@ export interface BattleWithDetails {
     username: string
     avatar_id?: string
     flames: number
+    wins?: number
+    losses?: number
+    rank?: string
   }
   opponent?: {
     id: string
     username: string
     avatar_id?: string
     flames: number
+    wins?: number
+    losses?: number
+    rank?: string
   }
   beat?: {
     id: string
@@ -223,10 +229,49 @@ export class BattleSystem {
 
       const totalGiftedFlames = flames?.reduce((sum, flame) => sum + flame.amount, 0) || 0
 
+      // Calculate battle statistics for challenger and opponent
+      const calculateUserStats = async (userId: string) => {
+        const { data: userBattles } = await supabase
+          .from('battles')
+          .select('challenger_id, opponent_id, challenger_votes, opponent_votes, status')
+          .or(`challenger_id.eq.${userId},opponent_id.eq.${userId}`)
+          .eq('status', 'closed')
+
+        let wins = 0
+        let losses = 0
+
+        userBattles?.forEach(battle => {
+          const isChallenger = battle.challenger_id === userId
+          const userVotes = isChallenger ? battle.challenger_votes : battle.opponent_votes
+          const opponentVotes = isChallenger ? battle.opponent_votes : battle.challenger_votes
+
+          if (userVotes > opponentVotes) wins++
+          else if (userVotes < opponentVotes) losses++
+        })
+
+        return { wins, losses }
+      }
+
+      // Calculate stats for challenger and opponent
+      const challengerStats = battle.challenger ? await calculateUserStats(battle.challenger.id) : { wins: 0, losses: 0 }
+      const opponentStats = battle.opponent ? await calculateUserStats(battle.opponent.id) : { wins: 0, losses: 0 }
+
       return {
         ...battle,
         user_voted_for: userVote,
-        total_gifted_flames: totalGiftedFlames
+        total_gifted_flames: totalGiftedFlames,
+        challenger: battle.challenger ? {
+          ...battle.challenger,
+          wins: challengerStats.wins,
+          losses: challengerStats.losses,
+          rank: battle.challenger.rank || 'Newcomer'
+        } : undefined,
+        opponent: battle.opponent ? {
+          ...battle.opponent,
+          wins: opponentStats.wins,
+          losses: opponentStats.losses,
+          rank: battle.opponent.rank || 'Newcomer'
+        } : undefined
       }
     } catch (error) {
       console.error('Error getting battle details:', error)

@@ -31,6 +31,13 @@ interface Beat {
   is_free: boolean
   is_available: boolean
   file_path?: string
+  uploader_id?: string
+  producer_id?: string
+  producer?: {
+    id: string
+    username: string
+    avatar_id?: string
+  }
 }
 
 interface User {
@@ -57,9 +64,12 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
   const [battleTrack, setBattleTrack] = useState<File | null>(null)
   const [lyrics, setLyrics] = useState('')
   const [beats, setBeats] = useState<Beat[]>([])
+  const [filteredBeats, setFilteredBeats] = useState<Beat[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [beatSearchQuery, setBeatSearchQuery] = useState('')
+  const [selectedProducer, setSelectedProducer] = useState<string>('all')
+  const [producers, setProducers] = useState<{id: string, username: string}[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
   const [isUploadingTrack, setIsUploadingTrack] = useState(false)
@@ -74,15 +84,43 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
     }
   }, [isOpen])
 
+  // Filter beats based on search and producer selection
+  useEffect(() => {
+    let filtered = beats
+
+    // Filter by search query
+    if (beatSearchQuery.trim()) {
+      filtered = filtered.filter(beat => 
+        beat.title.toLowerCase().includes(beatSearchQuery.toLowerCase()) ||
+        beat.artist.toLowerCase().includes(beatSearchQuery.toLowerCase()) ||
+        (beat.producer?.username && beat.producer.username.toLowerCase().includes(beatSearchQuery.toLowerCase()))
+      )
+    }
+
+    // Filter by producer
+    if (selectedProducer !== 'all') {
+      filtered = filtered.filter(beat => beat.producer && beat.producer.id === selectedProducer)
+    }
+
+    setFilteredBeats(filtered)
+  }, [beats, beatSearchQuery, selectedProducer])
+
   const loadBeats = async () => {
     try {
       const { data, error } = await supabase
         .from('beats')
-        .select('*')
+        .select(`
+          *,
+          producer:profiles!beats_uploader_id_fkey(
+            id,
+            username,
+            avatar_id
+          )
+        `)
         .eq('is_free', true)
         .eq('is_available', true)
         .order('created_at', { ascending: false })
-        .limit(20)
+        .limit(50)
 
       if (error) {
         console.error('Error loading beats:', error)
@@ -98,6 +136,22 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
       }
       
       setBeats(data)
+      setFilteredBeats(data)
+      
+      // Extract unique producers
+      const uniqueProducers = data
+        .filter(beat => beat.producer && beat.producer.id)
+        .reduce((acc: {id: string, username: string}[], beat) => {
+          if (!acc.find(p => p.id === beat.producer.id)) {
+            acc.push({
+              id: beat.producer.id,
+              username: beat.producer.username || 'Unknown Producer'
+            })
+          }
+          return acc
+        }, [])
+      
+      setProducers(uniqueProducers)
     } catch (error) {
       console.error('Error loading beats:', error)
     }
@@ -366,10 +420,6 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
     u.username.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const filteredBeats = beats.filter(beat => 
-    beat.title.toLowerCase().includes(beatSearchQuery.toLowerCase()) ||
-    beat.artist.toLowerCase().includes(beatSearchQuery.toLowerCase())
-  )
 
   if (!isOpen) return null
 
@@ -612,40 +662,105 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
                   <h3 className="text-xl font-semibold text-white mb-4">Select Beat</h3>
                   <p className="text-gray-400 mb-4">Choose a beat for your {battleType} battle in the {selectedLeague === 'ukus' ? 'UK/US' : selectedLeague === 'spanish' ? 'Spanish' : selectedLeague === 'german' ? 'German' : 'Philippines'} league</p>
                 </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {beats.map((beat) => (
-                    <Card
-                      key={beat.id}
-                      className={`cursor-pointer transition-all duration-200 ${
-                        selectedBeat?.id === beat.id
-                          ? 'ring-2 ring-orange-500 bg-orange-500/10'
-                          : 'bg-black/20 border-white/10 hover:bg-black/30'
-                      }`}
-                      onClick={() => setSelectedBeat(beat)}
+
+                {/* Search and Filter Controls */}
+                <div className="space-y-4">
+                  {/* Search Input */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      type="text"
+                      placeholder="Search beats by title, artist, or producer..."
+                      value={beatSearchQuery}
+                      onChange={(e) => setBeatSearchQuery(e.target.value)}
+                      className="pl-10 bg-black/20 border-white/10 text-white placeholder-gray-400 focus:border-orange-500"
+                    />
+                  </div>
+
+                  {/* Producer Filter */}
+                  <div className="flex items-center gap-4">
+                    <span className="text-white text-sm font-medium">Filter by Producer:</span>
+                    <select
+                      value={selectedProducer}
+                      onChange={(e) => setSelectedProducer(e.target.value)}
+                      className="bg-black/20 border border-white/10 text-white rounded-md px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
                     >
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-500">
-                            <Music className="w-5 h-5 text-white" />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-white">{beat.title}</h4>
-                            <p className="text-gray-400 text-sm">by {beat.artist}</p>
-                            <div className="flex items-center gap-2 mt-2">
-                              <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
-                                {beat.is_free ? 'Free' : `${beat.cost_flames} flames`}
-                              </Badge>
-                              <span className="text-gray-400 text-xs">
-                                {beat.duration ? `${Math.floor(beat.duration / 60)}:${(beat.duration % 60).toString().padStart(2, '0')}` : 'Unknown duration'}
-                              </span>
+                      <option value="all">All Producers</option>
+                      {producers.map((producer) => (
+                        <option key={producer.id} value={producer.id}>
+                          {producer.username}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Results Count */}
+                  <div className="text-gray-400 text-sm">
+                    Showing {filteredBeats.length} of {beats.length} beats
+                  </div>
+                </div>
+                
+                {filteredBeats.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Music className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+                    <h3 className="text-white font-semibold mb-2">No beats found</h3>
+                    <p className="text-gray-400 text-sm mb-4">
+                      {beatSearchQuery || selectedProducer !== 'all' 
+                        ? 'Try adjusting your search or filter criteria'
+                        : 'No free beats are currently available'
+                      }
+                    </p>
+                    {(beatSearchQuery || selectedProducer !== 'all') && (
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setBeatSearchQuery('')
+                          setSelectedProducer('all')
+                        }}
+                        className="border-white/20 text-white hover:bg-white/10"
+                      >
+                        Clear Filters
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {filteredBeats.map((beat) => (
+                      <Card
+                        key={beat.id}
+                        className={`cursor-pointer transition-all duration-200 ${
+                          selectedBeat?.id === beat.id
+                            ? 'ring-2 ring-orange-500 bg-orange-500/10'
+                            : 'bg-black/20 border-white/10 hover:bg-black/30'
+                        }`}
+                        onClick={() => setSelectedBeat(beat)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-500">
+                              <Music className="w-5 h-5 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-white">{beat.title}</h4>
+                              <p className="text-gray-400 text-sm">by {beat.artist}</p>
+                              {beat.producer && (
+                                <p className="text-blue-400 text-xs">Producer: {beat.producer.username}</p>
+                              )}
+                              <div className="flex items-center gap-2 mt-2">
+                                <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
+                                  {beat.is_free ? 'Free' : `${beat.cost_flames} flames`}
+                                </Badge>
+                                <span className="text-gray-400 text-xs">
+                                  {beat.duration ? `${Math.floor(beat.duration / 60)}:${(beat.duration % 60).toString().padStart(2, '0')}` : 'Unknown duration'}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
 
                 <div className="flex justify-between">
                   <Button

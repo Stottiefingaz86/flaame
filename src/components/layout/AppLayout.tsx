@@ -2,6 +2,7 @@
 
 import { ReactNode } from 'react'
 import Navigation from './Navigation'
+import MobileNavigation from '../mobile/MobileNavigation'
 import ChatPanel from '../chat/ChatPanel'
 import { useAudio } from '@/contexts/AudioContext'
 import { useChat } from '@/contexts/ChatContext'
@@ -16,16 +17,19 @@ export default function AppLayout({ children }: AppLayoutProps) {
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
-      {/* Navigation */}
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-black/20 border-b border-white/10">
+      {/* Desktop Navigation */}
+      <header className="hidden md:block fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl bg-black/30 border-b border-white/20">
         <Navigation />
       </header>
+
+      {/* Mobile Navigation */}
+      <MobileNavigation />
 
       {/* Main Content with Chat Panel */}
       <div className="flex min-h-[calc(100vh-80px)]">
         {/* Main Content Area */}
         <main 
-          className="flex-1 transition-all duration-300" 
+          className="flex-1 transition-all duration-300 pt-[130px] md:pt-[80px]" 
           style={{ 
             paddingRight: 'var(--chat-width)',
             paddingBottom: currentTrack ? '80px' : '0'
@@ -34,9 +38,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
           {children}
         </main>
 
-        {/* Chat Panel - Controlled by Navigation */}
-        <ChatPanel isOpen={isChatOpen} />
+        {/* Desktop Chat Panel */}
+        <div className="hidden md:block">
+          <ChatPanel isOpen={isChatOpen} />
+        </div>
       </div>
+
 
       {/* Footer */}
       <footer 
@@ -70,7 +77,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <li><a href="/leaderboard" className="text-gray-400 hover:text-white transition-colors">Leaderboard</a></li>
                 <li><a href="/store" className="text-gray-400 hover:text-white transition-colors">Store</a></li>
                 <li><a href="/blog" className="text-gray-400 hover:text-white transition-colors">Blog</a></li>
-                <li><a href="/auth" className="text-gray-400 hover:text-white transition-colors">Sign In</a></li>
               </ul>
             </div>
 
@@ -78,28 +84,38 @@ export default function AppLayout({ children }: AppLayoutProps) {
             <div className="space-y-4">
               <h3 className="text-white font-semibold">Support</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">FAQ</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Community</a></li>
+                <li><a href="/help" className="text-gray-400 hover:text-white transition-colors">Help Center</a></li>
+                <li><a href="/contact" className="text-gray-400 hover:text-white transition-colors">Contact Us</a></li>
+                <li><a href="/help" className="text-gray-400 hover:text-white transition-colors">How to Create a Battle</a></li>
+                <li><a href="/help" className="text-gray-400 hover:text-white transition-colors">Community Rules</a></li>
               </ul>
             </div>
 
-            {/* Legal */}
+            {/* Connect */}
             <div className="space-y-4">
-              <h3 className="text-white font-semibold">Legal</h3>
+              <h3 className="text-white font-semibold">Connect</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Cookie Policy</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">DMCA</a></li>
+                <li>
+                  <a 
+                    href="https://www.instagram.com/flaame.co/" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-gray-400 hover:text-white transition-colors flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                    </svg>
+                    Instagram
+                  </a>
+                </li>
               </ul>
             </div>
+
           </div>
 
           <div className="mt-8 pt-8 border-t border-white/10 text-center">
             <p className="text-gray-400 text-sm">
-              © 2024 Flaame. All rights reserved.
+              © 2025 Flaame. All rights reserved.
             </p>
           </div>
         </div>

@@ -13,7 +13,9 @@ import {
   VolumeX,
   X
 } from 'lucide-react'
+import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import StyledUsername from '@/components/ui/StyledUsername'
 
 export default function PersistentPlayer() {
   const { user } = useUser()
@@ -70,7 +72,17 @@ export default function PersistentPlayer() {
               </Avatar>
               <div className="min-w-0 flex-1">
                 <h4 className="text-white font-medium truncate">{currentTrack.title}</h4>
-                <p className="text-gray-400 text-sm truncate">{currentTrack.artist}</p>
+                <p className="text-gray-400 text-sm truncate">
+                  {currentTrack.username ? (
+                    <StyledUsername 
+                      username={currentTrack.username} 
+                      userId={''}
+                      className="text-gray-400"
+                    />
+                  ) : (
+                    currentTrack.artist
+                  )}
+                </p>
               </div>
             </div>
 
@@ -128,39 +140,68 @@ export default function PersistentPlayer() {
             </div>
 
             {/* Volume Controls */}
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-xl p-2 border border-white/10">
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={toggleMute}
-                className="text-white hover:bg-white/20 rounded-lg"
-              >
-                {isMuted ? (
-                  <VolumeX className="w-4 h-4" />
-                ) : (
-                  <Volume2 className="w-4 h-4" />
-                )}
-              </Button>
+            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-xl p-2 border border-white/10 relative">
+              {/* Mobile: Just mute toggle and close */}
+              <div className="md:hidden flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={toggleMute}
+                  className="text-white hover:bg-white/20 rounded-lg"
+                >
+                  {isMuted ? (
+                    <VolumeX className="w-4 h-4" />
+                  ) : (
+                    <Volume2 className="w-4 h-4" />
+                  )}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={stopTrack}
+                  className="text-white hover:bg-white/20 rounded-lg"
+                  title="Stop and hide player"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
 
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.1"
-                value={volume}
-                onChange={(e) => setVolume(parseFloat(e.target.value))}
-                className="w-16 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
-              />
+              {/* Desktop: Full volume controls */}
+              <div className="hidden md:flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={toggleMute}
+                  className="text-white hover:bg-white/20 rounded-lg"
+                >
+                  {isMuted ? (
+                    <VolumeX className="w-4 h-4" />
+                  ) : (
+                    <Volume2 className="w-4 h-4" />
+                  )}
+                </Button>
 
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={stopTrack}
-                className="text-white hover:bg-white/20 rounded-lg"
-                title="Stop and hide player"
-              >
-                <X className="w-4 h-4" />
-              </Button>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={volume}
+                  onChange={(e) => setVolume(parseFloat(e.target.value))}
+                  className="w-16 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
+                />
+
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={stopTrack}
+                  className="text-white hover:bg-white/20 rounded-lg"
+                  title="Stop and hide player"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+
             </div>
           </div>
         </div>

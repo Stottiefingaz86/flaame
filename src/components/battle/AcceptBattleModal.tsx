@@ -1,20 +1,16 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { 
+  X, 
   Upload, 
   Music, 
-  FileAudio, 
-  AlertCircle, 
-  X,
-  Play,
-  Pause
+  Pen, 
+  Mic,
+  AlertCircle
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { useUser } from '@/contexts/UserContext'
@@ -26,295 +22,271 @@ interface AcceptBattleModalProps {
   onBattleAccepted: () => void
 }
 
-export default function AcceptBattleModal({ isOpen, onClose, battle, onBattleAccepted }: AcceptBattleModalProps) {
+export default function AcceptBattleModal({ 
+  isOpen, 
+  onClose, 
+  battle, 
+  onBattleAccepted 
+}: AcceptBattleModalProps) {
   const { user } = useUser()
-  const [step, setStep] = useState(1)
-  const [battleTrack, setBattleTrack] = useState<File | null>(null)
+  const [trackFile, setTrackFile] = useState<File | null>(null)
   const [lyrics, setLyrics] = useState('')
-  const [isUploadingTrack, setIsUploadingTrack] = useState(false)
-  const [isAccepting, setIsAccepting] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
 
-  const handleTrackUpload = async (file: File) => {
-    try {
-      setIsUploadingTrack(true)
-      
+  const handleTrackUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
       // Validate file type
-      const allowedTypes = ['audio/mpeg', 'audio/wav', 'audio/mp3', 'audio/aac', 'video/mp4', 'video/quicktime']
-      if (!allowedTypes.includes(file.type)) {
-        setErrors({ file: 'Invalid file type. Only MP3, WAV, AAC, MP4, and MOV files are allowed.' })
+      if (!file.type.startsWith('audio/')) {
+        alert('Please select an audio file')
         return
       }
-
-      // Validate file size (100MB max)
-      const maxSize = 100 * 1024 * 1024 // 100MB
-      if (file.size > maxSize) {
-        setErrors({ file: 'File size too large. Maximum size is 100MB.' })
+      // Validate file size (max 50MB)
+      if (file.size > 50 * 1024 * 1024) {
+        alert('File size must be less than 50MB')
         return
       }
-
-      setBattleTrack(file)
-      setErrors({})
-    } catch (error) {
-      console.error('Error selecting track:', error)
-      alert('Failed to select track. Please try again.')
-    } finally {
-      setIsUploadingTrack(false)
+      setTrackFile(file)
     }
   }
 
-  const handleAcceptBattle = async () => {
-    if (!user) {
-      alert('You must be logged in to accept a battle.')
-      return
-    }
-    
-    if (!battleTrack) {
-      alert('Please upload your battle track.')
+  const handleSubmit = async () => {
+    if (!trackFile) {
+      alert('Please select an audio track')
       return
     }
 
-    setIsAccepting(true)
-    
+    setIsUploading(true)
+    setUploadProgress(0)
+
     try {
-      // Upload the battle track
-      const fileExt = battleTrack.name.split('.').pop()
-      const trackFileName = `${user.id}-${Date.now()}.${fileExt}`
+      // Upload directly to Supabase Storage (same bucket as battle creation)
+      const fileExt = trackFile.name.split('.').pop()
+      const fileName = `battles/${battle.id}-${Date.now()}-reply.${fileExt}`
       
-      console.log('Uploading opponent track:', trackFileName)
-      
-      const { error: trackUploadError } = await supabase.storage
+      setUploadProgress(25)
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from('audio')
-        .upload(`battles/${trackFileName}`, battleTrack)
-      
-      if (trackUploadError) {
-        console.error('Track upload error:', trackUploadError)
-        throw new Error(`Failed to upload track: ${trackUploadError.message}`)
-      }
-      
-      console.log('Opponent track uploaded successfully')
+        .upload(fileName, trackFile)
 
-      // Update the battle with opponent info
-      const { error: battleUpdateError } = await supabase
-        .from('battles')
-        .update({
-          opponent_id: user.id,
-          opponent_track: `battles/${trackFileName}`,
-          opponent_lyrics: lyrics.trim() || null,
-          status: 'active',
-          updated_at: new Date().toISOString()
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError)
+        throw new Error('Failed to upload audio file')
+      }
+
+      setUploadProgress(50)
+
+      // Update battle record via API (uses service role)
+      const updateResponse = await fetch('/api/battle/update-after-upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          battleId: battle.id,
+          fileName: fileName,
+          lyrics: lyrics.trim() || null,
+          userId: user?.id
         })
-        .eq('id', battle.id)
+      })
 
-      if (battleUpdateError) {
-        console.error('Battle update error:', battleUpdateError)
-        throw new Error(`Failed to update battle: ${battleUpdateError.message}`)
+      if (!updateResponse.ok) {
+        const errorData = await updateResponse.json()
+        throw new Error(errorData.error || 'Failed to update battle')
       }
-      
-      console.log('Battle accepted successfully')
+
+      setUploadProgress(100)
 
       onBattleAccepted()
       onClose()
-      resetForm()
-    } catch (error: any) {
+      
+      // Reset form
+      setTrackFile(null)
+      setLyrics('')
+      setUploadProgress(0)
+      
+    } catch (error) {
       console.error('Error accepting battle:', error)
-      alert(`Error: ${error.message}`)
+      alert(`Failed to accept battle: ${error.message}`)
     } finally {
-      setIsAccepting(false)
+      setIsUploading(false)
     }
   }
 
-  const resetForm = () => {
-    setStep(1)
-    setBattleTrack(null)
-    setLyrics('')
-    setErrors({})
+  const handleClose = () => {
+    if (!isUploading) {
+      onClose()
+      setTrackFile(null)
+      setLyrics('')
+    }
   }
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes'
-    const k = 1024
-    const sizes = ['Bytes', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-  }
-
-  if (!isOpen) return null
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          className="bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-white/10">
-            <div>
-              <h2 className="text-2xl font-bold text-white">Accept Battle</h2>
-              <p className="text-gray-400">Step {step} of 2</p>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="text-gray-400 hover:text-white hover:bg-white/10"
-            >
-              <X className="w-5 h-5" />
-            </Button>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="px-6 py-4">
-            <div className="flex items-center gap-2">
-              {[1, 2].map((stepNum) => (
-                <div
-                  key={stepNum}
-                  className={`h-2 flex-1 rounded-full ${
-                    step >= stepNum ? 'bg-gradient-to-r from-orange-500 to-red-500' : 'bg-white/10'
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="p-6 overflow-y-auto max-h-[60vh]">
-            {step === 1 && (
-              <div className="space-y-6">
+      {isOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-[9999] p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="bg-black/90 backdrop-blur-2xl border border-white/10 rounded-2xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-lg bg-gradient-to-r from-orange-500 to-red-500">
+                  <Mic className="w-6 h-6 text-white" />
+                </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-white mb-4">Upload Your Track</h3>
-                  <p className="text-gray-400 mb-4">Upload your battle track to challenge {battle.challenger?.username}</p>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="battleTrack" className="text-white">Battle Track *</Label>
-                  <div className="border-2 border-dashed border-white/20 rounded-lg p-6 text-center hover:border-white/40 transition-colors">
-                    <input
-                      id="battleTrack"
-                      type="file"
-                      accept="audio/mpeg,audio/wav,audio/mp3,audio/aac,video/mp4,video/quicktime"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0]
-                        if (file) handleTrackUpload(file)
-                      }}
-                      className="hidden"
-                      disabled={isUploadingTrack}
-                    />
-                    <label 
-                      htmlFor="battleTrack" 
-                      className="cursor-pointer block"
-                    >
-                      {battleTrack ? (
-                        <div className="space-y-2">
-                          <FileAudio className="w-8 h-8 text-green-400 mx-auto" />
-                          <div className="text-white font-medium">{battleTrack.name}</div>
-                          <div className="text-gray-400 text-sm">{formatFileSize(battleTrack.size)}</div>
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            size="sm"
-                            className="mt-2 border-white/20 text-white hover:bg-white/10"
-                            onClick={() => document.getElementById('battleTrack')?.click()}
-                          >
-                            Change File
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <Upload className="w-8 h-8 text-gray-400 mx-auto" />
-                          <div className="text-white">Drop your battle track here</div>
-                          <div className="text-gray-400 text-sm">or click to browse</div>
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            className="mt-2 border-white/20 text-white hover:bg-white/10"
-                            onClick={() => document.getElementById('battleTrack')?.click()}
-                          >
-                            Choose File
-                          </Button>
-                        </div>
-                      )}
-                    </label>
-                  </div>
-                  {errors.file && (
-                    <div className="flex items-center gap-2 text-red-400 text-sm">
-                      <AlertCircle className="w-4 h-4" />
-                      {errors.file}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex justify-end">
-                  <Button
-                    onClick={() => setStep(2)}
-                    disabled={!battleTrack}
-                    className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
-                  >
-                    Next: Add Lyrics
-                  </Button>
+                  <h2 className="text-2xl font-bold text-white">Accept Battle</h2>
+                  <p className="text-gray-400 text-sm">Upload your reply to challenge {battle.challenger?.username}</p>
                 </div>
               </div>
-            )}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleClose}
+                disabled={isUploading}
+                className="text-gray-400 hover:text-white hover:bg-white/10 rounded-full h-10 w-10"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
 
-            {step === 2 && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-xl font-semibold text-white mb-4">Add Your Lyrics (Optional)</h3>
-                  <p className="text-gray-400 mb-4">
-                    Share your lyrics with the audience. This helps people understand your bars and vote better.
-                  </p>
+            {/* Battle Info */}
+            <Card className="bg-white/5 border border-white/10 mb-6">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-white font-semibold">{battle.title}</h3>
+                    <p className="text-gray-400 text-sm">Beat: {battle.beat?.title || 'Unknown'}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm text-gray-400">Challenger</div>
+                    <div className="text-white font-medium">{battle.challenger?.username}</div>
+                  </div>
                 </div>
+              </CardContent>
+            </Card>
 
-                <div>
-                  <Textarea
-                    value={lyrics}
-                    onChange={(e) => setLyrics(e.target.value)}
-                    placeholder="Enter your lyrics here... (Optional)"
-                    className="w-full h-40 p-4 bg-black/20 border border-white/20 rounded-lg text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
+            {/* Upload Form */}
+            <div className="space-y-6">
+              {/* Audio Track Upload */}
+              <div>
+                <label className="block text-white font-medium mb-3">
+                  <Music className="w-4 h-4 inline mr-2" />
+                  Your Battle Reply (Audio)
+                </label>
+                <div className="border-2 border-dashed border-white/20 rounded-xl p-6 text-center hover:border-white/30 transition-colors">
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    onChange={handleTrackUpload}
+                    disabled={isUploading}
+                    className="hidden"
+                    id="track-upload"
                   />
-                  <p className="text-gray-400 text-sm mt-2">
-                    {lyrics.length} characters
-                  </p>
-                </div>
-
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <span className="text-white text-xs">i</span>
-                    </div>
-                    <div>
-                      <p className="text-blue-300 text-sm font-medium">Pro Tip</p>
-                      <p className="text-blue-200 text-sm">
-                        Adding lyrics helps voters understand your wordplay and flow, potentially increasing your chances of winning!
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-between">
-                  <Button
-                    variant="outline"
-                    onClick={() => setStep(1)}
-                    className="border-white/20 hover:bg-white/10"
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    onClick={handleAcceptBattle}
-                    disabled={isAccepting}
-                    className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
-                  >
-                    {isAccepting ? 'Accepting Battle...' : 'Accept Battle'}
-                  </Button>
+                  <label htmlFor="track-upload" className="cursor-pointer">
+                    {trackFile ? (
+                      <div className="space-y-2">
+                        <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto">
+                          <Music className="w-8 h-8 text-green-400" />
+                        </div>
+                        <div className="text-white font-medium">{trackFile.name}</div>
+                        <div className="text-gray-400 text-sm">
+                          {(trackFile.size / (1024 * 1024)).toFixed(2)} MB
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
+                          <Upload className="w-8 h-8 text-white/60" />
+                        </div>
+                        <div className="text-white font-medium">Click to upload audio</div>
+                        <div className="text-gray-400 text-sm">
+                          MP3, WAV, or M4A • Max 50MB
+                        </div>
+                      </div>
+                    )}
+                  </label>
                 </div>
               </div>
-            )}
-          </div>
-        </motion.div>
-      </div>
+
+              {/* Lyrics Input */}
+              <div>
+                <label className="block text-white font-medium mb-3">
+                  <Pen className="w-4 h-4 inline mr-2" />
+                  Battle Lyrics (Optional)
+                </label>
+                <textarea
+                  value={lyrics}
+                  onChange={(e) => setLyrics(e.target.value)}
+                  placeholder="Write your battle lyrics here... (optional)"
+                  disabled={isUploading}
+                  className="w-full h-32 px-4 py-3 bg-black/50 border border-white/20 rounded-xl text-white placeholder-gray-400 resize-none text-sm leading-relaxed focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/20 transition-all duration-200"
+                />
+                <p className="text-gray-400 text-xs mt-2">
+                  Add your lyrics to show off your skills and help voters understand your bars
+                </p>
+              </div>
+
+              {/* Upload Progress */}
+              {isUploading && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-white">Uploading...</span>
+                    <span className="text-gray-400">{uploadProgress}%</span>
+                  </div>
+                  <div className="w-full bg-white/10 rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={handleClose}
+                  disabled={isUploading}
+                  className="flex-1 border-white/20 text-white/80 hover:text-white hover:bg-white/10"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!trackFile || isUploading}
+                  className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                >
+                  {isUploading ? 'Accepting Battle...' : 'Accept Battle'}
+                </Button>
+              </div>
+
+              {/* Info Box */}
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm">
+                    <div className="text-blue-300 font-medium mb-1">Battle Rules</div>
+                    <ul className="text-blue-200/80 space-y-1">
+                      <li>• Your reply will be uploaded and the battle becomes active</li>
+                      <li>• Both tracks will be available for voting</li>
+                      <li>• Voting will be enabled once both tracks are uploaded</li>
+                      <li>• Make sure your audio quality is clear and professional</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </AnimatePresence>
   )
 }

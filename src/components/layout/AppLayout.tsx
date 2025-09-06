@@ -29,9 +29,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <div className="flex min-h-[calc(100vh-80px)]">
         {/* Main Content Area */}
         <main 
-          className="flex-1 transition-all duration-300 pt-[130px] md:pt-[80px]" 
+          className="flex-1 transition-all duration-300 pt-[130px] md:pt-[80px] w-full" 
           style={{ 
-            paddingRight: 'var(--chat-width)',
+            paddingRight: isChatOpen ? 'var(--chat-width)' : '0',
             paddingBottom: currentTrack ? '80px' : '0'
           }}
         >
@@ -49,7 +49,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <footer 
         className="border-t border-white/10 bg-black/20 backdrop-blur-xl transition-all duration-300"
         style={{ 
-          marginRight: 'var(--chat-width)'
+          marginRight: isChatOpen ? 'var(--chat-width)' : '0'
         }}
       >
         <div className="max-w-7xl mx-auto px-4 py-8">

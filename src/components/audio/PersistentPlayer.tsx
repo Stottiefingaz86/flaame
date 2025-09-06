@@ -60,19 +60,19 @@ export default function PersistentPlayer() {
         exit={{ y: 100, opacity: 0 }}
         className="fixed bottom-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-xl border-t border-white/20 shadow-2xl"
       >
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-4 py-3 max-w-7xl">
+          <div className="flex items-center justify-between gap-2">
             {/* Track Info */}
-            <div className="flex items-center gap-4 flex-1 min-w-0">
-              <Avatar className="w-12 h-12 border-2 border-white/20">
+            <div className="flex items-center gap-3 flex-1 min-w-0 max-w-[200px] md:max-w-none">
+              <Avatar className="w-10 h-10 md:w-12 md:h-12 border-2 border-white/20 flex-shrink-0">
                 <AvatarImage src={currentTrack?.avatarId ? `/api/avatars/${currentTrack.avatarId}` : undefined} />
-                <AvatarFallback className="bg-gradient-to-br from-orange-500 to-red-500 text-white text-lg">
+                <AvatarFallback className="bg-gradient-to-br from-orange-500 to-red-500 text-white text-sm md:text-lg">
                   {currentTrack?.username?.charAt(0).toUpperCase() || currentTrack?.artist?.charAt(0).toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
-                <h4 className="text-white font-medium truncate">{currentTrack.title}</h4>
-                <p className="text-gray-400 text-sm truncate">
+                <h4 className="text-white font-medium truncate text-sm md:text-base">{currentTrack.title}</h4>
+                <p className="text-gray-400 text-xs md:text-sm truncate">
                   {currentTrack.username ? (
                     <StyledUsername 
                       username={currentTrack.username} 
@@ -87,26 +87,26 @@ export default function PersistentPlayer() {
             </div>
 
             {/* Controls */}
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-xl p-2 border border-white/10">
+            <div className="flex items-center gap-1 md:gap-2 bg-white/5 backdrop-blur-sm rounded-xl p-1 md:p-2 border border-white/10">
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => seekTo(Math.max(0, currentTime - 10))}
-                className="text-white hover:bg-white/20 rounded-lg"
+                className="text-white hover:bg-white/20 rounded-lg p-1 md:p-2"
               >
-                <SkipBack className="w-4 h-4" />
+                <SkipBack className="w-3 h-3 md:w-4 md:h-4" />
               </Button>
 
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={isPlaying ? pauseTrack : resumeTrack}
-                className="text-white hover:bg-white/20 rounded-lg"
+                className="text-white hover:bg-white/20 rounded-lg p-1 md:p-2"
               >
                 {isPlaying ? (
-                  <Pause className="w-5 h-5" />
+                  <Pause className="w-4 h-4 md:w-5 md:h-5" />
                 ) : (
-                  <Play className="w-5 h-5" />
+                  <Play className="w-4 h-4 md:w-5 md:h-5" />
                 )}
               </Button>
 
@@ -114,15 +114,15 @@ export default function PersistentPlayer() {
                 size="sm"
                 variant="ghost"
                 onClick={() => seekTo(Math.min(duration, currentTime + 10))}
-                className="text-white hover:bg-white/20 rounded-lg"
+                className="text-white hover:bg-white/20 rounded-lg p-1 md:p-2"
               >
-                <SkipForward className="w-4 h-4" />
+                <SkipForward className="w-3 h-3 md:w-4 md:h-4" />
               </Button>
             </div>
 
-            {/* Progress Bar */}
-            <div className="flex-1 mx-6">
-              <div className="flex items-center gap-2 mb-1">
+            {/* Progress Bar - Hidden on mobile, shown on desktop */}
+            <div className="hidden md:flex flex-1 mx-4">
+              <div className="flex items-center gap-2 mb-1 w-full">
                 <span className="text-xs text-gray-400">{formatTime(currentTime)}</span>
                 <div className="flex-1 relative">
                   <div
@@ -140,29 +140,29 @@ export default function PersistentPlayer() {
             </div>
 
             {/* Volume Controls */}
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-xl p-2 border border-white/10 relative">
+            <div className="flex items-center gap-1 md:gap-2 bg-white/5 backdrop-blur-sm rounded-xl p-1 md:p-2 border border-white/10 relative">
               {/* Mobile: Just mute toggle and close */}
-              <div className="md:hidden flex items-center gap-2">
+              <div className="md:hidden flex items-center gap-1">
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={toggleMute}
-                  className="text-white hover:bg-white/20 rounded-lg"
+                  className="text-white hover:bg-white/20 rounded-lg p-1"
                 >
                   {isMuted ? (
-                    <VolumeX className="w-4 h-4" />
+                    <VolumeX className="w-3 h-3" />
                   ) : (
-                    <Volume2 className="w-4 h-4" />
+                    <Volume2 className="w-3 h-3" />
                   )}
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={stopTrack}
-                  className="text-white hover:bg-white/20 rounded-lg"
+                  className="text-white hover:bg-white/20 rounded-lg p-1"
                   title="Stop and hide player"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3 h-3" />
                 </Button>
               </div>
 

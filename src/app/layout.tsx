@@ -19,6 +19,14 @@ export const metadata: Metadata = {
   description: 'The ultimate hip-hop battle platform where rappers compete, earn flames, and climb the leaderboard.',
 }
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+}
+
 export default function RootLayout({
   children,
 }: {

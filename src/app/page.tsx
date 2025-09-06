@@ -33,9 +33,9 @@ export default function HomePage() {
   const { user } = useUser()
 
   return (
-    <div className="flex-1">
+    <div className="w-full flex justify-center">
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16">
+      <div className="w-full max-w-4xl px-4 py-16 flex flex-col items-center justify-center min-h-[calc(100vh-130px)] md:min-h-[calc(100vh-80px)]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -49,7 +49,7 @@ export default function HomePage() {
               className="h-20"
             />
           </div>
-          <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto text-center">
             The ultimate hip-hop battle platform where rappers compete, earn flames, 
             and climb the leaderboard. Create epic battles, showcase your skills, and become legendary.
           </p>
@@ -71,7 +71,7 @@ export default function HomePage() {
         </motion.div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16 w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

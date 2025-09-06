@@ -71,7 +71,7 @@ export default function MobileNavigation() {
   return (
     <>
       {/* Mobile Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl bg-black/30 border-b border-white/20 md:hidden">
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl bg-black/30 border-b border-white/20 md:hidden mobile-header">
         <div className="flex items-center justify-between px-4 py-3">
           {/* Logo */}
           <Link href="/" className="flex items-center">

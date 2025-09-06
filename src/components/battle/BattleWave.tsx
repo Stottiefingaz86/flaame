@@ -4,20 +4,24 @@ import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Play, Pause, Volume2, VolumeX } from 'lucide-react'
 import WaveSurfer from 'wavesurfer.js'
+import { useAudio } from '@/contexts/AudioContext'
 
 interface BattleWaveProps {
   audioUrl: string
   entryId: string
   isOwner?: boolean
+  username?: string
+  avatarId?: string
 }
 
-export default function BattleWave({ audioUrl, entryId, isOwner }: BattleWaveProps) {
+export default function BattleWave({ audioUrl, entryId, isOwner, username, avatarId }: BattleWaveProps) {
   const waveformRef = useRef<HTMLDivElement>(null)
   const wavesurferRef = useRef<WaveSurfer | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [duration, setDuration] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
+  const { playAudio, currentTrack, isPlaying: globalIsPlaying } = useAudio()
 
   useEffect(() => {
     if (!waveformRef.current) return
@@ -61,12 +65,26 @@ export default function BattleWave({ audioUrl, entryId, isOwner }: BattleWavePro
   const togglePlay = () => {
     if (!wavesurferRef.current) return
 
-    if (isPlaying) {
+    // Check if this is the currently playing track in the global player
+    const isCurrentTrack = currentTrack?.audioUrl === audioUrl
+
+    if (isCurrentTrack && globalIsPlaying) {
+      // If this is the current track and it's playing globally, pause it
       wavesurferRef.current.pause()
-    } else {
+      setIsPlaying(false)
+    } else if (isCurrentTrack && !globalIsPlaying) {
+      // If this is the current track but not playing globally, resume it
       wavesurferRef.current.play()
+      setIsPlaying(true)
+    } else {
+      // If this is not the current track, play it in the global player
+      const trackName = username ? `${username}'s Entry` : 'Battle Entry'
+      playAudio(audioUrl, trackName, username, avatarId)
+      
+      // Also play locally for waveform visualization
+      wavesurferRef.current.play()
+      setIsPlaying(true)
     }
-    setIsPlaying(!isPlaying)
   }
 
   const toggleMute = () => {

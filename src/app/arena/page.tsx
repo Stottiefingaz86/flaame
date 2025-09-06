@@ -609,13 +609,13 @@ export default function ArenaPage() {
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-7 text-xs font-medium text-gray-400 uppercase tracking-wider mb-4 px-6">
-                      <div className="col-span-1 text-center pr-8">Challenger</div>
-                      <div className="col-span-1 text-center pr-8">VS</div>
-                      <div className="col-span-1 text-center pr-12">Opponent</div>
-                      <div className="col-span-1 text-center pr-4">Type</div>
-                      <div className="col-span-1 text-center pr-4">Status</div>
-                      <div className="col-span-1 text-center pr-4">Finishes</div>
+                    <div className="grid grid-cols-7 text-xs font-medium text-gray-400 uppercase tracking-wider mb-4 px-6 gap-4">
+                      <div className="col-span-1 text-center">Challenger</div>
+                      <div className="col-span-1 text-center">VS</div>
+                      <div className="col-span-1 text-center">Opponent</div>
+                      <div className="col-span-1 text-center">Type</div>
+                      <div className="col-span-1 text-center">Status</div>
+                      <div className="col-span-1 text-center">Finishes</div>
                       <div className="col-span-1 text-center">Play</div>
                     </div>
                     <div>
@@ -654,13 +654,13 @@ export default function ArenaPage() {
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-7 text-xs font-medium text-gray-400 uppercase tracking-wider mb-4 px-6">
-                      <div className="col-span-1 text-center pr-8">Challenger</div>
-                      <div className="col-span-1 text-center pr-8">VS</div>
-                      <div className="col-span-1 text-center pr-12">Opponent</div>
-                      <div className="col-span-1 text-center pr-4">Type</div>
-                      <div className="col-span-1 text-center pr-4">Status</div>
-                      <div className="col-span-1 text-center pr-4">Finishes</div>
+                    <div className="grid grid-cols-7 text-xs font-medium text-gray-400 uppercase tracking-wider mb-4 px-6 gap-4">
+                      <div className="col-span-1 text-center">Challenger</div>
+                      <div className="col-span-1 text-center">VS</div>
+                      <div className="col-span-1 text-center">Opponent</div>
+                      <div className="col-span-1 text-center">Type</div>
+                      <div className="col-span-1 text-center">Status</div>
+                      <div className="col-span-1 text-center">Finishes</div>
                       <div className="col-span-1 text-center">Play</div>
                     </div>
                     <div>
@@ -699,13 +699,13 @@ export default function ArenaPage() {
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-7 text-xs font-medium text-gray-400 uppercase tracking-wider mb-4 px-6">
-                      <div className="col-span-1 text-center pr-8">Challenger</div>
-                      <div className="col-span-1 text-center pr-8">VS</div>
-                      <div className="col-span-1 text-center pr-12">Opponent</div>
-                      <div className="col-span-1 text-center pr-4">Type</div>
-                      <div className="col-span-1 text-center pr-4">Status</div>
-                      <div className="col-span-1 text-center pr-4">Finishes</div>
+                    <div className="grid grid-cols-7 text-xs font-medium text-gray-400 uppercase tracking-wider mb-4 px-6 gap-4">
+                      <div className="col-span-1 text-center">Challenger</div>
+                      <div className="col-span-1 text-center">VS</div>
+                      <div className="col-span-1 text-center">Opponent</div>
+                      <div className="col-span-1 text-center">Type</div>
+                      <div className="col-span-1 text-center">Status</div>
+                      <div className="col-span-1 text-center">Finishes</div>
                       <div className="col-span-1 text-center">Play</div>
                     </div>
                     <div>
@@ -744,13 +744,13 @@ export default function ArenaPage() {
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-7 text-xs font-medium text-gray-400 uppercase tracking-wider mb-4 px-6">
-                      <div className="col-span-1 text-center pr-8">Challenger</div>
-                      <div className="col-span-1 text-center pr-8">VS</div>
-                      <div className="col-span-1 text-center pr-12">Opponent</div>
-                      <div className="col-span-1 text-center pr-4">Type</div>
-                      <div className="col-span-1 text-center pr-4">Status</div>
-                      <div className="col-span-1 text-center pr-4">Finishes</div>
+                    <div className="grid grid-cols-7 text-xs font-medium text-gray-400 uppercase tracking-wider mb-4 px-6 gap-4">
+                      <div className="col-span-1 text-center">Challenger</div>
+                      <div className="col-span-1 text-center">VS</div>
+                      <div className="col-span-1 text-center">Opponent</div>
+                      <div className="col-span-1 text-center">Type</div>
+                      <div className="col-span-1 text-center">Status</div>
+                      <div className="col-span-1 text-center">Finishes</div>
                       <div className="col-span-1 text-center">Play</div>
                     </div>
                     <div>

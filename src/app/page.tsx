@@ -76,44 +76,44 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-center p-6 rounded-lg bg-black/20 backdrop-blur-md border border-white/10"
+            className="text-center p-6 rounded-lg bg-black/20 backdrop-blur-md border border-white/10 h-full flex flex-col"
           >
             <Mic className="w-12 h-12 text-blue-500 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-white mb-2">Epic Battles</h3>
-            <p className="text-gray-400">Compete in intense rap battles with other artists</p>
+            <p className="text-gray-400 flex-1">Compete in intense rap battles with other artists</p>
           </motion.div>
           
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-center p-6 rounded-lg bg-black/20 backdrop-blur-md border border-white/10"
+            className="text-center p-6 rounded-lg bg-black/20 backdrop-blur-md border border-white/10 h-full flex flex-col"
           >
             <Flame className="w-12 h-12 text-orange-500 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-white mb-2">Earn Flames</h3>
-            <p className="text-gray-400">Win battles to earn flames and climb the ranks</p>
+            <p className="text-gray-400 flex-1">Win battles to earn flames and climb the ranks</p>
           </motion.div>
           
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="text-center p-6 rounded-lg bg-black/20 backdrop-blur-md border border-white/10"
+            className="text-center p-6 rounded-lg bg-black/20 backdrop-blur-md border border-white/10 h-full flex flex-col"
           >
             <Crown className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-white mb-2">Climb the Leaderboard</h3>
-            <p className="text-gray-400">Win battles to rise through the ranks and become legendary</p>
+            <p className="text-gray-400 flex-1">Win battles to rise through the ranks and become legendary</p>
           </motion.div>
           
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="text-center p-6 rounded-lg bg-black/20 backdrop-blur-md border border-white/10"
+            className="text-center p-6 rounded-lg bg-black/20 backdrop-blur-md border border-white/10 h-full flex flex-col"
           >
             <Trophy className="w-12 h-12 text-purple-500 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-white mb-2">Producers Get Your Beats Heard</h3>
-            <p className="text-gray-400">Upload your beats and get them featured in epic battles</p>
+            <p className="text-gray-400 flex-1">Upload your beats and get them featured in epic battles</p>
           </motion.div>
         </div>
 

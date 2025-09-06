@@ -90,7 +90,7 @@ export default function BattleCard({ battle, onAcceptBattle, onVote, hasVoted, u
             {battle.challenger?.username?.charAt(0).toUpperCase() || 'U'}
           </AvatarFallback>
         </Avatar>
-        <Link href={`/profile/${encodeURIComponent(battle.challenger?.username || '')}`} className="hover:underline">
+        <Link href={`/profile/${battle.challenger?.username}`} className="hover:underline">
           <StyledUsername 
             username={battle.challenger?.username || ''} 
             userId={battle.challenger?.id || ''}
@@ -116,7 +116,7 @@ export default function BattleCard({ battle, onAcceptBattle, onVote, hasVoted, u
                 {battle.opponent?.username?.charAt(0).toUpperCase() || 'U'}
               </AvatarFallback>
             </Avatar>
-            <Link href={`/profile/${encodeURIComponent(battle.opponent?.username || '')}`} className="hover:underline">
+            <Link href={`/profile/${battle.opponent?.username}`} className="hover:underline">
               <StyledUsername 
                 username={battle.opponent?.username || ''} 
                 userId={battle.opponent?.id || ''}

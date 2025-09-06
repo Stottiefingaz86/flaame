@@ -309,7 +309,7 @@ export default function UserProfilePage() {
                     <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500 rounded-full blur-lg opacity-30 scale-110" />
                     <Avatar className="relative w-24 h-24 border-2 border-white/30 shadow-xl">
                       <AvatarImage 
-                        src={user.avatar_id ? `/api/avatars/${user.avatar_id}` : undefined} 
+                        src={user.avatar_id ? `/api/avatars/${encodeURIComponent(user.avatar_id)}` : undefined} 
                         alt={user.username} 
                         className="object-cover"
                       />

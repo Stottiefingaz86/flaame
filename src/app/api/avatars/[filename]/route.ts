@@ -9,6 +9,7 @@ export async function GET(
     const { filename } = await params
 
     // Get the file from Supabase Storage
+    // The filename parameter contains the full path (avatars/filename.ext)
     const { data, error } = await supabase.storage
       .from('avatars')
       .download(filename)

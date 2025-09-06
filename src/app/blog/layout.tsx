@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Blog | Flaame',
     description: 'Read the latest hip-hop news, artist spotlights, and battle tips on the Flaame blog.',
-    url: 'https://flaame.com/blog',
+    url: 'https://flaame.co/blog',
   },
 }
 

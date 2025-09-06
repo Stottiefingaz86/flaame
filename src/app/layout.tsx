@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://flaame.com'),
+  metadataBase: new URL('https://flaame.co'),
   alternates: {
     canonical: '/',
   },
@@ -100,10 +100,10 @@ export default function RootLayout({
               "@type": "WebSite",
               "name": "Flaame",
               "description": "The ultimate hip-hop battle platform where rappers compete in epic battles, earn flames, and climb the leaderboard.",
-              "url": "https://flaame.com",
+              "url": "https://flaame.co",
               "potentialAction": {
                 "@type": "SearchAction",
-                "target": "https://flaame.com/search?q={search_term_string}",
+                "target": "https://flaame.co/search?q={search_term_string}",
                 "query-input": "required name=search_term_string"
               },
               "sameAs": [

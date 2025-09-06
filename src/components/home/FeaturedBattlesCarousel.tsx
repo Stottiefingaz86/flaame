@@ -67,7 +67,8 @@ export default function FeaturedBattlesCarousel() {
     try {
       setIsLoading(true)
       
-      const { data, error } = await supabase
+      // First try to get active battles with both participants
+      let { data, error } = await supabase
         .from('battles')
         .select(`
           id,
@@ -94,8 +95,51 @@ export default function FeaturedBattlesCarousel() {
           )
         `)
         .eq('status', 'active')
+        .not('opponent_id', 'is', null)
         .order('total_votes', { ascending: false })
         .limit(5)
+
+      // If no active battles with opponents, get open battles instead
+      if (!data || data.length === 0) {
+        const { data: openBattles, error: openError } = await supabase
+          .from('battles')
+          .select(`
+            id,
+            title,
+            description,
+            status,
+            created_at,
+            challenger_id,
+            opponent_id,
+            total_votes,
+            challenger_votes,
+            opponent_votes,
+            challenger:profiles!battles_challenger_id_fkey(
+              username,
+              avatar_id
+            ),
+            opponent:profiles!battles_opponent_id_fkey(
+              username,
+              avatar_id
+            ),
+            beat:beats(
+              title,
+              audio_url
+            )
+          `)
+          .eq('status', 'pending')
+          .not('opponent_id', 'is', null)
+          .order('created_at', { ascending: false })
+          .limit(5)
+        
+        if (openError) {
+          console.error('Error loading open battles:', openError)
+          return
+        }
+        
+        data = openBattles
+        error = openError
+      }
 
       if (error) {
         console.error('Error loading battles:', error)
@@ -141,39 +185,36 @@ export default function FeaturedBattlesCarousel() {
 
   if (isLoading) {
     return (
-      <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-xl border border-orange-500/20">
-        <CardContent className="p-8">
-          <div className="text-center py-8 text-gray-400">
-            Loading featured battles...
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex-1 flex flex-col justify-center">
+        <div className="text-center py-8 text-gray-400">
+          Loading featured battles...
+        </div>
+      </div>
     )
   }
 
   if (battles.length === 0) {
     return (
-      <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-xl border border-orange-500/20">
-        <CardContent className="p-8">
-          <div className="text-center py-8 text-gray-400">
-            <Trophy className="w-12 h-12 mx-auto mb-3" />
-            <p>No active battles at the moment</p>
-            <Link href="/arena" className="mt-4 inline-block">
-              <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white">
-                Start a Battle
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex-1 flex flex-col justify-center">
+        <div className="text-center py-8">
+          <Trophy className="w-16 h-16 mx-auto mb-4 text-orange-400" />
+          <h3 className="text-2xl font-bold text-white mb-2">Ready for Battle?</h3>
+          <p className="text-gray-300 mb-6">No active battles right now. Be the first to start the next epic showdown!</p>
+          <Link href="/arena" className="inline-block">
+            <Button size="lg" className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8 py-3">
+              <Trophy className="w-5 h-5 mr-2" />
+              Create Battle
+            </Button>
+          </Link>
+        </div>
+      </div>
     )
   }
 
   const currentBattle = battles[currentIndex]
 
   return (
-    <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-xl border border-orange-500/20">
-      <CardContent className="p-8">
+    <div className="flex-1 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-3xl font-bold text-white flex items-center gap-2">
@@ -215,7 +256,7 @@ export default function FeaturedBattlesCarousel() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
-          className="space-y-6"
+          className="space-y-6 flex-1 flex flex-col"
         >
           {/* Battle Title */}
           <div className="text-center">
@@ -322,7 +363,7 @@ export default function FeaturedBattlesCarousel() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-4 mt-auto">
             <Link href={`/battle/${currentBattle.id}`}>
               <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white">
                 <Trophy className="w-4 h-4 mr-2" />
@@ -337,7 +378,6 @@ export default function FeaturedBattlesCarousel() {
             </Link>
           </div>
         </motion.div>
-      </CardContent>
-    </Card>
+    </div>
   )
 }

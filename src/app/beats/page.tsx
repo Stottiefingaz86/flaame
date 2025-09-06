@@ -262,7 +262,7 @@ export default function BeatsPage() {
           className="text-center md:text-left mb-8 md:mb-12"
         >
           <h1 className="text-2xl md:text-4xl font-bold text-white mb-3 md:mb-4">Beats</h1>
-          <p className="text-sm md:text-lg text-gray-300 mb-4 md:mb-6 max-w-2xl mx-auto md:mx-0">
+          <p className="text-xs md:text-sm text-gray-400 mb-4 md:mb-6 max-w-2xl mx-auto md:mx-0">
             Discover and download amazing beats from talented producers. 
             Find the perfect sound for your next track or battle.
           </p>

@@ -157,13 +157,11 @@ export default function FeaturedProducer() {
 
   if (isLoading) {
     return (
-      <Card className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 backdrop-blur-xl border border-purple-500/20">
-        <CardContent className="p-8">
-          <div className="text-center py-8 text-gray-400">
-            Loading featured producer...
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex-1 flex flex-col justify-center">
+        <div className="text-center py-8 text-gray-400">
+          Loading featured producer...
+        </div>
+      </div>
     )
   }
 
@@ -172,14 +170,7 @@ export default function FeaturedProducer() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.6 }}
-      className="mb-16"
-    >
-      <Card className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 backdrop-blur-xl border border-purple-500/20">
-        <CardContent className="p-8">
+    <div className="flex-1 flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-3xl font-bold text-white flex items-center gap-2">
@@ -193,8 +184,8 @@ export default function FeaturedProducer() {
               </Button>
             </Link>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 flex-1">
+            <div className="flex flex-col">
               <div className="flex items-center gap-4 mb-6">
                 <Avatar className="h-20 w-20 border-4 border-purple-500/30">
                   <AvatarImage src={featuredProducer.avatar_id ? `/api/avatars/${featuredProducer.avatar_id}` : undefined} />
@@ -226,7 +217,7 @@ export default function FeaturedProducer() {
                 </div>
               </div>
               
-              <Link href={`/profile/${encodeURIComponent(featuredProducer.username)}`}>
+              <Link href={`/profile/${encodeURIComponent(featuredProducer.username)}`} className="mt-auto">
                 <Button className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white">
                   <TrendingUp className="w-4 h-4 mr-2" />
                   View Profile
@@ -317,8 +308,6 @@ export default function FeaturedProducer() {
               )}
             </div>
           </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+    </div>
   )
 }

@@ -101,7 +101,7 @@ export default function HomePage() {
             className="text-center p-6 rounded-lg bg-black/20 backdrop-blur-md border border-white/10 h-full flex flex-col"
           >
             <Crown className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Climb the Leaderboard</h3>
+            <h3 className="text-xl font-semibold text-white mb-2">Leaderboard</h3>
             <p className="text-gray-400 flex-1">Win battles to rise through the ranks and become legendary</p>
           </motion.div>
           
@@ -112,7 +112,7 @@ export default function HomePage() {
             className="text-center p-6 rounded-lg bg-black/20 backdrop-blur-md border border-white/10 h-full flex flex-col"
           >
             <Trophy className="w-12 h-12 text-purple-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Producers Get Your Beats Heard</h3>
+            <h3 className="text-xl font-semibold text-white mb-2">Producer Beats</h3>
             <p className="text-gray-400 flex-1">Upload your beats and get them featured in epic battles</p>
           </motion.div>
         </div>
@@ -122,9 +122,13 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
-          className="mb-16"
+          className="mb-16 w-full"
         >
-          <FeaturedBattlesCarousel />
+          <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-xl border border-orange-500/20 h-full flex flex-col w-full">
+            <CardContent className="p-8 flex-1 flex flex-col w-full">
+              <FeaturedBattlesCarousel />
+            </CardContent>
+          </Card>
         </motion.div>
 
         {/* Featured Artist Section */}
@@ -132,10 +136,10 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.6 }}
-          className="mb-16"
+          className="mb-16 w-full"
         >
-          <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-xl border border-orange-500/20">
-            <CardContent className="p-8">
+          <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-xl border border-orange-500/20 h-full flex flex-col w-full">
+            <CardContent className="p-8 flex-1 flex flex-col w-full">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-3xl font-bold text-white flex items-center gap-2">
@@ -184,7 +188,7 @@ export default function HomePage() {
                 </div>
               </div>
               
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 mt-auto">
                 <a 
                   href="https://open.spotify.com/artist/4vShBjt1fl5s35OJg22knZ?si=8HvAJalERmy7TmCU9ucbrw"
                   target="_blank"
@@ -210,9 +214,13 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.7 }}
-          className="mb-16"
+          className="mb-16 w-full"
         >
-          <FeaturedProducer />
+          <Card className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 backdrop-blur-xl border border-purple-500/20 h-full flex flex-col w-full">
+            <CardContent className="p-8 flex-1 flex flex-col w-full">
+              <FeaturedProducer />
+            </CardContent>
+          </Card>
         </motion.div>
 
         {/* Blog Posts Section */}

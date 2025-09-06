@@ -155,7 +155,7 @@ export default function MobileNavigation() {
             ) : (
               /* Auth buttons for logged out users */
               <div className="flex items-center gap-2">
-                <Link href="/auth">
+                <Link href="/auth?mode=signin">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -164,7 +164,7 @@ export default function MobileNavigation() {
                     Sign In
                   </Button>
                 </Link>
-                <Link href="/auth">
+                <Link href="/auth?mode=signup">
                   <Button
                     size="sm"
                     className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-sm px-4"

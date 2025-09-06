@@ -18,7 +18,8 @@ import {
   Settings,
   Award,
   Calendar,
-  TrendingUp
+  TrendingUp,
+  Clock
 } from 'lucide-react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
@@ -709,8 +710,8 @@ export default function ProfilePage() {
                               </div>
 
                               {/* VS */}
-                              <div className="bg-orange-500/10 border border-orange-500/30 rounded-full px-4 py-2">
-                                <span className="text-orange-400 font-bold text-sm">VS</span>
+                              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-3 py-1">
+                                <span className="text-white font-bold text-xs">VS</span>
                               </div>
 
                               {/* Opponent */}
@@ -883,8 +884,8 @@ export default function ProfilePage() {
                               </div>
 
                               {/* VS */}
-                              <div className="bg-orange-500/10 border border-orange-500/30 rounded-full px-4 py-2">
-                                <span className="text-orange-400 font-bold text-sm">VS</span>
+                              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-3 py-1">
+                                <span className="text-white font-bold text-xs">VS</span>
                               </div>
 
                               {/* Opponent */}

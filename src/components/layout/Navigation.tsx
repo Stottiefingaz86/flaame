@@ -206,7 +206,7 @@ export default function Navigation() {
                      </>
                    ) : (
                      <div className="flex items-center gap-2">
-                       <Link href="/auth">
+                       <Link href="/auth?mode=signin">
                          <Button variant="outline" className="border-white/20 hover:bg-white/10 text-white">
                            Sign In
                          </Button>
@@ -317,11 +317,18 @@ export default function Navigation() {
                       </div>
                     </>
                   ) : (
-                    <Link href="/auth">
-                      <Button variant="outline" className="w-full border-white/20 hover:bg-white/10 text-white">
-                        Sign In
-                      </Button>
-                    </Link>
+                    <div className="space-y-2">
+                      <Link href="/auth?mode=signin">
+                        <Button variant="outline" className="w-full border-white/20 hover:bg-white/10 text-white">
+                          Sign In
+                        </Button>
+                      </Link>
+                      <Link href="/auth?mode=signup">
+                        <Button className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white">
+                          Create Account
+                        </Button>
+                      </Link>
+                    </div>
                   )}
                 </>
               )}

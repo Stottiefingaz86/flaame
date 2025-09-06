@@ -13,7 +13,8 @@ import {
   Users,
   Trophy,
   Filter,
-  X
+  X,
+  Clock
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { useLeague } from '@/contexts/LeagueContext'
@@ -484,34 +485,6 @@ export default function ArenaPage() {
             {getFilteredBattles().map((battle) => (
               <Link key={battle.id} href={`/battle/${battle.id}`}>
                 <div className="bg-black/20 backdrop-blur-md rounded-xl border border-white/10 p-4 hover:border-white/20 transition-all duration-300 cursor-pointer">
-                  {/* Timer and Tags */}
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="ghost" className="bg-white/5 text-white/70 border-white/20 px-3 py-1 text-xs flex items-center gap-2">
-                          <span>🇺🇸</span>
-                          <span>{getBattleStyle(battle.title).type}</span>
-                        </Badge>
-                        <Badge variant="ghost" className={`px-3 py-1 text-xs font-medium ${
-                          battle.status === 'active' ? 'bg-green-500/20 text-green-400 border-green-500/20' :
-                          battle.status === 'pending' ? 'bg-orange-500/20 text-orange-400 border-orange-500/20' :
-                          battle.status === 'closed' ? 'bg-gray-500/20 text-gray-400 border-gray-500/20' :
-                          'bg-blue-500/20 text-blue-400 border-blue-500/20'
-                        }`}>
-                          {battle.status === 'pending' ? 'Open' : 
-                           battle.status === 'active' ? 'Active' :
-                           battle.status === 'closed' ? 'Finished' : 
-                           battle.status}
-                        </Badge>
-                      </div>
-                      {battle.ends_at && battle.status !== 'closed' && (
-                        <div className="text-xs text-orange-400 font-medium bg-orange-500/10 px-2 py-1 rounded">
-                          {battleTimers[battle.id] || formatTimeLeft(battle.ends_at)}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
                   {/* VS Section */}
                   <div className="mb-4">
                     <div className="flex items-center justify-between">
@@ -534,8 +507,8 @@ export default function ArenaPage() {
                       </div>
 
                       {/* VS */}
-                      <div className="bg-orange-500/10 border border-orange-500/30 rounded-full px-4 py-2">
-                        <span className="text-orange-400 font-bold text-sm">VS</span>
+                      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-3 py-1">
+                        <span className="text-white font-bold text-xs">VS</span>
                       </div>
 
                       {/* Opponent */}
@@ -557,12 +530,37 @@ export default function ArenaPage() {
                           <div className="text-white font-medium text-sm">
                             {battle.opponent?.username || 'Waiting...'}
                           </div>
-                          <div className="text-xs text-gray-400">
-                            {battle.opponent ? 'Opponent' : 'No opponent yet'}
-                          </div>
                         </div>
                       </div>
                     </div>
+
+                            {/* Divider line */}
+                            <div className="border-t border-white/10 mt-3 mb-3"></div>
+
+                            {/* Tags and Timer on same line */}
+                            <div className="flex items-center justify-center gap-2">
+                              <Badge variant="ghost" className="bg-white/5 text-white/70 border-white/20 px-2 py-1 text-xs flex items-center gap-1">
+                                <span>🇺🇸</span>
+                                <span>{getBattleStyle(battle.title).type}</span>
+                              </Badge>
+                              <Badge variant="ghost" className={`px-2 py-1 text-xs font-medium ${
+                                battle.status === 'active' ? 'bg-green-500/20 text-green-400 border-green-500/20' :
+                                battle.status === 'pending' ? 'bg-orange-500/20 text-orange-400 border-orange-500/20' :
+                                battle.status === 'closed' ? 'bg-gray-500/20 text-gray-400 border-gray-500/20' :
+                                'bg-blue-500/20 text-blue-400 border-blue-500/20'
+                              }`}>
+                                {battle.status === 'pending' ? 'Open' : 
+                                 battle.status === 'active' ? 'Active' :
+                                 battle.status === 'closed' ? 'Finished' : 
+                                 battle.status}
+                              </Badge>
+                              {battle.ends_at && battle.status !== 'closed' && (
+                                <div className="flex items-center gap-1 text-xs text-gray-400">
+                                  <Clock className="w-3 h-3" />
+                                  <span>{battleTimers[battle.id] || formatTimeLeft(battle.ends_at)}</span>
+                                </div>
+                              )}
+                            </div>
                   </div>
 
                 </div>

@@ -188,7 +188,7 @@ export default function FeaturedProducer() {
             <div className="flex flex-col">
               <div className="flex items-center gap-4 mb-6">
                 <Avatar className="h-20 w-20 border-4 border-purple-500/30">
-                  <AvatarImage src={featuredProducer.avatar_id ? `/api/avatars/${featuredProducer.avatar_id}` : undefined} />
+                  <AvatarImage src={featuredProducer.avatar_id ? `/api/avatars/${encodeURIComponent(featuredProducer.avatar_id)}` : undefined} />
                   <AvatarFallback className="bg-gradient-to-r from-purple-500 to-blue-500 text-white text-2xl">
                     {featuredProducer.username.charAt(0).toUpperCase()}
                   </AvatarFallback>

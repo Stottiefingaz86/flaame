@@ -300,7 +300,7 @@ export default function FeaturedBattlesCarousel() {
             <div className="text-center">
               <div className="flex items-center justify-center gap-3 mb-3">
                 <Avatar className="h-16 w-16 border-2 border-orange-500/30">
-                  <AvatarImage src={currentBattle.challenger_avatar_id ? `/api/avatars/${currentBattle.challenger_avatar_id}` : undefined} />
+                  <AvatarImage src={currentBattle.challenger_avatar_id ? `/api/avatars/${encodeURIComponent(currentBattle.challenger_avatar_id)}` : undefined} />
                   <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xl">
                     {currentBattle.challenger_username.charAt(0).toUpperCase()}
                   </AvatarFallback>
@@ -330,7 +330,7 @@ export default function FeaturedBattlesCarousel() {
               <div className="text-center">
                 <div className="flex items-center justify-center gap-3 mb-3">
                   <Avatar className="h-16 w-16 border-2 border-blue-500/30">
-                    <AvatarImage src={currentBattle.opponent_avatar_id ? `/api/avatars/${currentBattle.opponent_avatar_id}` : undefined} />
+                    <AvatarImage src={currentBattle.opponent_avatar_id ? `/api/avatars/${encodeURIComponent(currentBattle.opponent_avatar_id)}` : undefined} />
                     <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xl">
                       {currentBattle.opponent_username.charAt(0).toUpperCase()}
                     </AvatarFallback>

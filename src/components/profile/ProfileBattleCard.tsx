@@ -84,7 +84,7 @@ export default function ProfileBattleCard({ battle, user }: ProfileBattleCardPro
       {/* Challenger */}
       <div className="col-span-1 flex items-center gap-3">
         <Avatar className="h-8 w-8">
-          <AvatarImage src={user.avatar_id ? `/api/avatars/${user.avatar_id}` : undefined} />
+          <AvatarImage src={user.avatar_id ? `/api/avatars/${encodeURIComponent(user.avatar_id)}` : undefined} />
           <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm">
             {user.username.charAt(0).toUpperCase()}
           </AvatarFallback>

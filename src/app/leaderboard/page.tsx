@@ -233,7 +233,7 @@ export default function LeaderboardPage() {
                     {getRankIcon(entry.rank)}
                   </div>
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${entry.avatar}`} />
+                    <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${encodeURIComponent(entry.avatar)}`} />
                     <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm">
                       {entry.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
@@ -305,7 +305,7 @@ export default function LeaderboardPage() {
                   <div className="flex items-center justify-between hover:bg-white/5 p-2 rounded-lg transition-colors">
                     <div className="flex items-center gap-2">
                       <Avatar className="h-6 w-6">
-                        <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${entry.avatar}`} />
+                        <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${encodeURIComponent(entry.avatar)}`} />
                         <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
                           {entry.username.charAt(0).toUpperCase()}
                         </AvatarFallback>
@@ -467,7 +467,7 @@ export default function LeaderboardPage() {
                               <Link href={`/profile/${encodeURIComponent(entry.username)}`} className="block">
                                 <div className="flex items-center gap-3 hover:bg-white/5 p-2 rounded-lg transition-colors">
                                   <Avatar className="h-8 w-8">
-                                    <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${entry.avatar}`} />
+                                    <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${encodeURIComponent(entry.avatar)}`} />
                                     <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
                                       {entry.username.charAt(0).toUpperCase()}
                                     </AvatarFallback>
@@ -552,7 +552,7 @@ export default function LeaderboardPage() {
                               <Link href={`/profile/${encodeURIComponent(entry.username)}`} className="block">
                                 <div className="flex items-center gap-3 hover:bg-white/5 p-2 rounded-lg transition-colors">
                                   <Avatar className="h-8 w-8">
-                                    <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${entry.avatar}`} />
+                                    <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${encodeURIComponent(entry.avatar)}`} />
                                     <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
                                       {entry.username.charAt(0).toUpperCase()}
                                     </AvatarFallback>
@@ -618,7 +618,7 @@ export default function LeaderboardPage() {
                       <div key={entry.id} className="flex items-center justify-between">
                         <Link href={`/profile/${encodeURIComponent(entry.username)}`} className="flex items-center gap-2 hover:bg-white/5 p-2 rounded-lg transition-colors">
                           <Avatar className="h-6 w-6">
-                            <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${entry.avatar}`} />
+                            <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${encodeURIComponent(entry.avatar)}`} />
                             <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
                               {entry.username.charAt(0).toUpperCase()}
                             </AvatarFallback>
@@ -651,7 +651,7 @@ export default function LeaderboardPage() {
                       <div key={entry.id} className="flex items-center justify-between">
                         <Link href={`/profile/${encodeURIComponent(entry.username)}`} className="flex items-center gap-2 hover:bg-white/5 p-2 rounded-lg transition-colors">
                           <Avatar className="h-6 w-6">
-                            <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${entry.avatar}`} />
+                            <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${encodeURIComponent(entry.avatar)}`} />
                             <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
                               {entry.username.charAt(0).toUpperCase()}
                             </AvatarFallback>
@@ -684,7 +684,7 @@ export default function LeaderboardPage() {
                       <div key={entry.id} className="flex items-center justify-between">
                         <Link href={`/profile/${encodeURIComponent(entry.username)}`} className="flex items-center gap-2 hover:bg-white/5 p-2 rounded-lg transition-colors">
                           <Avatar className="h-6 w-6">
-                            <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${entry.avatar}`} />
+                            <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${encodeURIComponent(entry.avatar)}`} />
                             <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
                               {entry.username.charAt(0).toUpperCase()}
                             </AvatarFallback>
@@ -717,7 +717,7 @@ export default function LeaderboardPage() {
                       <div key={entry.id} className="flex items-center justify-between">
                         <Link href={`/profile/${encodeURIComponent(entry.username)}`} className="flex items-center gap-2 hover:bg-white/5 p-2 rounded-lg transition-colors">
                           <Avatar className="h-6 w-6">
-                            <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${entry.avatar}`} />
+                            <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${encodeURIComponent(entry.avatar)}`} />
                             <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
                               {entry.username.charAt(0).toUpperCase()}
                             </AvatarFallback>

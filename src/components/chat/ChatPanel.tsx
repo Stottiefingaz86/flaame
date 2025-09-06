@@ -601,7 +601,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                             className="flex gap-2"
                           >
                             <Avatar className="h-6 w-6 flex-shrink-0">
-                              <AvatarImage src={msg.user?.avatar_id ? `/api/avatars/${msg.user.avatar_id}` : undefined} />
+                              <AvatarImage src={msg.user?.avatar_id ? `/api/avatars/${encodeURIComponent(msg.user.avatar_id)}` : undefined} />
                               <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
                                 {msg.user?.username?.charAt(0).toUpperCase() || 'U'}
                               </AvatarFallback>

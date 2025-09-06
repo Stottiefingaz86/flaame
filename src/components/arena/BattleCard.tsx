@@ -85,7 +85,7 @@ export default function BattleCard({ battle, onAcceptBattle, onVote, hasVoted, u
       {/* Challenger */}
       <div className="col-span-1 flex items-center gap-3">
         <Avatar className="h-10 w-10 flex-shrink-0">
-          <AvatarImage src={battle.challenger?.avatar_id ? `/api/avatars/${battle.challenger.avatar_id}` : undefined} />
+          <AvatarImage src={battle.challenger?.avatar_id ? `/api/avatars/${encodeURIComponent(battle.challenger.avatar_id)}` : undefined} />
           <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm">
             {battle.challenger?.username?.charAt(0).toUpperCase() || 'U'}
           </AvatarFallback>
@@ -111,7 +111,7 @@ export default function BattleCard({ battle, onAcceptBattle, onVote, hasVoted, u
         {battle.opponent ? (
           <>
             <Avatar className="h-10 w-10 flex-shrink-0">
-              <AvatarImage src={battle.opponent?.avatar_id ? `/api/avatars/${battle.opponent.avatar_id}` : undefined} />
+              <AvatarImage src={battle.opponent?.avatar_id ? `/api/avatars/${encodeURIComponent(battle.opponent.avatar_id)}` : undefined} />
               <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm">
                 {battle.opponent?.username?.charAt(0).toUpperCase() || 'U'}
               </AvatarFallback>

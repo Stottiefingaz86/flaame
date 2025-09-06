@@ -95,7 +95,7 @@ export default function MobileNavigation() {
                   >
                     {user.avatar_id ? (
                       <img
-                        src={`/api/avatars/${user.avatar_id}`}
+                        src={`/api/avatars/${encodeURIComponent(user.avatar_id)}`}
                         alt={user.username}
                         className="w-8 h-8 rounded-full object-cover"
                       />

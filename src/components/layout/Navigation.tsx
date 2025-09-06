@@ -137,7 +137,7 @@ export default function Navigation() {
                              className="p-1 rounded-full border border-white/20 hover:border-white/30 hover:bg-white/10 transition-all duration-200"
                            >
                              <Avatar className="h-8 w-8">
-                               <AvatarImage src={user.avatar_id ? `/api/avatars/${user.avatar_id}` : undefined} />
+                               <AvatarImage src={user.avatar_id ? `/api/avatars/${encodeURIComponent(user.avatar_id)}` : undefined} />
                                <AvatarFallback className="bg-white/10 text-white">
                                  {user.username.charAt(0).toUpperCase()}
                                </AvatarFallback>
@@ -149,7 +149,7 @@ export default function Navigation() {
                            <div className="p-4 border-b border-white/10">
                              <div className="flex items-center gap-3">
                                <Avatar className="h-10 w-10">
-                                 <AvatarImage src={user.avatar_id ? `/api/avatars/${user.avatar_id}` : undefined} />
+                                 <AvatarImage src={user.avatar_id ? `/api/avatars/${encodeURIComponent(user.avatar_id)}` : undefined} />
                                  <AvatarFallback className="bg-white/10 text-white">
                                    {user.username.charAt(0).toUpperCase()}
                                  </AvatarFallback>

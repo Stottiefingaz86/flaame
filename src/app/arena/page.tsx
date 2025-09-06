@@ -254,6 +254,20 @@ export default function ArenaPage() {
 
         {/* Mobile Layout */}
         <div className="mb-6 md:hidden">
+          {/* Mobile Create Battle Button */}
+          {user && (
+            <div className="mb-4">
+              <Button 
+                size="lg" 
+                className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
+                onClick={() => setShowCreateBattleModal(true)}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Create Battle
+              </Button>
+            </div>
+          )}
+          
           {/* Mobile Search, Filter, and Tabs - All on One Line */}
           <div className="flex items-center gap-2 mb-4">
             {/* Search Icon */}

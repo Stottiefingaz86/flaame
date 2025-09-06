@@ -239,7 +239,7 @@ export default function ArenaPage() {
             download it and record your battle. Then come back here to create your battle and challenge other rappers.
           </p>
           {user && (
-            <div className="flex items-center justify-center md:justify-start gap-4">
+            <div className="hidden md:flex items-center justify-center md:justify-start gap-4">
               <Button 
                 size="lg" 
                 className="px-4 md:px-6 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-sm md:text-base"

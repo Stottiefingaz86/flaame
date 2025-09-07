@@ -67,12 +67,32 @@ export default function BeatsPage() {
   const { playTrack, currentTrack, isPlaying, pauseTrack } = useAudio()
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [showRulesModal, setShowRulesModal] = useState(false)
+  const [likedBeats, setLikedBeats] = useState<Set<string>>(new Set())
 
   // Create Supabase client inside component
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || '',
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
   )
+
+  // Check like status for all beats
+  const checkLikeStatus = async () => {
+    if (!user) return
+    
+    try {
+      const { data: likes } = await supabase
+        .from('beat_likes')
+        .select('beat_id')
+        .eq('user_id', user.id)
+      
+      if (likes) {
+        const likedBeatIds = new Set(likes.map(like => like.beat_id))
+        setLikedBeats(likedBeatIds)
+      }
+    } catch (error) {
+      console.error('Error checking like status:', error)
+    }
+  }
 
   const MAX_RETRIES = 3
   const RETRY_DELAY = 2000 // 2 seconds
@@ -141,6 +161,9 @@ export default function BeatsPage() {
       
       setBeats(transformedBeats)
       setLoadingError(null)
+      
+      // Check like status after loading beats
+      checkLikeStatus()
     } catch (error: any) {
       console.error('Error loading beats:', error)
       setLoadingError(error.message || 'Failed to load beats')
@@ -451,29 +474,182 @@ export default function BeatsPage() {
           </div>
         )}
 
-        {/* Beats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {/* Beats List */}
+        <div className="space-y-4">
           {filteredBeats.map((beat) => (
-            <BeatCard
-              key={beat.id}
-              beat={beat}
-              onPlay={(beatId) => {
-                if (beatId === beat.id) {
-                  playTrack({
-                    id: beat.id,
-                    title: beat.title,
-                    artist: beat.producer.username,
-                    audioUrl: beat.audio_url,
-                    duration: beat.duration || 0
-                  })
-                } else if (beatId === '') {
-                  // Pause current track
-                  pauseTrack()
-                }
-              }}
-              isPlaying={currentTrack?.id === beat.id && isPlaying}
-              isCurrentBeat={currentTrack?.id === beat.id}
-            />
+            <div key={beat.id} className="bg-black/20 backdrop-blur-xl border border-white/20 rounded-xl p-4 hover:bg-black/30 transition-all duration-300">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Avatar className="h-6 w-6 border border-white/20">
+                      <AvatarImage src={`/api/avatars/${beat.producer?.avatar_id}`} alt={beat.producer?.username || 'Unknown Artist'} />
+                      <AvatarFallback className="text-xs">{beat.producer?.username?.charAt(0).toUpperCase() || '?'}</AvatarFallback>
+                    </Avatar>
+                    <span className="text-gray-300 text-sm font-medium">{beat.producer?.username || 'Unknown Artist'}</span>
+                  </div>
+                  <h3 className="text-white text-lg font-semibold mb-1">{beat.title}</h3>
+                  <p className="text-gray-300 text-sm mb-3">{beat.description}</p>
+                  
+                  {/* Stats */}
+                  <div className="flex items-center gap-4 text-xs text-gray-400">
+                    <span className="flex items-center gap-1">
+                      <Heart className="w-3 h-3" />
+                      {beat.like_count || 0}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Download className="w-3 h-3" />
+                      {beat.download_count || 0}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {beat.duration ? `${Math.floor(beat.duration / 60)}:${(beat.duration % 60).toString().padStart(2, '0')}` : '0:00'}
+                    </span>
+                    <span>
+                      {new Date(beat.created_at).toLocaleDateString('en-US', { 
+                        month: '2-digit', 
+                        day: '2-digit', 
+                        year: 'numeric' 
+                      })}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2 ml-4">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={`w-10 h-10 rounded-full border transition-all duration-200 ${
+                      currentTrack?.id === beat.id && isPlaying
+                        ? 'border-red-500/50 bg-red-500/20 hover:bg-red-500/30'
+                        : 'border-white/20 hover:bg-white/10'
+                    }`}
+                    onClick={() => {
+                      if (currentTrack?.id === beat.id && isPlaying) {
+                        pauseTrack()
+                      } else {
+                        playTrack({
+                          id: beat.id,
+                          title: beat.title,
+                          artist: beat.producer.username,
+                          audioUrl: beat.audio_url,
+                          duration: beat.duration || 0
+                        })
+                      }
+                    }}
+                  >
+                    {currentTrack?.id === beat.id && isPlaying ? (
+                      <Pause className="w-4 h-4 text-white" />
+                    ) : (
+                      <Play className="w-4 h-4 text-white" />
+                    )}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-10 h-10 rounded-full border border-white/20 hover:bg-white/10"
+                    onClick={async () => {
+                      // Check if user is authenticated
+                      if (!user) {
+                        // Redirect to auth page with signup mode
+                        window.location.href = '/auth?mode=signup'
+                        return
+                      }
+
+                      try {
+                        const response = await fetch(beat.audio_url)
+                        const blob = await response.blob()
+                        const url = window.URL.createObjectURL(blob)
+                        const a = document.createElement('a')
+                        a.href = url
+                        a.download = `${beat.title} - ${beat.producer.username}.wav`
+                        document.body.appendChild(a)
+                        a.click()
+                        window.URL.revokeObjectURL(url)
+                        document.body.removeChild(a)
+                      } catch (error) {
+                        console.error('Download failed:', error)
+                      }
+                    }}
+                  >
+                    <Download className="w-4 h-4 text-white" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={`w-10 h-10 rounded-full border transition-all duration-200 ${
+                      likedBeats.has(beat.id)
+                        ? 'border-red-500/50 bg-red-500/20 hover:bg-red-500/30'
+                        : 'border-white/20 hover:bg-white/10'
+                    }`}
+                    onClick={async () => {
+                      // Check if user is authenticated
+                      if (!user) {
+                        // Redirect to auth page with signup mode
+                        window.location.href = '/auth?mode=signup'
+                        return
+                      }
+
+                      try {
+                        const isLiked = likedBeats.has(beat.id)
+                        
+                        if (isLiked) {
+                          // Unlike: delete the like record
+                          const { error } = await supabase
+                            .from('beat_likes')
+                            .delete()
+                            .eq('beat_id', beat.id)
+                            .eq('user_id', user.id)
+
+                          if (error) {
+                            console.error('Error unliking beat:', error)
+                            return
+                          }
+
+                          // Update local state
+                          setLikedBeats(prev => {
+                            const newSet = new Set(prev)
+                            newSet.delete(beat.id)
+                            return newSet
+                          })
+                          
+                          // Update beat like count
+                          setBeats(prev => prev.map(b => 
+                            b.id === beat.id 
+                              ? { ...b, like_count: Math.max(0, (b.like_count || 0) - 1) }
+                              : b
+                          ))
+                        } else {
+                          // Like: insert a new like record
+                          const { error } = await supabase
+                            .from('beat_likes')
+                            .insert({ beat_id: beat.id, user_id: user.id })
+
+                          if (error) {
+                            console.error('Error liking beat:', error)
+                            return
+                          }
+
+                          // Update local state
+                          setLikedBeats(prev => new Set(prev).add(beat.id))
+                          
+                          // Update beat like count
+                          setBeats(prev => prev.map(b => 
+                            b.id === beat.id 
+                              ? { ...b, like_count: (b.like_count || 0) + 1 }
+                              : b
+                          ))
+                        }
+                      } catch (error) {
+                        console.error('Error in like handler:', error)
+                      }
+                    }}
+                  >
+                    <Heart className={`w-4 h-4 ${likedBeats.has(beat.id) ? 'text-red-400 fill-current' : 'text-white'}`} />
+                  </Button>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
 

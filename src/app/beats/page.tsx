@@ -567,6 +567,23 @@ export default function BeatsPage() {
                         a.click()
                         window.URL.revokeObjectURL(url)
                         document.body.removeChild(a)
+
+                        // Update download count in database
+                        const { error } = await supabase
+                          .from('beats')
+                          .update({ download_count: (beat.download_count || 0) + 1 })
+                          .eq('id', beat.id)
+
+                        if (error) {
+                          console.error('Error updating download count:', error)
+                        } else {
+                          // Update local state
+                          setBeats(prev => prev.map(b => 
+                            b.id === beat.id 
+                              ? { ...b, download_count: (b.download_count || 0) + 1 }
+                              : b
+                          ))
+                        }
                       } catch (error) {
                         console.error('Download failed:', error)
                       }

@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Crown, Trophy, Medal, Star, Target, TrendingUp, Award } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
 import { supabase } from '@/lib/supabase/client'
+import { normalizeUsernameForUrl } from '@/lib/utils'
 
 interface LeaderboardEntry {
   id: string
@@ -223,7 +224,7 @@ export default function LeaderboardPage() {
           .filter(entry => !showChampions || entry.isChampion)
           .slice(0, isMobile ? 10 : undefined)
           .map((entry) => (
-          <Link key={entry.id} href={`/profile/${encodeURIComponent(entry.username)}`}>
+          <Link key={entry.id} href={`/profile/${normalizeUsernameForUrl(entry.username)}`}>
             <div className={`bg-black/20 backdrop-blur-md rounded-xl border border-white/10 p-4 hover:border-white/20 transition-all duration-300 ${
               user && entry.id === user.id ? 'bg-orange-500/10 border-orange-500/20' : ''
             }`}>
@@ -301,7 +302,7 @@ export default function LeaderboardPage() {
             </div>
             <div className="space-y-2">
               {tier.entries.slice(0, isMobile ? 3 : 5).map((entry) => (
-                <Link key={entry.id} href={`/profile/${encodeURIComponent(entry.username)}`}>
+                <Link key={entry.id} href={`/profile/${normalizeUsernameForUrl(entry.username)}`}>
                   <div className="flex items-center justify-between hover:bg-white/5 p-2 rounded-lg transition-colors">
                     <div className="flex items-center gap-2">
                       <Avatar className="h-6 w-6">
@@ -464,7 +465,7 @@ export default function LeaderboardPage() {
                               </div>
                             </td>
                             <td className="py-4 px-4">
-                              <Link href={`/profile/${encodeURIComponent(entry.username)}`} className="block">
+                              <Link href={`/profile/${normalizeUsernameForUrl(entry.username)}`} className="block">
                                 <div className="flex items-center gap-3 hover:bg-white/5 p-2 rounded-lg transition-colors">
                                   <Avatar className="h-8 w-8">
                                     <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${encodeURIComponent(entry.avatar)}`} />
@@ -549,7 +550,7 @@ export default function LeaderboardPage() {
                               </div>
                             </td>
                             <td className="py-4 px-4">
-                              <Link href={`/profile/${encodeURIComponent(entry.username)}`} className="block">
+                              <Link href={`/profile/${normalizeUsernameForUrl(entry.username)}`} className="block">
                                 <div className="flex items-center gap-3 hover:bg-white/5 p-2 rounded-lg transition-colors">
                                   <Avatar className="h-8 w-8">
                                     <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${encodeURIComponent(entry.avatar)}`} />
@@ -616,7 +617,7 @@ export default function LeaderboardPage() {
                   <div className="space-y-3">
                     {leaderboardData.filter(entry => entry.rankTitle === 'Legendary').slice(0, 3).map((entry) => (
                       <div key={entry.id} className="flex items-center justify-between">
-                        <Link href={`/profile/${encodeURIComponent(entry.username)}`} className="flex items-center gap-2 hover:bg-white/5 p-2 rounded-lg transition-colors">
+                        <Link href={`/profile/${normalizeUsernameForUrl(entry.username)}`} className="flex items-center gap-2 hover:bg-white/5 p-2 rounded-lg transition-colors">
                           <Avatar className="h-6 w-6">
                             <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${encodeURIComponent(entry.avatar)}`} />
                             <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
@@ -649,7 +650,7 @@ export default function LeaderboardPage() {
                   <div className="space-y-3">
                     {leaderboardData.filter(entry => entry.rankTitle === 'Veteran').slice(0, 3).map((entry) => (
                       <div key={entry.id} className="flex items-center justify-between">
-                        <Link href={`/profile/${encodeURIComponent(entry.username)}`} className="flex items-center gap-2 hover:bg-white/5 p-2 rounded-lg transition-colors">
+                        <Link href={`/profile/${normalizeUsernameForUrl(entry.username)}`} className="flex items-center gap-2 hover:bg-white/5 p-2 rounded-lg transition-colors">
                           <Avatar className="h-6 w-6">
                             <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${encodeURIComponent(entry.avatar)}`} />
                             <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
@@ -682,7 +683,7 @@ export default function LeaderboardPage() {
                   <div className="space-y-3">
                     {leaderboardData.filter(entry => entry.rankTitle === 'Rising').slice(0, 3).map((entry) => (
                       <div key={entry.id} className="flex items-center justify-between">
-                        <Link href={`/profile/${encodeURIComponent(entry.username)}`} className="flex items-center gap-2 hover:bg-white/5 p-2 rounded-lg transition-colors">
+                        <Link href={`/profile/${normalizeUsernameForUrl(entry.username)}`} className="flex items-center gap-2 hover:bg-white/5 p-2 rounded-lg transition-colors">
                           <Avatar className="h-6 w-6">
                             <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${encodeURIComponent(entry.avatar)}`} />
                             <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
@@ -715,7 +716,7 @@ export default function LeaderboardPage() {
                   <div className="space-y-3">
                     {leaderboardData.filter(entry => entry.rankTitle === 'Newcomer').slice(0, 5).map((entry) => (
                       <div key={entry.id} className="flex items-center justify-between">
-                        <Link href={`/profile/${encodeURIComponent(entry.username)}`} className="flex items-center gap-2 hover:bg-white/5 p-2 rounded-lg transition-colors">
+                        <Link href={`/profile/${normalizeUsernameForUrl(entry.username)}`} className="flex items-center gap-2 hover:bg-white/5 p-2 rounded-lg transition-colors">
                           <Avatar className="h-6 w-6">
                             <AvatarImage src={entry.avatar.startsWith('http') ? entry.avatar : `/api/avatars/${encodeURIComponent(entry.avatar)}`} />
                             <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">

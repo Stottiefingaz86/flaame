@@ -19,6 +19,7 @@ import {
 import { supabase } from '@/lib/supabase/client'
 import { useAudio } from '@/contexts/AudioContext'
 import Link from 'next/link'
+import { normalizeUsernameForUrl } from '@/lib/utils'
 
 interface FeaturedProducer {
   id: string
@@ -217,7 +218,7 @@ export default function FeaturedProducer() {
                 </div>
               </div>
               
-              <Link href={`/profile/${encodeURIComponent(featuredProducer.username)}`} className="mt-auto">
+              <Link href={`/profile/${normalizeUsernameForUrl(featuredProducer.username)}`} className="mt-auto">
                 <Button className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white">
                   <TrendingUp className="w-4 h-4 mr-2" />
                   View Profile

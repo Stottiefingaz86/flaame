@@ -9,23 +9,42 @@ const supabase = createClient(
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const username = searchParams.get('username')
+    const rawUsername = searchParams.get('username')
     
-    if (!username) {
+    if (!rawUsername) {
       return NextResponse.json(
         { error: 'Username is required' },
         { status: 400 }
       )
     }
 
-    console.log(`Fetching user by username: ${username}`)
+    // URL decode the username and normalize it
+    const username = decodeURIComponent(rawUsername)
+    console.log(`Fetching user by username: ${username} (raw: ${rawUsername})`)
 
-    // Get user profile by username
-    const { data: user, error: userError } = await supabase
+    // Get user profile by username - try exact match first
+    let { data: user, error: userError } = await supabase
       .from('profiles')
       .select('id, username, avatar_id, is_verified, rank, flames, instagram_username')
       .eq('username', username)
       .single()
+
+    // If not found, try with underscores instead of spaces
+    if (userError && username.includes(' ')) {
+      const usernameWithUnderscores = username.replace(/ /g, '_')
+      console.log(`Trying with underscores: ${usernameWithUnderscores}`)
+      
+      const { data: userWithUnderscores, error: userWithUnderscoresError } = await supabase
+        .from('profiles')
+        .select('id, username, avatar_id, is_verified, rank, flames, instagram_username')
+        .eq('username', usernameWithUnderscores)
+        .single()
+      
+      if (!userWithUnderscoresError) {
+        user = userWithUnderscores
+        userError = null
+      }
+    }
 
     if (userError) {
       console.error('Error fetching user:', userError)

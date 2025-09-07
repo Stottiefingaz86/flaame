@@ -26,6 +26,7 @@ import { supabase } from '@/lib/supabase/client'
 import { useUser } from '@/contexts/UserContext'
 import { useAudio } from '@/contexts/AudioContext'
 import ViewBeatCard from '@/components/profile/ViewBeatCard'
+import { denormalizeUsernameFromUrl, normalizeUsernameForUrl } from '@/lib/utils'
 
 interface User {
   id: string
@@ -67,7 +68,8 @@ interface Beat {
 
 export default function UserProfilePage() {
   const params = useParams()
-  const username = params.username as string
+  const urlUsername = params.username as string
+  const username = denormalizeUsernameFromUrl(urlUsername)
   const { user: currentUser } = useUser()
   const [user, setUser] = useState<User | null>(null)
   const [battles, setBattles] = useState<Battle[]>([])
@@ -79,12 +81,12 @@ export default function UserProfilePage() {
 
 
   useEffect(() => {
-    if (username) {
+    if (urlUsername) {
       fetchUserProfile()
     } else {
       setIsLoading(false)
     }
-  }, [username])
+  }, [urlUsername])
 
   // Get battle style from title (same logic as arena)
   const getBattleStyle = (title: string) => {
@@ -257,7 +259,7 @@ export default function UserProfilePage() {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-white mb-4">User Not Found</h1>
           <p className="text-gray-400 mb-6">
-            The user "{decodeURIComponent(username)}" doesn't exist.
+            The user "{username}" doesn't exist.
           </p>
           
           {similarUsernames.length > 0 && (
@@ -267,7 +269,7 @@ export default function UserProfilePage() {
                 {similarUsernames.map((similarUsername) => (
                   <Link 
                     key={similarUsername}
-                    href={`/profile/${encodeURIComponent(similarUsername)}`}
+                    href={`/profile/${normalizeUsernameForUrl(similarUsername)}`}
                     className="block bg-white/10 hover:bg-white/20 rounded-lg px-4 py-2 text-white transition-colors"
                   >
                     {similarUsername}

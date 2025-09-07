@@ -16,6 +16,7 @@ import { createClient } from '@supabase/supabase-js'
 import { useUser } from '@/contexts/UserContext'
 import Link from 'next/link'
 import StyledUsername from '@/components/ui/StyledUsername'
+import { normalizeUsernameForUrl } from '@/lib/utils'
 
 interface Beat {
   id: string
@@ -181,7 +182,7 @@ export default function BeatCard({ beat, onPlay, isPlaying, isCurrentBeat }: Bea
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <Link href={`/profile/${encodeURIComponent(beat.producer?.username || '')}`} className="flex items-center gap-2 mb-2 group">
+            <Link href={`/profile/${normalizeUsernameForUrl(beat.producer?.username || '')}`} className="flex items-center gap-2 mb-2 group">
               <Avatar className="h-8 w-8 border border-white/20">
                 <AvatarImage src={`/api/avatars/${beat.producer?.avatar_id}`} alt={beat.producer?.username || 'Unknown Artist'} />
                 <AvatarFallback>{beat.producer?.username?.charAt(0).toUpperCase() || '?'}</AvatarFallback>

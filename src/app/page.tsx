@@ -8,26 +8,24 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { 
-  Flame, 
   Music, 
-  Crown, 
   Users, 
   Trophy, 
   Mic,
-  Headphones,
-  TrendingUp,
-  Instagram,
   Play,
   Star,
   Calendar,
   Clock,
   ArrowRight,
   ExternalLink,
-  User
+  User,
+  Download,
+  Swords,
+  UserCheck,
+  Vote
 } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
 import FeaturedProducer from '@/components/home/FeaturedProducer'
-import FeaturedBattlesCarousel from '@/components/home/FeaturedBattlesCarousel'
 
 export default function HomePage() {
   const { user } = useUser()
@@ -98,54 +96,8 @@ export default function HomePage() {
           </Card>
         </motion.div>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16 w-full">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-center p-6 rounded-lg bg-black/20 backdrop-blur-md border border-white/10 h-full flex flex-col"
-          >
-            <Mic className="w-12 h-12 text-blue-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Epic Battles</h3>
-            <p className="text-gray-400 flex-1">Compete in intense rap battles with other artists</p>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-center p-6 rounded-lg bg-black/20 backdrop-blur-md border border-white/10 h-full flex flex-col"
-          >
-            <Flame className="w-12 h-12 text-orange-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Earn Flames</h3>
-            <p className="text-gray-400 flex-1">Win battles to earn flames and climb the ranks</p>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="text-center p-6 rounded-lg bg-black/20 backdrop-blur-md border border-white/10 h-full flex flex-col"
-          >
-            <Crown className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Leaderboard</h3>
-            <p className="text-gray-400 flex-1">Win battles to rise through the ranks and become legendary</p>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="text-center p-6 rounded-lg bg-black/20 backdrop-blur-md border border-white/10 h-full flex flex-col"
-          >
-            <Trophy className="w-12 h-12 text-purple-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Producer Beats</h3>
-            <p className="text-gray-400 flex-1">Upload your beats and get them featured in epic battles</p>
-          </motion.div>
-        </div>
 
-        {/* Featured Battles Carousel */}
+        {/* Battle Creation Stepper */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -154,7 +106,130 @@ export default function HomePage() {
         >
           <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-xl border border-orange-500/20 h-full flex flex-col w-full">
             <CardContent className="p-8 flex-1 flex flex-col w-full">
-              <FeaturedBattlesCarousel />
+              <h2 className="text-2xl font-bold text-white mb-8 text-center">Ready to Battle?</h2>
+              <div className="relative">
+                {/* Desktop: Horizontal stepper with connecting lines */}
+                <div className="hidden md:flex items-center justify-between">
+                  {/* Step 1: Download Beat */}
+                  <div className="flex flex-col items-center text-center relative z-10">
+                    <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mb-3">
+                      <Download className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="text-white font-medium text-sm mb-1">1. Download Beat</div>
+                    <Link href="/beats" className="text-orange-400 hover:text-orange-300 text-xs underline">
+                      Go to Beats
+                    </Link>
+                  </div>
+
+                  {/* Connecting line 1 */}
+                  <div className="flex-1 h-0.5 bg-gradient-to-r from-orange-500/50 to-blue-500/50 mx-4"></div>
+
+                  {/* Step 2: Record Battle */}
+                  <div className="flex flex-col items-center text-center relative z-10">
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mb-3">
+                      <Mic className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="text-white font-medium text-sm mb-1">2. Record Battle</div>
+                    <div className="text-gray-400 text-xs">Record your verse</div>
+                  </div>
+
+                  {/* Connecting line 2 */}
+                  <div className="flex-1 h-0.5 bg-gradient-to-r from-blue-500/50 to-green-500/50 mx-4"></div>
+
+                  {/* Step 3: Create Battle */}
+                  <div className="flex flex-col items-center text-center relative z-10">
+                    <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center mb-3">
+                      <Swords className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="text-white font-medium text-sm mb-1">3. Create Battle</div>
+                    <div className="text-gray-400 text-xs">Upload & challenge</div>
+                  </div>
+
+                  {/* Connecting line 3 */}
+                  <div className="flex-1 h-0.5 bg-gradient-to-r from-green-500/50 to-yellow-500/50 mx-4"></div>
+
+                  {/* Step 4: Wait for Challenger */}
+                  <div className="flex flex-col items-center text-center relative z-10">
+                    <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center mb-3">
+                      <UserCheck className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="text-white font-medium text-sm mb-1">4. Wait for Challenger</div>
+                    <div className="text-gray-400 text-xs">Someone joins battle</div>
+                  </div>
+
+                  {/* Connecting line 4 */}
+                  <div className="flex-1 h-0.5 bg-gradient-to-r from-yellow-500/50 to-purple-500/50 mx-4"></div>
+
+                  {/* Step 5: Users Vote */}
+                  <div className="flex flex-col items-center text-center relative z-10">
+                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-3">
+                      <Vote className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="text-white font-medium text-sm mb-1">5. Users Vote</div>
+                    <div className="text-gray-400 text-xs">Fans decide winner</div>
+                  </div>
+                </div>
+
+                {/* Mobile: Vertical stepper */}
+                <div className="md:hidden space-y-6">
+                  {/* Step 1: Download Beat */}
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Download className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-white font-medium text-sm mb-1">1. Download Beat</div>
+                      <Link href="/beats" className="text-orange-400 hover:text-orange-300 text-xs underline">
+                        Go to Beats
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Step 2: Record Battle */}
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Mic className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-white font-medium text-sm mb-1">2. Record Battle</div>
+                      <div className="text-gray-400 text-xs">Record your verse</div>
+                    </div>
+                  </div>
+
+                  {/* Step 3: Create Battle */}
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Swords className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-white font-medium text-sm mb-1">3. Create Battle</div>
+                      <div className="text-gray-400 text-xs">Upload & challenge</div>
+                    </div>
+                  </div>
+
+                  {/* Step 4: Wait for Challenger */}
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <UserCheck className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-white font-medium text-sm mb-1">4. Wait for Challenger</div>
+                      <div className="text-gray-400 text-xs">Someone joins battle</div>
+                    </div>
+                  </div>
+
+                  {/* Step 5: Users Vote */}
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Vote className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-white font-medium text-sm mb-1">5. Users Vote</div>
+                      <div className="text-gray-400 text-xs">Fans decide winner</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </motion.div>

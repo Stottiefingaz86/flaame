@@ -14,7 +14,12 @@ import {
   Trophy,
   Filter,
   X,
-  Clock
+  Clock,
+  Download,
+  Mic,
+  Swords,
+  UserCheck,
+  Vote
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { useLeague } from '@/contexts/LeagueContext'
@@ -250,6 +255,7 @@ export default function ArenaPage() {
             </div>
           )}
         </motion.div>
+
 
         {/* Mobile Layout */}
         <div className="mb-6 md:hidden">
@@ -592,18 +598,26 @@ export default function ArenaPage() {
                     <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-12 border border-white/10">
                       <Users className="w-12 h-12 text-gray-500 mx-auto mb-4" />
                       <h3 className="text-lg font-medium text-gray-400 mb-3">No Battles Found</h3>
-                      <p className="text-gray-500 mb-8 max-w-md mx-auto text-sm">
+                      <p className="text-gray-500 mb-6 max-w-md mx-auto text-sm">
                         No battles match your current filters. Try adjusting your search or create the first battle!
                       </p>
-                      {user && (
-                        <Button 
-                          onClick={() => setShowCreateBattleModal(true)}
-                          className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
-                        >
-                          <Plus className="w-5 h-5 mr-2" />
-                          Create Battle
-                        </Button>
-                      )}
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                        <Link href="/beats">
+                          <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 px-6">
+                            Select a Beat
+                          </Button>
+                        </Link>
+                        {user && (
+                          <Button 
+                            onClick={() => setShowCreateBattleModal(true)}
+                            className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6"
+                          >
+                            <Plus className="w-5 h-5 mr-2" />
+                            Create Battle
+                          </Button>
+                        )}
+                      </div>
+                      <p className="text-gray-400 text-xs mt-4">Create your battle, see you soon!</p>
                     </div>
                   </div>
                 ) : (
@@ -639,16 +653,24 @@ export default function ArenaPage() {
                     <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-12 border border-white/10">
                       <Users className="w-12 h-12 text-gray-500 mx-auto mb-4" />
                       <h3 className="text-lg font-medium text-gray-400 mb-3">No Active Battles</h3>
-                      <p className="text-gray-500 mb-8 max-w-md mx-auto text-sm">
+                      <p className="text-gray-500 mb-6 max-w-md mx-auto text-sm">
                         No battles are currently active. Create a battle or wait for someone to challenge you!
                       </p>
-                      <Button 
-                        onClick={() => setShowCreateBattleModal(true)}
-                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
-                      >
-                        <Plus className="w-5 h-5 mr-2" />
-                        Create Battle
-                      </Button>
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                        <Link href="/beats">
+                          <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 px-6">
+                            Select a Beat
+                          </Button>
+                        </Link>
+                        <Button 
+                          onClick={() => setShowCreateBattleModal(true)}
+                          className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6"
+                        >
+                          <Plus className="w-5 h-5 mr-2" />
+                          Create Battle
+                        </Button>
+                      </div>
+                      <p className="text-gray-400 text-xs mt-4">Create your battle, see you soon!</p>
                     </div>
                   </div>
                 ) : (
@@ -684,16 +706,24 @@ export default function ArenaPage() {
                     <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-12 border border-white/10">
                       <Users className="w-12 h-12 text-gray-500 mx-auto mb-4" />
                       <h3 className="text-lg font-medium text-gray-400 mb-3">No Open Challenges</h3>
-                      <p className="text-gray-500 mb-8 max-w-md mx-auto text-sm">
+                      <p className="text-gray-500 mb-6 max-w-md mx-auto text-sm">
                         No one is looking for a battle right now. Create a challenge and wait for someone to accept!
                       </p>
-                      <Button 
-                        onClick={() => setShowCreateBattleModal(true)}
-                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
-                      >
-                        <Plus className="w-5 h-5 mr-2" />
-                        Create Challenge
-                      </Button>
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                        <Link href="/beats">
+                          <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 px-6">
+                            Select a Beat
+                          </Button>
+                        </Link>
+                        <Button 
+                          onClick={() => setShowCreateBattleModal(true)}
+                          className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6"
+                        >
+                          <Plus className="w-5 h-5 mr-2" />
+                          Create Challenge
+                        </Button>
+                      </div>
+                      <p className="text-gray-400 text-xs mt-4">Create your battle, see you soon!</p>
                     </div>
                   </div>
                 ) : (
@@ -729,16 +759,24 @@ export default function ArenaPage() {
                     <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-12 border border-white/10">
                       <Trophy className="w-12 h-12 text-gray-500 mx-auto mb-4" />
                       <h3 className="text-lg font-medium text-gray-400 mb-3">No Finished Battles</h3>
-                      <p className="text-gray-500 mb-8 max-w-md mx-auto text-sm">
+                      <p className="text-gray-500 mb-6 max-w-md mx-auto text-sm">
                         No battles have been completed yet. Create some battles and let the competition begin!
                       </p>
-                      <Button 
-                        onClick={() => setShowCreateBattleModal(true)}
-                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8"
-                      >
-                        <Plus className="w-5 h-5 mr-2" />
-                        Create First Battle
-                      </Button>
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                        <Link href="/beats">
+                          <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 px-6">
+                            Select a Beat
+                          </Button>
+                        </Link>
+                        <Button 
+                          onClick={() => setShowCreateBattleModal(true)}
+                          className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6"
+                        >
+                          <Plus className="w-5 h-5 mr-2" />
+                          Create First Battle
+                        </Button>
+                      </div>
+                      <p className="text-gray-400 text-xs mt-4">Create your battle, see you soon!</p>
                     </div>
                   </div>
                 ) : (
@@ -771,25 +809,140 @@ export default function ArenaPage() {
           </div>
         )}
 
-        {/* No battles found */}
-        {!isLoading && getFilteredBattles().length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-gray-400 mb-4">
-              <Users className="w-10 h-10 mx-auto mb-3 text-gray-500" />
-              <h3 className="text-sm font-medium text-gray-400 mb-2">No battles found</h3>
-              <p className="text-gray-500 text-sm">Try adjusting your search or create the first battle!</p>
+        {/* Battle Creation Stepper - Bottom of Page */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mt-12"
+        >
+          <div className="bg-black/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
+            <h2 className="text-lg font-semibold text-white mb-6 text-center">How to Create a Battle</h2>
+            <div className="relative">
+              {/* Desktop: Horizontal stepper with connecting lines */}
+              <div className="hidden md:flex items-center justify-between">
+                {/* Step 1: Download Beat */}
+                <div className="flex flex-col items-center text-center relative z-10">
+                  <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mb-3">
+                    <Download className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-white font-medium text-sm mb-1">1. Download Beat</div>
+                  <Link href="/beats" className="text-orange-400 hover:text-orange-300 text-xs underline">
+                    Go to Beats
+                  </Link>
+                </div>
+
+                {/* Connecting line 1 */}
+                <div className="flex-1 h-0.5 bg-gradient-to-r from-orange-500/50 to-blue-500/50 mx-4"></div>
+
+                {/* Step 2: Record Battle */}
+                <div className="flex flex-col items-center text-center relative z-10">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mb-3">
+                    <Mic className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-white font-medium text-sm mb-1">2. Record Battle</div>
+                  <div className="text-gray-400 text-xs">Record your verse</div>
+                </div>
+
+                {/* Connecting line 2 */}
+                <div className="flex-1 h-0.5 bg-gradient-to-r from-blue-500/50 to-green-500/50 mx-4"></div>
+
+                {/* Step 3: Create Battle */}
+                <div className="flex flex-col items-center text-center relative z-10">
+                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center mb-3">
+                    <Swords className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-white font-medium text-sm mb-1">3. Create Battle</div>
+                  <div className="text-gray-400 text-xs">Upload & challenge</div>
+                </div>
+
+                {/* Connecting line 3 */}
+                <div className="flex-1 h-0.5 bg-gradient-to-r from-green-500/50 to-yellow-500/50 mx-4"></div>
+
+                {/* Step 4: Wait for Challenger */}
+                <div className="flex flex-col items-center text-center relative z-10">
+                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center mb-3">
+                    <UserCheck className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-white font-medium text-sm mb-1">4. Wait for Challenger</div>
+                  <div className="text-gray-400 text-xs">Someone joins battle</div>
+                </div>
+
+                {/* Connecting line 4 */}
+                <div className="flex-1 h-0.5 bg-gradient-to-r from-yellow-500/50 to-purple-500/50 mx-4"></div>
+
+                {/* Step 5: Users Vote */}
+                <div className="flex flex-col items-center text-center relative z-10">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-3">
+                    <Vote className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-white font-medium text-sm mb-1">5. Users Vote</div>
+                  <div className="text-gray-400 text-xs">Fans decide winner</div>
+                </div>
+              </div>
+
+              {/* Mobile: Vertical stepper */}
+              <div className="md:hidden space-y-6">
+                {/* Step 1: Download Beat */}
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Download className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-white font-medium text-sm mb-1">1. Download Beat</div>
+                    <Link href="/beats" className="text-orange-400 hover:text-orange-300 text-xs underline">
+                      Go to Beats
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Step 2: Record Battle */}
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Mic className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-white font-medium text-sm mb-1">2. Record Battle</div>
+                    <div className="text-gray-400 text-xs">Record your verse</div>
+                  </div>
+                </div>
+
+                {/* Step 3: Create Battle */}
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Swords className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-white font-medium text-sm mb-1">3. Create Battle</div>
+                    <div className="text-gray-400 text-xs">Upload & challenge</div>
+                  </div>
+                </div>
+
+                {/* Step 4: Wait for Challenger */}
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <UserCheck className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-white font-medium text-sm mb-1">4. Wait for Challenger</div>
+                    <div className="text-gray-400 text-xs">Someone joins battle</div>
+                  </div>
+                </div>
+
+                {/* Step 5: Users Vote */}
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Vote className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-white font-medium text-sm mb-1">5. Users Vote</div>
+                    <div className="text-gray-400 text-xs">Fans decide winner</div>
+                  </div>
+                </div>
+              </div>
             </div>
-            {user && (
-              <Button 
-                onClick={() => setShowCreateBattleModal(true)}
-                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white mt-4"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Create Battle
-              </Button>
-            )}
           </div>
-        )}
+        </motion.div>
 
       </div>
 

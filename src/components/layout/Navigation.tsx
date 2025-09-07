@@ -116,7 +116,7 @@ export default function Navigation() {
              <div className="flex items-center gap-3 transition-all duration-300" style={{ marginRight: 'var(--chat-width, 400px)' }}>
                {!isLoading && (
                  <>
-                   {user ? (
+                   {user && (
                      <>
                        {/* Wallet - Clickable to go to store */}
                        <Link href="/store">
@@ -129,82 +129,72 @@ export default function Navigation() {
                          </Button>
                        </Link>
 
-                       {/* User Menu and Chat Toggle */}
-                       <div className="flex items-center gap-2">
-                         <div className="relative group">
-                           <Button 
-                             variant="ghost" 
-                             className="p-1 rounded-full border border-white/20 hover:border-white/30 hover:bg-white/10 transition-all duration-200"
-                           >
-                             <Avatar className="h-8 w-8">
+                       {/* User Menu */}
+                       <div className="relative group">
+                         <Button 
+                           variant="ghost" 
+                           className="p-1 rounded-full border border-white/20 hover:border-white/30 hover:bg-white/10 transition-all duration-200"
+                         >
+                           <Avatar className="h-8 w-8">
+                             <AvatarImage src={user.avatar_id ? `/api/avatars/${encodeURIComponent(user.avatar_id)}` : undefined} />
+                             <AvatarFallback className="bg-white/10 text-white">
+                               {user.username.charAt(0).toUpperCase()}
+                             </AvatarFallback>
+                           </Avatar>
+                         </Button>
+
+                         {/* Dropdown Menu */}
+                         <div className="absolute right-0 top-full mt-2 w-64 bg-black/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[9999]">
+                         <div className="p-4 border-b border-white/10">
+                           <div className="flex items-center gap-3">
+                             <Avatar className="h-10 w-10">
                                <AvatarImage src={user.avatar_id ? `/api/avatars/${encodeURIComponent(user.avatar_id)}` : undefined} />
                                <AvatarFallback className="bg-white/10 text-white">
                                  {user.username.charAt(0).toUpperCase()}
                                </AvatarFallback>
                              </Avatar>
-                           </Button>
-
-                           {/* Dropdown Menu */}
-                           <div className="absolute right-0 top-full mt-2 w-64 bg-black/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[9999]">
-                           <div className="p-4 border-b border-white/10">
-                             <div className="flex items-center gap-3">
-                               <Avatar className="h-10 w-10">
-                                 <AvatarImage src={user.avatar_id ? `/api/avatars/${encodeURIComponent(user.avatar_id)}` : undefined} />
-                                 <AvatarFallback className="bg-white/10 text-white">
-                                   {user.username.charAt(0).toUpperCase()}
-                                 </AvatarFallback>
-                               </Avatar>
-                               <div>
-                                 <div className="flex items-center gap-2">
-                                   <StyledUsername 
-                  username={user.username} 
-                  userId={user.id}
-                  className="text-white font-semibold"
-                />
-                                   {user.is_verified && (
-                                     <span className="text-yellow-400 text-sm">👑</span>
-                                   )}
-                                 </div>
-                                 <div className="flex items-center gap-2 text-sm">
-                                   <span className={`${getRankColor(user.rank)}`}>{user.rank}</span>
-                                   <span className="text-gray-400">•</span>
-                                   <span className="text-gray-400">@{user.instagram_username}</span>
-                                 </div>
+                             <div>
+                               <div className="flex items-center gap-2">
+                                 <StyledUsername 
+                username={user.username} 
+                userId={user.id}
+                className="text-white font-semibold"
+              />
+                                 {user.is_verified && (
+                                   <span className="text-yellow-400 text-sm">👑</span>
+                                 )}
+                               </div>
+                               <div className="flex items-center gap-2 text-sm">
+                                 <span className={`${getRankColor(user.rank)}`}>{user.rank}</span>
+                                 <span className="text-gray-400">•</span>
+                                 <span className="text-gray-400">@{user.instagram_username}</span>
                                </div>
                              </div>
                            </div>
-
-                           <div className="p-2">
-                             <Link href="/profile">
-                               <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10">
-                                 <User className="w-4 h-4 mr-2" />
-                                 Profile
-                               </Button>
-                             </Link>
-                             <Button
-                               variant="ghost"
-                               className="w-full justify-start text-red-400 hover:bg-red-500/10"
-                               onClick={handleSignOut}
-                             >
-                               <LogOut className="w-4 h-4 mr-2" />
-                               Sign Out
-                             </Button>
-                           </div>
-                           </div>
                          </div>
 
-                         {/* Chat Toggle Button */}
-                         <Button 
-                           onClick={toggleChat}
-                           variant="ghost" 
-                           className="p-1 rounded-full border border-white/20 hover:border-white/30 hover:bg-white/10 transition-all duration-200"
-                           size="icon"
-                         >
-                           <MessageCircle className="w-4 h-4 text-white" />
-                         </Button>
+                         <div className="p-2">
+                           <Link href="/profile">
+                             <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10">
+                               <User className="w-4 h-4 mr-2" />
+                               Profile
+                             </Button>
+                           </Link>
+                           <Button
+                             variant="ghost"
+                             className="w-full justify-start text-red-400 hover:bg-red-500/10"
+                             onClick={handleSignOut}
+                           >
+                             <LogOut className="w-4 h-4 mr-2" />
+                             Sign Out
+                           </Button>
+                         </div>
+                         </div>
                        </div>
                      </>
-                   ) : (
+                   )}
+
+                   {!user && (
                      <div className="flex items-center gap-2">
                        <Link href="/auth?mode=signin">
                          <Button variant="outline" className="border-white/20 hover:bg-white/10 text-white">
@@ -218,6 +208,16 @@ export default function Navigation() {
                        </Link>
                      </div>
                    )}
+
+                   {/* Chat Toggle Button - Always visible */}
+                   <Button 
+                     onClick={toggleChat}
+                     variant="ghost" 
+                     className="p-1 rounded-full border border-white/20 hover:border-white/30 hover:bg-white/10 transition-all duration-200"
+                     size="icon"
+                   >
+                     <MessageCircle className="w-4 h-4 text-white" />
+                   </Button>
                  </>
                )}
              </div>

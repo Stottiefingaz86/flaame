@@ -102,6 +102,13 @@ export default function BeatCard({ beat, onPlay, isPlaying, isCurrentBeat }: Bea
   }
 
   const handleDownload = async () => {
+    // Check if user is authenticated
+    if (!user) {
+      // Redirect to auth page with signup mode
+      window.location.href = '/auth?mode=signup'
+      return
+    }
+
     setIsDownloading(true)
     try {
       const response = await fetch(beat.audio_url)

@@ -11,6 +11,7 @@ import {
   Heart, 
   Clock
 } from 'lucide-react'
+import { useUser } from '@/contexts/UserContext'
 
 interface Beat {
   id: string
@@ -32,6 +33,7 @@ interface ViewBeatCardProps {
 export default function ViewBeatCard({ beat }: ViewBeatCardProps) {
   const [isPlaying, setIsPlaying] = useState(false)
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
+  const { user } = useUser()
 
   // Initialize audio when component mounts
   useEffect(() => {
@@ -91,6 +93,13 @@ export default function ViewBeatCard({ beat }: ViewBeatCardProps) {
   }, [audio])
 
   const handleDownload = async () => {
+    // Check if user is authenticated
+    if (!user) {
+      // Redirect to auth page with signup mode
+      window.location.href = '/auth?mode=signup'
+      return
+    }
+
     try {
       const response = await fetch(beat.audio_url)
       const blob = await response.blob()

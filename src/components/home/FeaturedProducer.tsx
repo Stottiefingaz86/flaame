@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { useAudio } from '@/contexts/AudioContext'
+import { useUser } from '@/contexts/UserContext'
 import Link from 'next/link'
 import { normalizeUsernameForUrl } from '@/lib/utils'
 
@@ -41,6 +42,7 @@ export default function FeaturedProducer() {
   const [featuredProducer, setFeaturedProducer] = useState<FeaturedProducer | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const { playAudio, pauseAudio, currentTrackUrl, isPlaying } = useAudio()
+  const { user } = useUser()
 
   useEffect(() => {
     loadFeaturedProducer()
@@ -61,6 +63,13 @@ export default function FeaturedProducer() {
   }
 
   const handleDownloadBeat = async (audioUrl: string, title: string, username: string) => {
+    // Check if user is authenticated
+    if (!user) {
+      // Redirect to auth page with signup mode
+      window.location.href = '/auth?mode=signup'
+      return
+    }
+
     try {
       const response = await fetch(audioUrl)
       const blob = await response.blob()

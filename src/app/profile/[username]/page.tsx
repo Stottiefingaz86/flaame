@@ -232,6 +232,13 @@ export default function UserProfilePage() {
   }, [username])
 
   const handleDownload = async (beat: Beat) => {
+    // Check if user is authenticated
+    if (!currentUser) {
+      // Redirect to auth page with signup mode
+      window.location.href = '/auth?mode=signup'
+      return
+    }
+
     if (!beat.is_free && currentUser?.total_flames < beat.cost_flames!) {
       alert('Not enough flames to download this beat!')
       return
@@ -649,6 +656,13 @@ export default function UserProfilePage() {
                                 size="icon"
                                 className="w-10 h-10 rounded-full border border-white/20 hover:bg-white/10"
                                 onClick={async () => {
+                                  // Check if user is authenticated
+                                  if (!currentUser) {
+                                    // Redirect to auth page with signup mode
+                                    window.location.href = '/auth?mode=signup'
+                                    return
+                                  }
+
                                   try {
                                     const response = await fetch(beat.audio_url)
                                     const blob = await response.blob()
@@ -913,6 +927,13 @@ export default function UserProfilePage() {
                                   size="icon"
                                   className="w-10 h-10 rounded-full border border-white/20 hover:bg-white/10"
                                   onClick={async () => {
+                                    // Check if user is authenticated
+                                    if (!currentUser) {
+                                      // Redirect to auth page with signup mode
+                                      window.location.href = '/auth?mode=signup'
+                                      return
+                                    }
+
                                     try {
                                       const response = await fetch(beat.audio_url)
                                       const blob = await response.blob()

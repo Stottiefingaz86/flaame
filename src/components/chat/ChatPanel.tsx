@@ -103,9 +103,14 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
 
   // Play notification sound
   const playNotificationSound = () => {
-    if (!soundEnabled || muted) return
+    console.log('playNotificationSound called - soundEnabled:', soundEnabled, 'muted:', muted)
+    if (!soundEnabled || muted) {
+      console.log('Sound disabled or muted, not playing')
+      return
+    }
     
     try {
+      console.log('Attempting to play notification sound')
       // Play custom sound file
       const audio = new Audio('/sound.mp3')
       audio.volume = 0.7 // Set volume to 70%
@@ -113,6 +118,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
       
       // Add event listeners for better error handling
       audio.addEventListener('canplaythrough', () => {
+        console.log('Audio can play through, attempting to play')
         audio.play().catch(error => {
           console.log('Could not play notification sound:', error)
         })
@@ -138,10 +144,8 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
     if (user) {
       loadInitialData()
     } else {
-      // If no user, clear data and stop loading
-      setMessages([])
-      setAvailableEmojis([])
-      setOnlineUsers([])
+      // Load messages for logged-out users, but skip user-specific data
+      loadMessagesForGuests()
     }
   }, [user])
 
@@ -158,9 +162,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
 
   // Subscribe to real-time updates
   useEffect(() => {
-    if (!user) return
-
-    console.log('Setting up chat subscriptions for user:', user.id)
+    console.log('Setting up chat subscriptions for user:', user?.id || 'guest')
 
     // Subscribe to chat messages
     const chatSubscription = chatService.subscribeToChat((newMessage) => {
@@ -170,9 +172,12 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
         const exists = prev.some(msg => msg.id === newMessage.id)
         if (exists) return prev
         
-        // Play notification sound for new messages (not from current user)
-        if (newMessage.user_id !== user.id) {
+        // Play notification sound for new messages (only for logged-in users, not from current user)
+        if (user && newMessage.user_id !== user.id) {
+          console.log('Playing sound for received message from:', newMessage.user_id)
           playNotificationSound()
+        } else if (user) {
+          console.log('Not playing sound for own message from:', newMessage.user_id)
         }
         
         return [...prev, newMessage]
@@ -234,6 +239,29 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
       setOnlineUsers(onlineUsersList)
     } catch (error) {
       console.error('Error loading online users:', error)
+    }
+  }
+
+  const loadMessagesForGuests = async () => {
+    try {
+      // Load recent messages for logged-out users
+      const recentMessages = await chatService.getRecentMessages(50)
+      setMessages(recentMessages)
+      
+      // Set default emojis for guests
+      setAvailableEmojis([
+        { id: 'default-1', emoji: '🔥', name: 'Fire', cost: 0, rarity: 'common' as const, isUnlocked: true },
+        { id: 'default-2', emoji: '💯', name: 'Hundred', cost: 0, rarity: 'common' as const, isUnlocked: true },
+        { id: 'default-3', emoji: '🎤', name: 'Microphone', cost: 0, rarity: 'common' as const, isUnlocked: true },
+        { id: 'default-4', emoji: '👑', name: 'Crown', cost: 0, rarity: 'common' as const, isUnlocked: true },
+        { id: 'default-5', emoji: '⚡', name: 'Lightning', cost: 0, rarity: 'common' as const, isUnlocked: true }
+      ])
+      
+      // Don't load online users for guests
+      setOnlineUsers([])
+    } catch (error) {
+      console.error('Error loading messages for guests:', error)
+      setMessages([])
     }
   }
 
@@ -662,14 +690,17 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                       {/* Message Input */}
                       <div className="p-4 border-t border-white/10 bg-black/30">
                         {!user ? (
-                          <div className="text-center py-3">
-                            <div className="flex items-center justify-center gap-2 mb-2">
-                              <LogIn className="w-4 h-4 text-gray-400" />
-                              <p className="text-xs text-gray-400">Sign in to join the conversation</p>
+                          <div className="text-center py-4">
+                            <div className="flex items-center justify-center gap-2 mb-3">
+                              <MessageSquare className="w-5 h-5 text-orange-400" />
+                              <p className="text-sm text-white font-medium">Join the conversation!</p>
                             </div>
-                            <Link href="/auth">
-                              <Button size="sm" variant="outline" className="border-white/20 hover:bg-white/10 text-xs">
-                                Sign In
+                            <p className="text-xs text-gray-400 mb-3">
+                              Create an account to chat with other rappers and share your thoughts
+                            </p>
+                            <Link href="/auth?mode=signup">
+                              <Button size="sm" className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-xs font-medium">
+                                Create Account
                               </Button>
                             </Link>
                           </div>

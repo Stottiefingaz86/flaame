@@ -27,7 +27,6 @@ import {
   Vote,
   MessageCircle,
   Share2,
-  Heart,
   Pen
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
@@ -234,6 +233,13 @@ export default function BattleDetailPage() {
 
 
   const handleDownloadBeat = async () => {
+    // Check if user is authenticated
+    if (!user) {
+      // Redirect to auth page with signup mode
+      window.location.href = '/auth?mode=signup'
+      return
+    }
+
     if (!battle?.beat?.file_path) return
     
     try {
@@ -286,43 +292,6 @@ export default function BattleDetailPage() {
     }
   }
 
-  const handleGlobalLike = async () => {
-    if (!user) {
-      alert('You must be logged in to like battles')
-      return
-    }
-    try {
-      if (battle.user_has_liked) {
-        const { error } = await supabase
-          .from('battle_likes')
-          .delete()
-          .eq('battle_id', battle.id)
-          .eq('user_id', user.id)
-        if (error) throw error
-        setBattle(prev => prev ? {
-          ...prev,
-          user_has_liked: false,
-          total_likes: (prev.total_likes || 1) - 1
-        } : null)
-      } else {
-        const { error } = await supabase
-          .from('battle_likes')
-          .insert({
-            battle_id: battle.id,
-            user_id: user.id
-          })
-        if (error) throw error
-        setBattle(prev => prev ? {
-          ...prev,
-          user_has_liked: true,
-          total_likes: (prev.total_likes || 0) + 1
-        } : null)
-      }
-    } catch (error) {
-      console.error('Error toggling like:', error)
-      alert('Failed to update like. Please try again.')
-    }
-  }
 
   const handleShareBattle = async () => {
     try {
@@ -466,9 +435,22 @@ export default function BattleDetailPage() {
   const challengerPercentage = totalVotes > 0 ? Math.round((battle.challenger_votes / totalVotes) * 100) : 0
   const opponentPercentage = totalVotes > 0 ? Math.round((battle.opponent_votes / totalVotes) * 100) : 0
 
+  // Get battle style from title (same logic as arena page)
+  const getBattleStyle = (title: string) => {
+    if (title.toLowerCase().includes('flame')) {
+      return { type: 'Flame', emoji: '🔥', color: 'bg-red-500/10 text-red-300 border-red-500/20' }
+    } else if (title.toLowerCase().includes('freestyle')) {
+      return { type: 'Freestyle', emoji: '🎤', color: 'bg-green-500/10 text-green-300 border-green-500/20' }
+    } else if (title.toLowerCase().includes('story')) {
+      return { type: 'Story', emoji: '📖', color: 'bg-blue-500/10 text-blue-300 border-blue-500/20' }
+    } else {
+      return { type: 'Battle', emoji: '⚔️', color: 'bg-purple-500/10 text-purple-300 border-purple-500/20' }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
-      <div className="container mx-auto px-4 py-4 md:py-8">
+      <div className="container mx-auto px-4 pt-2 pb-4 md:pt-4 md:pb-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -508,8 +490,9 @@ export default function BattleDetailPage() {
               
               {/* Battle Type Tags */}
               <div className="flex items-center gap-2">
-                <Badge variant="ghost" className="bg-white/5 text-white/70 border-white/20 px-2 md:px-3 py-1 text-xs">
-                  Flame
+                <Badge variant="ghost" className={`${getBattleStyle(battle.title).color} px-2 md:px-3 py-1 text-xs flex items-center gap-1`}>
+                  <span>{getBattleStyle(battle.title).emoji}</span>
+                  <span>{getBattleStyle(battle.title).type}</span>
                 </Badge>
                 <Badge variant="ghost" className={`${
                   battle.status === 'active' ? 'bg-green-500/10 text-green-300 border-green-500/20' :
@@ -526,25 +509,6 @@ export default function BattleDetailPage() {
             
             {/* Right Side - Actions */}
             <div className="flex items-center gap-3">
-              {/* Global Like Button */}
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={handleGlobalLike}
-                  className={`text-gray-400 hover:text-red-400 transition-colors ${
-                    battle.user_has_liked ? 'text-red-400' : ''
-                  }`}
-                >
-                  <Heart className={`w-4 h-4 ${battle.user_has_liked ? 'fill-current' : ''}`} />
-                </Button>
-                <span className="text-white text-sm min-w-[16px] text-center">
-                  {battle.total_likes || 0}
-                </span>
-              </div>
-
-
-              
               {/* Share Battle */}
               <Button
                 size="sm"
@@ -724,35 +688,6 @@ export default function BattleDetailPage() {
           </motion.div>
         )}
 
-        {/* Battle Rules Alert */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-4 md:mb-6"
-        >
-          <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/20 backdrop-blur-xl">
-            <CardContent className="p-3 md:p-4">
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0">
-                  <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
-                    <Music className="w-3 h-3 md:w-4 md:h-4 text-blue-400" />
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-white font-semibold mb-1 text-sm md:text-base">Battle Rules</h3>
-                  <p className="text-gray-300 text-xs md:text-sm">
-                    You must use the same beat as the challenger and all beats must be from{' '}
-                    <Link href="/beats" className="text-blue-400 hover:text-blue-300 underline font-medium">
-                      Flaame's beat library
-                    </Link>
-                    . No external beats allowed!
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
 
         <div className="space-y-4 md:space-y-6">
             {/* Challenger */}
@@ -1187,6 +1122,36 @@ export default function BattleDetailPage() {
             battle={battle}
             onBattleAccepted={handleBattleAccepted}
           />
+
+          {/* Battle Rules - Bottom of Page */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-8"
+          >
+            <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/20 backdrop-blur-xl">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+                      <Music className="w-3 h-3 md:w-4 md:h-4 text-blue-400" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-white font-semibold mb-2 text-sm md:text-base">Battle Rules</h3>
+                    <p className="text-gray-300 text-xs md:text-sm">
+                      You must use the same beat as the challenger and all beats must be from{' '}
+                      <Link href="/beats" className="text-blue-400 hover:text-blue-300 underline font-medium">
+                        Flaame's beat library
+                      </Link>
+                      . No external beats allowed!
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
       </div>
     </div>

@@ -375,11 +375,7 @@ export default function BeatsPage() {
             </Button>
             
             {/* Producer Stories */}
-            <div className="flex-1 relative">
-              {/* Scroll indicators */}
-              <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-black/50 to-transparent pointer-events-none z-10" />
-              <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-black/50 to-transparent pointer-events-none z-10" />
-              
+            <div className="flex-1">
               <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
                 {/* All Beats Story */}
                 <div className="flex-shrink-0 flex flex-col items-center gap-2 snap-center">

@@ -59,7 +59,7 @@ export default function BeatsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [loadingError, setLoadingError] = useState<string | null>(null)
   const [retryCount, setRetryCount] = useState(0)
-  const [activeTab, setActiveTab] = useState('free')
+  const [selectedProducer, setSelectedProducer] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchExpanded, setIsSearchExpanded] = useState(false)
   const [isFilterExpanded, setIsFilterExpanded] = useState(false)
@@ -232,15 +232,28 @@ export default function BeatsPage() {
     }
   }
 
+  // Get unique producers from beats
+  const uniqueProducers = beats.reduce((acc, beat) => {
+    const producerId = beat.producer.id
+    if (!acc.find(p => p.id === producerId)) {
+      acc.push({
+        id: producerId,
+        username: beat.producer.username,
+        avatar_id: beat.producer.avatar_id,
+        beatCount: beats.filter(b => b.producer.id === producerId).length
+      })
+    }
+    return acc
+  }, [] as Array<{id: string, username: string, avatar_id?: string, beatCount: number}>)
+
   const filteredBeats = beats.filter(beat => {
     const matchesSearch = beat.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          beat.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          beat.producer.username.toLowerCase().includes(searchQuery.toLowerCase())
     
-    if (activeTab === 'free') {
-      return beat.is_free && matchesSearch
-    } else if (activeTab === 'premium') {
-      return !beat.is_free && matchesSearch
+    // Filter by selected producer
+    if (selectedProducer) {
+      return beat.producer.id === selectedProducer && matchesSearch
     }
     
     return matchesSearch
@@ -361,17 +374,55 @@ export default function BeatsPage() {
               <Filter className="w-5 h-5" />
             </Button>
             
-            {/* Tabs */}
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
-              <TabsList className="rounded-2xl bg-black/20 backdrop-blur-md border border-white/10">
-                <TabsTrigger className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white" value="free">
-                  Free Beats
-                </TabsTrigger>
-                <TabsTrigger className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white" value="premium">
-                  Premium Beats
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            {/* Producer Stories */}
+            <div className="flex-1 relative">
+              {/* Scroll indicators */}
+              <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-black/50 to-transparent pointer-events-none z-10" />
+              <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-black/50 to-transparent pointer-events-none z-10" />
+              
+              <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
+                {/* All Beats Story */}
+                <div className="flex-shrink-0 flex flex-col items-center gap-2 snap-center">
+                  <button
+                    onClick={() => setSelectedProducer(null)}
+                    className={`relative p-0.5 rounded-full transition-all duration-200 ${
+                      selectedProducer === null
+                        ? 'bg-gradient-to-tr from-orange-500 via-pink-500 to-purple-500'
+                        : 'bg-gradient-to-tr from-gray-400 to-gray-600 hover:from-orange-500 hover:via-pink-500 hover:to-purple-500'
+                    }`}
+                  >
+                    <div className="w-16 h-16 rounded-full bg-black/20 backdrop-blur-md border-2 border-black/50 flex items-center justify-center">
+                      <Music className="w-6 h-6 text-white" />
+                    </div>
+                  </button>
+                  <span className="text-xs text-gray-400 text-center max-w-[60px] truncate">All Beats</span>
+                </div>
+                
+                {/* Producer Stories */}
+                {uniqueProducers.map((producer) => (
+                  <div key={producer.id} className="flex-shrink-0 flex flex-col items-center gap-2 snap-center">
+                    <button
+                      onClick={() => setSelectedProducer(producer.id)}
+                      className={`relative p-0.5 rounded-full transition-all duration-200 ${
+                        selectedProducer === producer.id
+                          ? 'bg-gradient-to-tr from-orange-500 via-pink-500 to-purple-500'
+                          : 'bg-gradient-to-tr from-gray-400 to-gray-600 hover:from-orange-500 hover:via-pink-500 hover:to-purple-500'
+                      }`}
+                    >
+                      <Avatar className="w-16 h-16 border-2 border-black/50">
+                        <AvatarImage src={`/api/avatars/${producer.avatar_id}`} alt={producer.username} />
+                        <AvatarFallback className="text-sm bg-gradient-to-br from-gray-600 to-gray-800">
+                          {producer.username.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </button>
+                    <span className="text-xs text-gray-400 text-center max-w-[60px] truncate">
+                      {producer.username}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
           
           {/* Filter Dropdown */}
@@ -478,7 +529,7 @@ export default function BeatsPage() {
         <div className="space-y-4">
           {filteredBeats.map((beat) => (
             <div key={beat.id} className="bg-black/20 backdrop-blur-xl border border-white/20 rounded-xl p-4 hover:bg-black/30 transition-all duration-300">
-              <div className="flex items-start justify-between">
+              <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-0">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <Avatar className="h-6 w-6 border border-white/20">
@@ -515,7 +566,7 @@ export default function BeatsPage() {
                 </div>
                 
                 {/* Action Buttons */}
-                <div className="flex items-center gap-2 ml-4">
+                <div className="flex flex-row sm:flex-row items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
                   <Button
                     variant="ghost"
                     size="icon"

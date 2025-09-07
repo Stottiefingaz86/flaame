@@ -210,7 +210,9 @@ export default function BeatsPage() {
         title: beat.title,
         artist: beat.producer.username,
         audioUrl: beat.audio_url,
-        duration: beat.duration || 0
+        duration: beat.duration || 0,
+        username: beat.producer.username,
+        avatarId: beat.producer.avatar_id
       })
     }
   }
@@ -580,7 +582,9 @@ export default function BeatsPage() {
                           title: beat.title,
                           artist: beat.producer.username,
                           audioUrl: beat.audio_url,
-                          duration: beat.duration || 0
+                          duration: beat.duration || 0,
+                          username: beat.producer.username,
+                          avatarId: beat.producer.avatar_id
                         })
                       }
                     }}

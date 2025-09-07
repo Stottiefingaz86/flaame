@@ -642,9 +642,11 @@ export default function UserProfilePage() {
                                     playTrack({
                                       id: beat.id,
                                       title: beat.title,
-                                      artist: beat.artist || 'Unknown Artist',
+                                      artist: user?.username || 'Unknown Artist',
                                       audioUrl: beat.audio_url,
-                                      duration: beat.duration || 0
+                                      duration: beat.duration || 0,
+                                      username: user?.username,
+                                      avatarId: user?.avatar_id
                                     })
                                   }
                                 }}
@@ -913,9 +915,11 @@ export default function UserProfilePage() {
                                       playTrack({
                                         id: beat.id,
                                         title: beat.title,
-                                        artist: beat.artist || 'Unknown Artist',
+                                        artist: user?.username || 'Unknown Artist',
                                         audioUrl: beat.audio_url,
-                                        duration: beat.duration || 0
+                                        duration: beat.duration || 0,
+                                        username: user?.username,
+                                        avatarId: user?.avatar_id
                                       })
                                     }
                                   }}

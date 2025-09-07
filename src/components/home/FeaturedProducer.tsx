@@ -55,7 +55,7 @@ export default function FeaturedProducer() {
         pauseAudio()
       } else {
         // Play the track
-        playAudio(audioUrl, trackName, username)
+        playAudio(audioUrl, trackName, username, featuredProducer?.avatar_id)
       }
     } catch (error) {
       console.error('Error playing track:', error)

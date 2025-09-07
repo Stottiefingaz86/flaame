@@ -56,7 +56,7 @@ export default function FeaturedBattlesCarousel() {
         pauseAudio()
       } else {
         // Play the track
-        playAudio(audioUrl, trackName, username)
+        playAudio(audioUrl, trackName, username, battle?.user?.avatar_id)
       }
     } catch (error) {
       console.error('Error playing track:', error)

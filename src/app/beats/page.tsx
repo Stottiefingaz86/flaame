@@ -596,7 +596,7 @@ export default function BeatsPage() {
                     size="icon"
                     className={`w-10 h-10 rounded-full border transition-all duration-200 ${
                       likedBeats.has(beat.id)
-                        ? 'border-red-500/50 bg-red-500/20 hover:bg-red-500/30'
+                        ? 'border-pink-500/50 bg-pink-500/20 hover:bg-pink-500/30'
                         : 'border-white/20 hover:bg-white/10'
                     }`}
                     onClick={async () => {
@@ -662,7 +662,7 @@ export default function BeatsPage() {
                       }
                     }}
                   >
-                    <Heart className={`w-4 h-4 ${likedBeats.has(beat.id) ? 'text-red-400 fill-current' : 'text-white'}`} />
+                    <Heart className={`w-4 h-4 ${likedBeats.has(beat.id) ? 'text-pink-400 fill-current' : 'text-white'}`} />
                   </Button>
                 </div>
               </div>

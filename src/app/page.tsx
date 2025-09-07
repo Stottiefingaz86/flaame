@@ -49,9 +49,11 @@ export default function HomePage() {
               className="h-20"
             />
           </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            Plug in that microphone.
+          </h1>
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto text-center">
-            The ultimate hip-hop battle platform where rappers compete, earn flames, 
-            and climb the leaderboard. Create epic battles, showcase your skills, and become legendary.
+            Rappers battle. Producers drop beats. Fans decide.
           </p>
           <div className="flex items-center justify-center gap-4">
             <Link href="/arena">
@@ -68,6 +70,32 @@ export default function HomePage() {
               </Link>
             )}
           </div>
+        </motion.div>
+
+        {/* Giveaway Alert */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mb-8 w-full"
+        >
+          <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border-orange-500/20 backdrop-blur-xl">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  <div className="w-6 h-6 md:w-8 md:h-8 bg-orange-500/20 rounded-full flex items-center justify-center">
+                    <Trophy className="w-3 h-3 md:w-4 md:h-4 text-orange-400" />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-white font-semibold mb-1 text-sm md:text-base">🎉 Giveaway Alert!</h3>
+                  <p className="text-gray-300 text-xs md:text-sm">
+                    First 50 Winners will get put into a draw to Win $100 Amazon Voucher.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
         {/* Features Grid */}

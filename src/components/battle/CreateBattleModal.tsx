@@ -74,12 +74,22 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
   const [isUploadingTrack, setIsUploadingTrack] = useState(false)
   const [creationProgress, setCreationProgress] = useState(0)
   const [creationStep, setCreationStep] = useState('')
+  const [previewAudio, setPreviewAudio] = useState<HTMLAudioElement | null>(null)
+  const [previewingBeatId, setPreviewingBeatId] = useState<string | null>(null)
 
   // Load beats and users
   useEffect(() => {
     if (isOpen) {
       loadBeats()
       loadUsers()
+    } else {
+      // Stop any playing preview when modal closes
+      if (previewAudio) {
+        previewAudio.pause()
+        previewAudio.currentTime = 0
+        setPreviewAudio(null)
+        setPreviewingBeatId(null)
+      }
     }
   }, [isOpen])
 
@@ -412,6 +422,56 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
     setBattleTrack(null)
     setLyrics('')
     setSearchQuery('')
+    // Stop any playing preview
+    if (previewAudio) {
+      previewAudio.pause()
+      previewAudio.currentTime = 0
+      setPreviewAudio(null)
+    }
+    setPreviewingBeatId(null)
+  }
+
+  const handlePreviewBeat = async (beat: Beat) => {
+    try {
+      // Stop current preview if playing
+      if (previewAudio) {
+        previewAudio.pause()
+        previewAudio.currentTime = 0
+        setPreviewAudio(null)
+        setPreviewingBeatId(null)
+      }
+
+      // If clicking the same beat, just stop it
+      if (previewingBeatId === beat.id) {
+        setPreviewingBeatId(null)
+        return
+      }
+
+      // Create new audio element
+      const audio = new Audio(beat.audio_url)
+      audio.volume = 0.7 // Set volume to 70%
+      
+      // Set up event listeners
+      audio.addEventListener('ended', () => {
+        setPreviewingBeatId(null)
+        setPreviewAudio(null)
+      })
+
+      audio.addEventListener('error', () => {
+        console.error('Error playing beat preview:', beat.title)
+        setPreviewingBeatId(null)
+        setPreviewAudio(null)
+      })
+
+      // Play the audio
+      await audio.play()
+      setPreviewAudio(audio)
+      setPreviewingBeatId(beat.id)
+    } catch (error) {
+      console.error('Error playing beat preview:', error)
+      setPreviewingBeatId(null)
+      setPreviewAudio(null)
+    }
   }
 
   const filteredUsers = users.filter(u => 
@@ -548,8 +608,8 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
             {step === 2 && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-xl font-semibold text-white mb-4">Select Beat</h3>
-                  <p className="text-gray-400 mb-4">Choose a beat for your {battleType} battle</p>
+                  <h3 className="text-xl font-semibold text-white mb-4">Which Beat Did You Use?</h3>
+                  <p className="text-gray-400 mb-4">Select the beat you recorded your battle on.</p>
                 </div>
 
                 {/* Search and Filter Controls */}
@@ -625,22 +685,52 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
                         onClick={() => setSelectedBeat(beat)}
                       >
                         <CardContent className="p-4">
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-start gap-3">
                             <div className="p-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-500">
                               <Music className="w-5 h-5 text-white" />
                             </div>
                             <div className="flex-1">
-                              <h4 className="font-semibold text-white">{beat.title}</h4>
-                              <p className="text-gray-400 text-sm">by {beat.artist}</p>
+                              <h4 className="font-semibold text-white mb-1">{beat.title}</h4>
+                              <p className="text-gray-400 text-sm mb-1">by {beat.artist}</p>
                               {beat.producer && (
-                                <p className="text-blue-400 text-xs">Producer: {beat.producer.username}</p>
+                                <p className="text-blue-400 text-xs mb-2">Producer: {beat.producer.username}</p>
                               )}
-                              <div className="flex items-center gap-2 mt-2">
+                              <div className="flex items-center gap-2 mb-3">
                                 <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
                                   {beat.is_free ? 'Free' : `${beat.cost_flames} flames`}
                                 </Badge>
                                 <span className="text-gray-400 text-xs">
                                   {beat.duration ? `${Math.floor(beat.duration / 60)}:${(beat.duration % 60).toString().padStart(2, '0')}` : 'Unknown duration'}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className={`h-8 px-3 text-white border transition-all duration-200 ${
+                                    previewingBeatId === beat.id
+                                      ? 'bg-red-500/20 hover:bg-red-500/30 border-red-500/50'
+                                      : 'bg-white/10 hover:bg-white/20 border-white/20'
+                                  }`}
+                                  onClick={(e) => {
+                                    e.stopPropagation() // Prevent card selection when clicking play
+                                    handlePreviewBeat(beat)
+                                  }}
+                                >
+                                  {previewingBeatId === beat.id ? (
+                                    <>
+                                      <Pause className="w-3 h-3 mr-1" />
+                                      Stop
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Play className="w-3 h-3 mr-1" />
+                                      Preview
+                                    </>
+                                  )}
+                                </Button>
+                                <span className="text-gray-500 text-xs">
+                                  {beat.download_count || 0} downloads
                                 </span>
                               </div>
                             </div>
@@ -673,9 +763,9 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
             {step === 3 && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-xl font-semibold text-white mb-4">Choose Opponent (Optional)</h3>
+                  <h3 className="text-xl font-semibold text-white mb-4">Choose Opponent</h3>
                   <p className="text-gray-400 mb-4">
-                    Select a specific opponent or leave open for anyone to join
+                    Create an open battle for anyone to join, or challenge a specific user
                   </p>
                 </div>
 
@@ -705,17 +795,21 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
                           <Users className="w-5 h-5 text-white" />
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-semibold text-white">Open Challenge</h4>
-                          <p className="text-gray-400 text-sm">Anyone can join this battle</p>
+                          <h4 className="font-semibold text-white">Open Battle</h4>
+                          <p className="text-gray-400 text-sm">Create an open challenge for anyone to join</p>
                         </div>
-                        <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">
-                          Open
+                        <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
+                          Recommended
                         </Badge>
                       </div>
                     </CardContent>
                   </Card>
 
-                  {/* User Options */}
+                  {/* Challenge Specific User */}
+                  <div className="pt-4 border-t border-white/10">
+                    <h4 className="text-white font-medium mb-3">Or Challenge a Specific User</h4>
+                  </div>
+                  
                   {filteredUsers.map((opponent) => (
                     <Card
                       key={opponent.id}

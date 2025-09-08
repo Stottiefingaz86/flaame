@@ -96,7 +96,7 @@ export default function LeaderboardPage() {
           is_verified,
           created_at
         `)
-        .order('flames', { ascending: false })
+        .order('created_at', { ascending: true }) // Consistent ordering for tiebreakers
 
       if (error) throw error
 
@@ -153,7 +153,7 @@ export default function LeaderboardPage() {
           avatar: profile.avatar_id || profile.username?.charAt(0).toUpperCase() || 'U',
           isVerified: profile.is_verified || false,
           rankTitle: profile.rank || 'Newcomer',
-          points,
+          points, // Only battle points (3 per win, 1 per draw)
           played: stats.played,
           won: stats.won,
           drawn: stats.drawn,
@@ -162,8 +162,18 @@ export default function LeaderboardPage() {
         })
       }
 
-      // Sort by points and assign ranks
-      leaderboardEntries.sort((a, b) => b.points - a.points)
+      // Sort by battle points, then by username (alphabetical), then by creation date
+      leaderboardEntries.sort((a, b) => {
+        // Primary: Battle points (wins/draws)
+        if (b.points !== a.points) return b.points - a.points
+        
+        // Secondary: Username (alphabetical)
+        if (a.username !== b.username) return a.username.localeCompare(b.username)
+        
+        // Tertiary: Creation date (newest first) - this is already handled by the DB query order
+        return 0
+      })
+      
       leaderboardEntries.forEach((entry, index) => {
         entry.rank = index + 1
       })

@@ -12,158 +12,140 @@ export async function GET() {
           display: 'flex',
           flexDirection: 'column',
           backgroundColor: '#000000',
-          position: 'relative',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '60px',
         }}
       >
-        {/* Header */}
+        {/* Main Logo */}
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '20px 40px',
-            backgroundColor: '#1a1a1a',
-            borderBottom: '1px solid #333',
+            fontSize: '100px',
+            fontWeight: 'bold',
+            color: '#ff6b35',
+            marginBottom: '30px',
+            textShadow: '0 0 30px rgba(255, 107, 53, 0.5)',
           }}
         >
-          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffffff' }}>
-            Flaame
-          </div>
-          <div style={{ display: 'flex', gap: '20px', fontSize: '16px', color: '#cccccc' }}>
-            <span style={{ color: '#ff6b35' }}>Home</span>
-            <span>Arena</span>
-            <span>Beats</span>
-            <span>Leaderboard</span>
-          </div>
+          FLAAME
         </div>
-
-        {/* Main Content */}
+        
+        {/* Subtitle */}
         <div
           style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '60px 40px',
+            fontSize: '32px',
+            color: '#ffffff',
+            fontWeight: '600',
+            marginBottom: '20px',
+          }}
+        >
+          Hip-Hop Battle Platform
+        </div>
+        
+        {/* Tagline */}
+        <div
+          style={{
+            fontSize: '24px',
+            color: '#cccccc',
+            marginBottom: '40px',
+            textAlign: 'center',
+            lineHeight: '1.4',
+          }}
+        >
+          Rappers battle. Producers drop beats. Fans decide.
+        </div>
+
+        {/* Hero Text */}
+        <div
+          style={{
+            fontSize: '36px',
+            color: '#ffffff',
+            fontWeight: '600',
+            marginBottom: '30px',
             textAlign: 'center',
           }}
         >
-          {/* Hero Section */}
-          <div
-            style={{
-              fontSize: '80px',
-              fontWeight: 'bold',
-              color: '#ffffff',
-              marginBottom: '20px',
-              textShadow: '0 0 20px rgba(255, 255, 255, 0.3)',
-            }}
-          >
-            Flaame
-          </div>
-          
-          <div
-            style={{
-              fontSize: '36px',
-              color: '#ffffff',
-              fontWeight: '600',
-              marginBottom: '16px',
-            }}
-          >
-            Plug in that microphone.
-          </div>
-          
-          <div
-            style={{
-              fontSize: '24px',
-              color: '#cccccc',
-              marginBottom: '40px',
-              lineHeight: '1.4',
-            }}
-          >
-            Rappers battle. Producers drop beats. Fans decide.
-          </div>
+          Plug in that microphone.
+        </div>
 
-          {/* CTA Button */}
-          <div
-            style={{
-              backgroundColor: '#ff6b35',
-              color: '#ffffff',
-              padding: '16px 32px',
-              borderRadius: '8px',
-              fontSize: '20px',
-              fontWeight: '600',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              marginBottom: '40px',
-            }}
-          >
-            🎤 Enter Arena
-          </div>
+        {/* CTA Button */}
+        <div
+          style={{
+            backgroundColor: '#ff6b35',
+            color: '#ffffff',
+            padding: '20px 40px',
+            borderRadius: '12px',
+            fontSize: '24px',
+            fontWeight: '600',
+            marginBottom: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+          }}
+        >
+          🎤 Enter Arena
+        </div>
 
-          {/* Giveaway Alert */}
-          <div
-            style={{
-              backgroundColor: '#1a1a1a',
-              border: '2px solid #ff6b35',
-              borderLeft: '6px solid #ff6b35',
-              padding: '20px 30px',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              marginBottom: '40px',
-            }}
-          >
-            <div style={{ fontSize: '24px' }}>🏆</div>
-            <div>
-              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#ffffff', marginBottom: '4px' }}>
-                Giveaway Alert!
-              </div>
-              <div style={{ fontSize: '16px', color: '#cccccc' }}>
-                First 50 Winners will get put into a draw to Win $100 Amazon Voucher.
-              </div>
+        {/* Giveaway Alert */}
+        <div
+          style={{
+            backgroundColor: '#1a1a1a',
+            border: '3px solid #ff6b35',
+            borderLeft: '8px solid #ff6b35',
+            padding: '25px 35px',
+            borderRadius: '12px',
+            marginBottom: '30px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '15px',
+          }}
+        >
+          <div style={{ fontSize: '32px' }}>🏆</div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#ffffff', marginBottom: '6px' }}>
+              Giveaway Alert!
             </div>
-          </div>
-
-          {/* Stepper */}
-          <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
-            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffffff', marginBottom: '20px', textAlign: 'center' }}>
-              Ready to Battle?
-            </div>
-            <div style={{ display: 'flex', gap: '20px', fontSize: '14px', color: '#cccccc' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>⬇️</span>
-                <span>Download Beat</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>🎤</span>
-                <span>Record Battle</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>⚔️</span>
-                <span>Create Battle</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>👥</span>
-                <span>Wait for Challenger</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>✅</span>
-                <span>Users Vote</span>
-              </div>
+            <div style={{ fontSize: '18px', color: '#cccccc' }}>
+              First 50 Winners will get put into a draw to Win $100 Amazon Voucher.
             </div>
           </div>
         </div>
 
-        {/* Footer */}
+        {/* Features */}
+        <div
+          style={{
+            display: 'flex',
+            gap: '40px',
+            fontSize: '18px',
+            color: '#ffffff',
+            marginTop: '20px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '24px' }}>🎤</span>
+            <span>Battle Rap</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '24px' }}>🔥</span>
+            <span>Earn Flames</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '24px' }}>🎵</span>
+            <span>Download Beats</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '24px' }}>🏆</span>
+            <span>Climb Ranks</span>
+          </div>
+        </div>
+
+        {/* URL */}
         <div
           style={{
             position: 'absolute',
-            bottom: '20px',
+            bottom: '30px',
             right: '40px',
-            fontSize: '16px',
+            fontSize: '20px',
             color: '#ff6b35',
             fontWeight: '600',
           }}

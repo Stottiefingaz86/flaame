@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     siteName: 'Flaame',
     images: [
       {
-        url: '/og',
+        url: '/og?v=2',
         width: 1200,
         height: 630,
         alt: 'Flaame - Hip-Hop Battle Platform',
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Flaame - Hip-Hop Battle Platform',
     description: 'The ultimate hip-hop battle platform where rappers compete in epic battles, earn flames, and climb the leaderboard.',
-    images: ['/og'],
+    images: ['/og?v=2'],
   },
   robots: {
     index: true,

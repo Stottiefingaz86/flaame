@@ -128,7 +128,7 @@ export async function GET() {
           </div>
 
           {/* Stepper */}
-          <div style={{ textAlign: 'left' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
             <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffffff', marginBottom: '20px', textAlign: 'center' }}>
               Ready to Battle?
             </div>

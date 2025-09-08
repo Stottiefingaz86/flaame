@@ -63,7 +63,7 @@ interface Beat {
 }
 
 export default function ProfilePage() {
-  const { user, refreshUser } = useUser()
+  const { user, isLoading: userLoading, refreshUser } = useUser()
   const router = useRouter()
   const [isUploading, setIsUploading] = useState(false)
   const [battles, setBattles] = useState<Battle[]>([])
@@ -107,6 +107,11 @@ export default function ProfilePage() {
   }
 
   useEffect(() => {
+    // Don't redirect if we're still loading the user authentication state
+    if (userLoading) {
+      return
+    }
+    
     if (!user) {
       router.push('/auth')
       return
@@ -114,7 +119,7 @@ export default function ProfilePage() {
     
     console.log('Profile page - User data:', user)
     loadUserData()
-  }, [user, router])
+  }, [user, userLoading, router])
 
   const loadUserData = async () => {
     if (!user) return
@@ -337,12 +342,14 @@ export default function ProfilePage() {
     )
   }
 
-  if (isLoading) {
+  if (userLoading || isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white">Loading your profile...</p>
+          <p className="text-white">
+            {userLoading ? 'Checking authentication...' : 'Loading your profile...'}
+          </p>
         </div>
       </div>
     )

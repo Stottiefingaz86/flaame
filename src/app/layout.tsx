@@ -39,11 +39,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Flaame - Hip-Hop Battle Platform',
     description: 'The ultimate hip-hop battle platform where rappers compete in epic battles, earn flames, and climb the leaderboard.',
-    url: 'https://flaame.com',
+    url: 'https://flaame.co',
     siteName: 'Flaame',
     images: [
       {
-        url: '/og-image.jpg',
+        url: '/og',
         width: 1200,
         height: 630,
         alt: 'Flaame - Hip-Hop Battle Platform',
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Flaame - Hip-Hop Battle Platform',
     description: 'The ultimate hip-hop battle platform where rappers compete in epic battles, earn flames, and climb the leaderboard.',
-    images: ['/og-image.jpg'],
+    images: ['/og'],
   },
   robots: {
     index: true,

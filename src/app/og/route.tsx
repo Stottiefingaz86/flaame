@@ -12,130 +12,228 @@ export async function GET() {
           display: 'flex',
           flexDirection: 'column',
           backgroundColor: '#000000',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '60px',
         }}
       >
-        {/* Main Logo */}
+        {/* Top Navigation */}
         <div
           style={{
-            fontSize: '100px',
-            fontWeight: 'bold',
-            color: '#ff6b35',
-            marginBottom: '30px',
-            textShadow: '0 0 30px rgba(255, 107, 53, 0.5)',
-          }}
-        >
-          FLAAME
-        </div>
-        
-        {/* Subtitle */}
-        <div
-          style={{
-            fontSize: '32px',
-            color: '#ffffff',
-            fontWeight: '600',
-            marginBottom: '20px',
-          }}
-        >
-          Hip-Hop Battle Platform
-        </div>
-        
-        {/* Tagline */}
-        <div
-          style={{
-            fontSize: '24px',
-            color: '#cccccc',
-            marginBottom: '40px',
-            textAlign: 'center',
-            lineHeight: '1.4',
-          }}
-        >
-          Rappers battle. Producers drop beats. Fans decide.
-        </div>
-
-        {/* Hero Text */}
-        <div
-          style={{
-            fontSize: '36px',
-            color: '#ffffff',
-            fontWeight: '600',
-            marginBottom: '30px',
-            textAlign: 'center',
-          }}
-        >
-          Plug in that microphone.
-        </div>
-
-        {/* CTA Button */}
-        <div
-          style={{
-            backgroundColor: '#ff6b35',
-            color: '#ffffff',
-            padding: '20px 40px',
-            borderRadius: '12px',
-            fontSize: '24px',
-            fontWeight: '600',
-            marginBottom: '40px',
             display: 'flex',
             alignItems: 'center',
-            gap: '12px',
-          }}
-        >
-          🎤 Enter Arena
-        </div>
-
-        {/* Giveaway Alert */}
-        <div
-          style={{
+            justifyContent: 'space-between',
+            padding: '15px 30px',
             backgroundColor: '#1a1a1a',
-            border: '3px solid #ff6b35',
-            borderLeft: '8px solid #ff6b35',
-            padding: '25px 35px',
-            borderRadius: '12px',
-            marginBottom: '30px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '15px',
+            borderBottom: '1px solid #333',
           }}
         >
-          <div style={{ fontSize: '32px' }}>🏆</div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#ffffff', marginBottom: '6px' }}>
-              Giveaway Alert!
-            </div>
-            <div style={{ fontSize: '18px', color: '#cccccc' }}>
-              First 50 Winners will get put into a draw to Win $100 Amazon Voucher.
-            </div>
+          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#ffffff' }}>
+            Flaame
+          </div>
+          <div style={{ display: 'flex', gap: '25px', fontSize: '14px', color: '#cccccc' }}>
+            <span style={{ color: '#ff6b35', backgroundColor: '#ff6b35', color: '#ffffff', padding: '4px 8px', borderRadius: '4px' }}>Home</span>
+            <span>Arena</span>
+            <span>Beats</span>
+            <span>Leaderboard</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <span style={{ fontSize: '14px', color: '#ffffff' }}>50 🔥</span>
+            <div style={{ width: '24px', height: '24px', backgroundColor: '#ff6b35', borderRadius: '50%' }}></div>
+            <span style={{ fontSize: '14px' }}>🔍</span>
+            <span style={{ fontSize: '14px' }}>💬</span>
           </div>
         </div>
 
-        {/* Features */}
+        {/* Main Content Area */}
         <div
           style={{
+            flex: 1,
             display: 'flex',
-            gap: '40px',
-            fontSize: '18px',
-            color: '#ffffff',
-            marginTop: '20px',
+            padding: '40px 30px',
+            gap: '30px',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '24px' }}>🎤</span>
-            <span>Battle Rap</span>
+          {/* Left Content */}
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {/* Flaame Logo */}
+            <div
+              style={{
+                fontSize: '60px',
+                fontWeight: 'bold',
+                color: '#ffffff',
+                marginBottom: '20px',
+              }}
+            >
+              Flaame
+            </div>
+
+            {/* Hero Text */}
+            <div
+              style={{
+                fontSize: '28px',
+                color: '#ffffff',
+                fontWeight: '600',
+                marginBottom: '12px',
+                textAlign: 'center',
+              }}
+            >
+              Plug in that microphone.
+            </div>
+
+            {/* Subtext */}
+            <div
+              style={{
+                fontSize: '18px',
+                color: '#cccccc',
+                marginBottom: '25px',
+                textAlign: 'center',
+              }}
+            >
+              Rappers battle. Producers drop beats. Fans decide.
+            </div>
+
+            {/* CTA Button */}
+            <div
+              style={{
+                backgroundColor: '#ff6b35',
+                color: '#ffffff',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                fontSize: '18px',
+                fontWeight: '600',
+                marginBottom: '25px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              🎤 Enter Arena
+            </div>
+
+            {/* Giveaway Alert */}
+            <div
+              style={{
+                backgroundColor: '#1a1a1a',
+                border: '2px solid #ff6b35',
+                borderLeft: '6px solid #ff6b35',
+                padding: '15px 20px',
+                borderRadius: '8px',
+                marginBottom: '25px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+              }}
+            >
+              <div style={{ fontSize: '20px' }}>🏆</div>
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#ffffff', marginBottom: '2px' }}>
+                  Giveaway Alert!
+                </div>
+                <div style={{ fontSize: '12px', color: '#cccccc' }}>
+                  First 50 Winners will get put into a draw to Win $100 Amazon Voucher.
+                </div>
+              </div>
+            </div>
+
+            {/* Stepper */}
+            <div
+              style={{
+                backgroundColor: '#1a1a1a',
+                padding: '20px',
+                borderRadius: '8px',
+                width: '100%',
+                maxWidth: '500px',
+              }}
+            >
+              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#ffffff', marginBottom: '15px', textAlign: 'center' }}>
+                Ready to Battle?
+              </div>
+              <div style={{ display: 'flex', gap: '15px', fontSize: '12px', color: '#cccccc', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ fontSize: '16px' }}>⬇️</span>
+                  <span>Go to Beats</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ fontSize: '16px' }}>🎤</span>
+                  <span>Record your verse</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ fontSize: '16px' }}>⚔️</span>
+                  <span>Upload & challenge</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ fontSize: '16px' }}>👥</span>
+                  <span>Someone joins battle</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ fontSize: '16px' }}>✅</span>
+                  <span>Fans decide winner</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '24px' }}>🔥</span>
-            <span>Earn Flames</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '24px' }}>🎵</span>
-            <span>Download Beats</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '24px' }}>🏆</span>
-            <span>Climb Ranks</span>
+
+          {/* Right Chat Panel */}
+          <div
+            style={{
+              width: '300px',
+              backgroundColor: '#1a1a1a',
+              borderRadius: '8px',
+              padding: '15px',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            {/* Chat Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px' }}>
+              <div>
+                <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#ffffff' }}>Flaame Chat</div>
+                <div style={{ fontSize: '12px', color: '#cccccc' }}>Live battle talk</div>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <span style={{ fontSize: '12px' }}>⚙️</span>
+                <span style={{ fontSize: '12px' }}>✕</span>
+              </div>
+            </div>
+
+            {/* Chat Tabs */}
+            <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
+              <span style={{ fontSize: '14px', color: '#ff6b35', borderBottom: '2px solid #ff6b35', paddingBottom: '4px' }}>Chat</span>
+              <span style={{ fontSize: '14px', color: '#cccccc' }}>Online</span>
+            </div>
+
+            {/* Chat Messages */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '12px' }}>👑</span>
+                <span style={{ fontSize: '12px', color: '#ffffff' }}>Flaame Legendary</span>
+                <span style={{ fontSize: '10px', color: '#888' }}>04:25 PM</span>
+              </div>
+              <div style={{ fontSize: '12px', color: '#cccccc', marginLeft: '20px' }}>Welcome to flaame.co</div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '12px' }}>🎤</span>
+                <span style={{ fontSize: '12px', color: '#ffffff' }}>stottiefingaz Newcomer</span>
+                <span style={{ fontSize: '10px', color: '#888' }}>07:14 PM</span>
+              </div>
+              <div style={{ fontSize: '12px', color: '#cccccc', marginLeft: '20px' }}>Hello</div>
+            </div>
+
+            {/* Chat Input */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '15px' }}>
+              <span style={{ fontSize: '12px' }}>😀</span>
+              <span style={{ fontSize: '12px' }}>📎</span>
+              <div style={{ flex: 1, backgroundColor: '#333', padding: '8px', borderRadius: '4px', fontSize: '12px', color: '#888' }}>
+                Type your message...
+              </div>
+              <span style={{ fontSize: '12px', color: '#ff6b35' }}>✈️</span>
+            </div>
           </div>
         </div>
 
@@ -143,9 +241,9 @@ export async function GET() {
         <div
           style={{
             position: 'absolute',
-            bottom: '30px',
-            right: '40px',
-            fontSize: '20px',
+            bottom: '20px',
+            right: '30px',
+            fontSize: '16px',
             color: '#ff6b35',
             fontWeight: '600',
           }}

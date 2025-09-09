@@ -374,6 +374,11 @@ export default function FeaturedProducer() {
                   Top Producer
                 </Badge>
               </div>
+              
+              {/* Producer Stats */}
+              <p className="text-gray-300 text-sm mt-2 group-hover:text-gray-200 transition-colors">
+                {featuredProducer.total_beats} beats • {featuredProducer.total_likes} likes • {featuredProducer.total_downloads} downloads
+              </p>
             </div>
           </div>
 
@@ -383,11 +388,6 @@ export default function FeaturedProducer() {
               {featuredProducer.most_popular_beat.title}
             </h3>
           )}
-
-          {/* Producer Stats */}
-          <p className="text-gray-300 text-sm mb-4 group-hover:text-gray-200 transition-colors">
-            {featuredProducer.total_beats} beats • {featuredProducer.total_likes} likes • {featuredProducer.total_downloads} downloads
-          </p>
 
           {/* Beat Controls with Waveform */}
           {featuredProducer.most_popular_beat && (

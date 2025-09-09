@@ -388,20 +388,23 @@ export default function LeaderboardPage() {
         </div>
 
         {/* Desktop Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full hidden md:block">
-          <TabsList className="grid w-full grid-cols-3 bg-black/20 border-white/10">
-            <TabsTrigger value="global" className="text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500">
-              Global Rankings
-            </TabsTrigger>
-            <TabsTrigger value="weekly" className="text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500">
-              Weekly
-            </TabsTrigger>
-            <TabsTrigger value="tiers" className="text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500">
-              Tiers
-            </TabsTrigger>
-          </TabsList>
+        <div className="mb-6 hidden md:block">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="flex justify-center mb-6">
+              <TabsList className="rounded-2xl bg-black/20 backdrop-blur-md border border-white/10">
+                <TabsTrigger className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white" value="global">
+                  Global Rankings
+                </TabsTrigger>
+                <TabsTrigger className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white" value="weekly">
+                  Weekly
+                </TabsTrigger>
+                <TabsTrigger className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white" value="tiers">
+                  Tiers
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-          <TabsContent value="global" className="mt-6">
+            <TabsContent value="global" className="mt-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -748,7 +751,8 @@ export default function LeaderboardPage() {
               </Card>
             </motion.div>
           </TabsContent>
-        </Tabs>
+          </Tabs>
+        </div>
       </div>
     </div>
   )

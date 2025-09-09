@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge'
 import { 
   Plus,
   Search,
-  ChevronDown,
   Users,
   Trophy,
   Filter,
@@ -22,7 +21,6 @@ import {
   Vote
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
-import { useLeague } from '@/contexts/LeagueContext'
 import { useUser } from '@/contexts/UserContext'
 import CreateBattleModal from '@/components/battle/CreateBattleModal'
 import BattleCard from '@/components/arena/BattleCard'
@@ -59,10 +57,8 @@ interface Battle {
 }
 
 export default function ArenaPage() {
-  const { currentLeague, leagues, setCurrentLeague } = useLeague()
   const { user } = useUser()
   const [activeTab, setActiveTab] = useState('all')
-  const [isLeagueDropdownOpen, setIsLeagueDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchExpanded, setIsSearchExpanded] = useState(false)
   const [isFilterExpanded, setIsFilterExpanded] = useState(false)
@@ -73,7 +69,6 @@ export default function ArenaPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
   const [battleTimers, setBattleTimers] = useState<{ [key: string]: string }>({})
-  const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Load battles from database
   useEffect(() => {
@@ -152,19 +147,6 @@ export default function ArenaPage() {
     }
   }
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsLeagueDropdownOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
 
   // Filter battles by current league and search query
   const getFilteredBattles = () => {
@@ -411,41 +393,6 @@ export default function ArenaPage() {
               </TabsList>
             </Tabs>
 
-            {/* League Dropdown */}
-            <div className="relative" ref={dropdownRef}>
-              <Button
-                variant="ghost"
-                onClick={() => setIsLeagueDropdownOpen(!isLeagueDropdownOpen)}
-                className="flex items-center gap-2 text-white hover:bg-white/10"
-              >
-                <span>{currentLeague?.name || 'US/UK League'}</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${isLeagueDropdownOpen ? 'rotate-180' : ''}`} />
-              </Button>
-              
-              {isLeagueDropdownOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute right-0 top-full mt-2 bg-black/20 backdrop-blur-md border border-white/20 rounded-xl p-2 min-w-[200px] z-50"
-                >
-                  {leagues.map((league) => (
-                    <button
-                      key={league.id}
-                      onClick={() => {
-                        setCurrentLeague(league)
-                        setIsLeagueDropdownOpen(false)
-                      }}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                        currentLeague?.id === league.id ? 'bg-white/20 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
-                      }`}
-                    >
-                      {league.name}
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </div>
           </div>
         </div>
         

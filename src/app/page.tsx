@@ -44,7 +44,7 @@ export default function HomePage() {
         >
           <div className="flex items-center justify-center gap-4 mb-6">
             <img
-              src="/flaame_logo.png"
+              src="/head.svg"
               alt="Flaame"
               className="h-20"
             />

@@ -2,14 +2,12 @@
 
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
 import { 
   Download, 
   Mic, 
   Swords, 
   UserCheck, 
-  Vote,
-  ArrowRight
+  Vote
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -109,15 +107,6 @@ export default function BattleStepper() {
             })}
           </div>
 
-          {/* CTA Button */}
-          <div className="mt-8 flex justify-center">
-            <Link href="/arena">
-              <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
-                Start Your Battle
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-          </div>
         </div>
       </div>
     </div>

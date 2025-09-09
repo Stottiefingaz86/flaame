@@ -62,7 +62,7 @@ export default function FletchySpotlightPost() {
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              January 10, 2025
+              January 10, 2024
             </div>
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4" />
@@ -81,8 +81,12 @@ export default function FletchySpotlightPost() {
           <div className="relative rounded-xl overflow-hidden">
             <div className="aspect-video bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center">
               <div className="text-center">
-                <div className="w-32 h-32 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Music className="w-16 h-16 text-white" />
+                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/20 mx-auto mb-4">
+                  <img 
+                    src="https://qfeysqvdsziaucesgfwz.supabase.co/storage/v1/object/public/avatars/Fletchy-by-Little-Large-Media.jpeg" 
+                    alt="Fletchy" 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <h2 className="text-3xl font-bold text-white mb-2">Fletchy</h2>
                 <p className="text-gray-300 flex items-center justify-center gap-2">
@@ -217,8 +221,8 @@ export default function FletchySpotlightPost() {
                 </CardHeader>
                 <CardContent>
                   <ul className="text-gray-300 space-y-2">
-                    <li>• <strong>NATIVE</strong> (2025)</li>
-                    <li>• <strong>Concrete Maze</strong> (2025)</li>
+                    <li>• <strong>NATIVE</strong> (2024)</li>
+                    <li>• <strong>Concrete Maze</strong> (2024)</li>
                     <li>• <strong>Active</strong> (2023)</li>
                     <li>• <strong>Lemonade</strong> (2023)</li>
                   </ul>

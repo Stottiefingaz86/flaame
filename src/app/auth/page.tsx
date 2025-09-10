@@ -9,7 +9,8 @@ import {
   Mail,
   Lock,
   User,
-  ArrowRight
+  ArrowRight,
+  Mic
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -185,7 +186,7 @@ function AuthPageContent() {
               </div>
             )}
             <p className="text-gray-300 text-lg">
-              {isForgotPassword ? 'Enter your email address and we\'ll send you a password reset link.' : isSignUp ? 'Join the battle. Create your account to start.' : 'Join the battle. Sign in to continue.'}
+              {isForgotPassword ? 'Enter your email address and we\'ll send you a password reset link.' : isSignUp ? 'Join Flaame where you can battle, discover beats, and vote for your favorites.' : 'Join the battle. Sign in to continue.'}
             </p>
           </div>
 
@@ -296,7 +297,7 @@ function AuthPageContent() {
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5" />
+                  {isSignUp ? <Mic className="w-5 h-5" /> : <Mail className="w-5 h-5" />}
                   {isForgotPassword ? 'Send Reset Email' : isSignUp ? 'Join Flaame' : 'Sign In'}
                   <ArrowRight className="w-5 h-5" />
                 </div>

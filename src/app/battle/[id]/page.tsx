@@ -424,7 +424,7 @@ export default function BattleDetailPage() {
           <h1 className="text-2xl font-bold text-white mb-4">Battle Not Found</h1>
           <p className="text-gray-400 mb-6">This battle doesn't exist or has been removed.</p>
           <Button onClick={() => router.push('/arena')} className="bg-gradient-to-r from-orange-500 to-red-500">
-            Back to Arena
+            Back to Battles
           </Button>
         </div>
       </div>

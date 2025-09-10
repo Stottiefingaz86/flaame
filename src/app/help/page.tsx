@@ -69,7 +69,7 @@ const helpSections: HelpSection[] = [
       {
         id: 'how-to-create-battle',
         title: 'How to Create a Battle',
-        content: '1. Go to the Arena page and click "Create Battle"\n2. Choose your battle type (Flame, Story, or Freestyle)\n3. Select a league (UK/US, Spanish, German, or Philippines)\n4. Pick a beat from our collection\n5. Choose your opponent or make it open to anyone\n6. Upload your track and lyrics\n7. Submit your battle and wait for your opponent to respond!',
+        content: '1. Go to the Battles page and click "Create Battle"\n2. Choose your battle type (Flame, Story, or Freestyle)\n3. Select a league (UK/US, Spanish, German, or Philippines)\n4. Pick a beat from our collection\n5. Choose your opponent or make it open to anyone\n6. Upload your track and lyrics\n7. Submit your battle and wait for your opponent to respond!',
         category: 'battles'
       },
       {
@@ -107,7 +107,7 @@ const helpSections: HelpSection[] = [
       {
         id: 'uploading-beats',
         title: 'Uploading Your Own Beats',
-        content: 'Producers can upload their beats:\n1. Go to the Beats page\n2. Click "Upload Beat"\n3. Fill in beat details (title, description, genre)\n4. Upload your audio file (max 50MB)\n5. Set pricing (free or flame cost)\n6. Submit for review',
+        content: 'Producers can upload their beats:\n1. Go to the Beats page\n2. Click "Upload Beat"\n3. Fill in beat details (title, description, genre)\n4. Upload your audio file (max 15MB)\n5. Set pricing (free or flame cost)\n6. Submit for review',
         category: 'beats'
       }
     ]

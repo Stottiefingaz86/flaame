@@ -372,7 +372,7 @@ export default function FeaturedBattlesCarousel() {
             </Link>
             <Link href="/arena">
               <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
-                Join Arena
+                Join Battles
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>

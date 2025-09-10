@@ -221,7 +221,7 @@ export default function ArenaPage() {
         >
           <h1 className="text-2xl md:text-4xl font-bold text-white mb-3 md:mb-4">Battle Arena</h1>
           <p className="text-xs md:text-sm text-gray-400 mb-4 md:mb-6 max-w-2xl mx-auto md:mx-0">
-            First, <a href="/beats" className="text-orange-400 hover:text-orange-300 underline">select a beat from our beats section</a>, 
+            First, select a beat from our beats section, 
             download it and record your battle. Then come back here to create your battle and challenge other rappers.
           </p>
           {user && (

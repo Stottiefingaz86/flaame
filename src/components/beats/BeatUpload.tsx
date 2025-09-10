@@ -118,10 +118,10 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
         return
       }
 
-      // Validate file size (50MB max as per Supabase setup)
-      const maxSize = 50 * 1024 * 1024 // 50MB
+      // Validate file size (15MB max as per Supabase setup)
+      const maxSize = 15 * 1024 * 1024 // 15MB
       if (file.size > maxSize) {
-        setErrors({ file: 'File size too large. Maximum size is 50MB.' })
+        setErrors({ file: 'File size too large. Maximum size is 15MB.' })
         return
       }
 

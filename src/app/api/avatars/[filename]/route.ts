@@ -8,6 +8,11 @@ export async function GET(
   try {
     const { filename } = await params
 
+    // Validate filename - should not be empty or too short
+    if (!filename || filename.length < 3) {
+      return new NextResponse('Invalid filename', { status: 400 })
+    }
+
     // Get the file from Supabase Storage
     // The filename parameter contains the full path (avatars/filename.ext)
     const { data, error } = await supabase.storage
@@ -15,7 +20,10 @@ export async function GET(
       .download(filename)
 
     if (error) {
-      console.error('Error downloading avatar:', error)
+      // Only log errors for valid-looking filenames to reduce noise
+      if (filename.length > 10) {
+        console.error('Error downloading avatar:', error)
+      }
       return new NextResponse('Avatar not found', { status: 404 })
     }
 

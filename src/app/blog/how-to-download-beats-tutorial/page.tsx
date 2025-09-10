@@ -353,7 +353,7 @@ export default function BeatTutorialPost() {
                 <span className="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">1</span>
                 <div>
                   <h3 className="text-lg font-semibold text-white mb-2">Upload Your Track</h3>
-                  <p className="text-gray-300">Go to the <Link href="/arena" className="text-orange-400 hover:text-orange-300">Arena</Link> and click "Create Battle"</p>
+                  <p className="text-gray-300">Go to the <Link href="/arena" className="text-orange-400 hover:text-orange-300">Battles</Link> page and click "Create Battle"</p>
                 </div>
               </div>
 
@@ -387,12 +387,12 @@ export default function BeatTutorialPost() {
           <div className="text-center bg-black/20 backdrop-blur-xl border border-white/10 rounded-xl p-8">
             <h2 className="text-2xl font-bold text-white mb-4">Ready to Battle?</h2>
             <p className="text-gray-300 mb-6">
-              Now that you know how to create your track, head to the Arena and start your first battle!
+              Now that you know how to create your track, head to the Battles page and start your first battle!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/arena">
                 <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8 py-3">
-                  Go to Arena
+                  Go to Battles
                 </Button>
               </Link>
               <Link href="/beats">

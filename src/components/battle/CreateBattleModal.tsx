@@ -895,7 +895,7 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
                           {battleTrack ? battleTrack.name : 'Click to upload your track'}
                         </p>
                         <p className="text-gray-400 text-sm">
-                          {isUploadingTrack ? 'Uploading...' : 'MP3, WAV, M4A, MP4, MOV up to 100MB'}
+                          {isUploadingTrack ? 'Uploading...' : 'MP3, WAV, M4A, MP4, MOV up to 15MB'}
                         </p>
                       </div>
                     </div>

@@ -836,9 +836,6 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                                             {onlineUser.rank || 'Newcomer'}
                                           </Badge>
                                         </div>
-                                        <div className="text-xs text-gray-400">
-                                          {onlineUser.flames || 0} flames
-                                        </div>
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-1">

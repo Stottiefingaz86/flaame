@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
 interface ChatContextType {
   isChatOpen: boolean
@@ -11,7 +11,23 @@ interface ChatContextType {
 const ChatContext = createContext<ChatContextType | undefined>(undefined)
 
 export function ChatProvider({ children }: { children: ReactNode }) {
-  const [isChatOpen, setIsChatOpen] = useState(true)
+  const [isChatOpen, setIsChatOpen] = useState(false)
+
+  // Set initial chat state based on screen size
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const isDesktop = window.innerWidth >= 768 // md breakpoint
+      setIsChatOpen(isDesktop)
+    }
+
+    // Check on mount
+    checkScreenSize()
+
+    // Listen for resize events
+    window.addEventListener('resize', checkScreenSize)
+    
+    return () => window.removeEventListener('resize', checkScreenSize)
+  }, [])
 
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen)

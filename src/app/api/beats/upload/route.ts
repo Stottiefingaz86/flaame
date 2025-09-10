@@ -63,11 +63,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Title and audio file are required' }, { status: 400 })
     }
 
-    // Validate file size (50MB limit for beats bucket)
-    const maxSize = 50 * 1024 * 1024 // 50MB
+    // Validate file size (15MB limit for beats bucket)
+    const maxSize = 15 * 1024 * 1024 // 15MB
     if (audioFile.size > maxSize) {
       console.log('File too large:', audioFile.size, 'bytes')
-      return NextResponse.json({ error: 'File size must be less than 50MB' }, { status: 400 })
+      return NextResponse.json({ error: 'File size must be less than 15MB' }, { status: 400 })
     }
 
     // Validate file type

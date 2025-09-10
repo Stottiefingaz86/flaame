@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
+import { normalizeUsernameForUrl } from '@/lib/utils'
 
 interface StyledUsernameProps {
   username: string
@@ -89,8 +91,11 @@ export default function StyledUsername({ username, userId, className = '' }: Sty
   }
 
   return (
-    <span className={textClasses}>
+    <Link 
+      href={`/profile/${normalizeUsernameForUrl(username)}`}
+      className={`${textClasses} hover:text-orange-400 transition-colors cursor-pointer`}
+    >
       {displayUsername}
-    </span>
+    </Link>
   )
 }

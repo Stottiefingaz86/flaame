@@ -30,7 +30,7 @@ export async function GET() {
           </div>
           <div style={{ display: 'flex', gap: '25px', fontSize: '14px', color: '#cccccc' }}>
             <span style={{ color: '#ff6b35', backgroundColor: '#ff6b35', color: '#ffffff', padding: '4px 8px', borderRadius: '4px' }}>Home</span>
-            <span>Arena</span>
+            <span>Battles</span>
             <span>Beats</span>
             <span>Leaderboard</span>
           </div>
@@ -113,7 +113,7 @@ export async function GET() {
                 gap: '8px',
               }}
             >
-              🎤 Enter Arena
+              🎤 Enter Battles
             </div>
 
             {/* Giveaway Alert */}

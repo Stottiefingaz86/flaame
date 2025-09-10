@@ -750,7 +750,7 @@ export default function BeatsPage() {
               <h3 className="text-white text-lg font-semibold mb-4">How to Upload a Beat</h3>
               <ul className="text-gray-300 text-sm space-y-2">
                 <li>• Supported formats: WAV, MP3</li>
-                <li>• Maximum file size: 50MB</li>
+                <li>• Maximum file size: 15MB</li>
                 <li>• Must be original content (no copyright)</li>
                 <li>• Set your price in Flaames</li>
               </ul>

@@ -42,9 +42,9 @@ export default function AcceptBattleModal({
         alert('Please select an audio file')
         return
       }
-      // Validate file size (max 50MB)
-      if (file.size > 50 * 1024 * 1024) {
-        alert('File size must be less than 50MB')
+      // Validate file size (max 15MB)
+      if (file.size > 15 * 1024 * 1024) {
+        alert('File size must be less than 15MB')
         return
       }
       setTrackFile(file)
@@ -207,7 +207,7 @@ export default function AcceptBattleModal({
                         </div>
                         <div className="text-white font-medium">Click to upload audio</div>
                         <div className="text-gray-400 text-sm">
-                          MP3, WAV, or M4A • Max 50MB
+                          MP3, WAV, or M4A • Max 15MB
                         </div>
                       </div>
                     )}

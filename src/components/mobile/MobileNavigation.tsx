@@ -19,12 +19,13 @@ import {
   LogOut
 } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
+import { useChat } from '@/contexts/ChatContext'
 import { supabase } from '@/lib/supabase/client'
 import ChatPanel from '@/components/chat/ChatPanel'
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
-  { href: '/arena', label: 'Arena', icon: Mic },
+  { href: '/arena', label: 'Battles', icon: Mic },
   { href: '/beats', label: 'Beats', icon: Music },
   { href: '/leaderboard', label: 'Leaderboard', icon: CrownIcon },
 ]
@@ -32,7 +33,7 @@ const navItems = [
 export default function MobileNavigation() {
   const pathname = usePathname()
   const { user } = useUser()
-  const [isChatOpen, setIsChatOpen] = useState(false)
+  const { isChatOpen, setIsChatOpen } = useChat()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)

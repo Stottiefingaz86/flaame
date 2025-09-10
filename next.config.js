@@ -10,6 +10,8 @@ const nextConfig = {
     // your project has type errors.
     ignoreBuildErrors: true,
   },
+  // External packages for server components
+  serverExternalPackages: [],
 };
 
 module.exports = nextConfig;

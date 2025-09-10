@@ -21,11 +21,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate file size (max 4MB for Vercel function limit)
-    const maxSize = 4 * 1024 * 1024 // 4MB
+    // Validate file size (max 15MB for Vercel function limit)
+    const maxSize = 15 * 1024 * 1024 // 15MB
     if (audioFile.size > maxSize) {
       return NextResponse.json(
-        { error: 'File size must be less than 4MB' },
+        { error: 'File size must be less than 15MB' },
         { status: 413 }
       )
     }

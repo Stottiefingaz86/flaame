@@ -45,7 +45,7 @@ export default function Navigation() {
 
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
-    { href: '/arena', label: 'Arena', icon: Mic },
+    { href: '/arena', label: 'Battles', icon: Mic },
     { href: '/beats', label: 'Beats', icon: Music },
     { href: '/leaderboard', label: 'Leaderboard', icon: Crown },
   ]

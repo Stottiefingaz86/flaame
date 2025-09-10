@@ -348,7 +348,7 @@ export default function FeaturedProducer() {
       </div>
 
       {/* Featured Producer Card - Beat Card Style */}
-      <div className="group bg-transparent backdrop-blur-2xl border border-white/10 overflow-hidden hover:bg-white/5 transition-all duration-500 shadow-2xl hover:shadow-white/20 hover:scale-[1.01] rounded-lg">
+      <div className="group bg-transparent backdrop-blur-2xl border border-white/10 overflow-visible hover:bg-white/5 transition-all duration-500 shadow-2xl hover:shadow-white/20 hover:scale-[1.01] rounded-lg">
         <div className="p-6">
           {/* Top: Producer Info with Avatar */}
           <div className="flex items-start gap-4 mb-4">
@@ -482,12 +482,12 @@ export default function FeaturedProducer() {
 
           {/* Top 5 Producers - Instagram Story Style at Bottom */}
           {producers.length > 0 && (
-            <div className="mt-6 pt-4 border-t border-white/10">
+            <div className="mt-6 pt-4 border-t border-white/10 overflow-visible">
               <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-white" />
                 Top Producers
               </h4>
-              <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-none">
+              <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-4 pt-2 scrollbar-none overflow-visible">
                 {producers.slice(0, 5).map((producer, index) => (
                   <Link key={producer.id} href={`/profile/${normalizeUsernameForUrl(producer.username)}`}>
                     <div className="flex-shrink-0 flex flex-col items-center gap-1 sm:gap-2">

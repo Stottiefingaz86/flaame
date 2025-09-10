@@ -251,7 +251,7 @@ export default function BattlesPage() {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-white font-bold text-3xl mb-2">Battle Arena</h1>
+              <h1 className="text-white font-bold text-3xl mb-2">Battles</h1>
               <p className="text-gray-400">Watch the hottest rap battles and cast your votes</p>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-400">

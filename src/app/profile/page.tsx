@@ -210,9 +210,9 @@ export default function ProfilePage() {
       return
     }
 
-    // Validate file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('File size must be less than 5MB')
+    // Validate file size (15MB limit)
+    if (file.size > 15 * 1024 * 1024) {
+      alert('File size must be less than 15MB')
       return
     }
 

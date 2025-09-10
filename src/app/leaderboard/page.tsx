@@ -38,7 +38,6 @@ export default function LeaderboardPage() {
   const { user } = useUser()
   const [activeTab, setActiveTab] = useState('global')
   const [selectedSeason, setSelectedSeason] = useState('Season 1')
-  const [showChampions, setShowChampions] = useState(false)
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -231,7 +230,6 @@ export default function LeaderboardPage() {
     return (
       <div className="space-y-3">
         {leaderboardData
-          .filter(entry => !showChampions || entry.isChampion)
           .slice(0, isMobile ? 10 : undefined)
           .map((entry) => (
           <Link key={entry.id} href={`/profile/${normalizeUsernameForUrl(entry.username)}`}>
@@ -337,6 +335,29 @@ export default function LeaderboardPage() {
     )
   }
 
+  const renderHallOfFame = (isMobile: boolean = false) => {
+    if (isLoading) {
+      return (
+        <div className="text-center py-8">
+          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-400">Loading hall of fame...</p>
+        </div>
+      )
+    }
+
+    // For now, show empty state since we have no champions yet
+    return (
+      <div className="text-center py-12">
+        <div className="text-gray-400 text-lg mb-4">
+          🏆 No champions yet
+        </div>
+        <p className="text-gray-500 text-sm">
+          Past season champions will be displayed here once they are crowned.
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div className="flex-1">
       <div className="container mx-auto px-4 pt-2 pb-4 md:py-8">
@@ -369,6 +390,9 @@ export default function LeaderboardPage() {
                 <TabsTrigger className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white text-sm" value="tiers">
                   Tiers
                 </TabsTrigger>
+                <TabsTrigger className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white text-sm" value="halloffame">
+                  Hall of Fame
+                </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
@@ -383,6 +407,9 @@ export default function LeaderboardPage() {
             </TabsContent>
             <TabsContent value="tiers" className="mt-6">
               {renderTiersLeaderboard(true)}
+            </TabsContent>
+            <TabsContent value="halloffame" className="mt-6">
+              {renderHallOfFame(true)}
             </TabsContent>
           </Tabs>
         </div>
@@ -400,6 +427,9 @@ export default function LeaderboardPage() {
                 </TabsTrigger>
                 <TabsTrigger className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white" value="tiers">
                   Tiers
+                </TabsTrigger>
+                <TabsTrigger className="rounded-xl data-[state=active]:bg-white/20 data-[state=active]:text-white" value="halloffame">
+                  Hall of Fame
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -422,13 +452,6 @@ export default function LeaderboardPage() {
                       >
                         <option value="Season 1">Season 1</option>
                       </select>
-                      <Button
-                        variant={showChampions ? "default" : "outline"}
-                        onClick={() => setShowChampions(!showChampions)}
-                        className="text-sm"
-                      >
-                        {showChampions ? "Show All" : "Champions Only"}
-                      </Button>
                     </div>
                   </div>
                 </CardHeader>
@@ -464,7 +487,6 @@ export default function LeaderboardPage() {
                           </tr>
                         ) : (
                           leaderboardData
-                            .filter(entry => !showChampions || entry.isChampion)
                             .map((entry) => (
                             <tr 
                               key={entry.id} 
@@ -746,6 +768,33 @@ export default function LeaderboardPage() {
                         <span className="text-gray-400 font-bold">{entry.points}</span>
                       </div>
                     ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </TabsContent>
+
+          <TabsContent value="halloffame" className="mt-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <Card className="bg-black/20 backdrop-blur-md border-white/10">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Award className="w-6 h-6 text-yellow-400" />
+                    Hall of Fame
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-12">
+                    <div className="text-gray-400 text-lg mb-4">
+                      🏆 No champions yet
+                    </div>
+                    <p className="text-gray-500 text-sm">
+                      Past season champions will be displayed here once they are crowned.
+                    </p>
                   </div>
                 </CardContent>
               </Card>

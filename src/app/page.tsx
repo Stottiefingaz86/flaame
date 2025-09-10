@@ -13,6 +13,7 @@ import {
   Trophy, 
   Mic,
   Play,
+  Pause,
   Star,
   Calendar,
   Clock,
@@ -25,15 +26,30 @@ import {
   Vote
 } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
+import { useAudio } from '@/contexts/AudioContext'
 import FeaturedProducer from '@/components/home/FeaturedProducer'
 import FeaturedArtist from '@/components/home/FeaturedArtist'
 import BattleStepper from '@/components/home/BattleStepper'
 
 export default function HomePage() {
   const { user } = useUser()
+  const { playAudio, currentTrackUrl, isPlaying } = useAudio()
+  
+  const handlePlayBeat = () => {
+    const beatUrl = '/Once-In-A-lifetime (Remix).mp3'
+    const beatTitle = 'Welcome to flaame.co'
+    
+    if (currentTrackUrl === beatUrl && isPlaying) {
+      // If same track is playing, pause it
+      playAudio('', '', '', '')
+    } else {
+      // Play the beat
+      playAudio(beatUrl, beatTitle, 'Flaame', 'flaame-avatar')
+    }
+  }
 
   return (
-    <div className="w-full flex justify-center">
+    <div className="w-full flex justify-center overflow-visible">
       {/* Hero Section */}
       <div className="w-full max-w-4xl px-4 py-16 flex flex-col items-center justify-center min-h-[calc(100vh-130px)] md:min-h-[calc(100vh-80px)]">
         <motion.div
@@ -56,19 +72,17 @@ export default function HomePage() {
             Rappers battle. Producers drop beats. Fans decide.
           </p>
           <div className="flex items-center justify-center gap-4">
-            <Link href="/arena">
-              <Button size="lg" className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8">
-                <Mic className="w-5 h-5 mr-2" />
-                Enter Arena
-              </Button>
-            </Link>
-            {!user && (
-              <Link href="/auth">
-                <Button size="lg" variant="outline" className="text-white border-white/20 hover:bg-white/10 px-8">
-                  Sign In
-                </Button>
-              </Link>
-            )}
+            <Button
+              onClick={handlePlayBeat}
+              className="h-16 w-16 rounded-full bg-gray-800/50 border border-white/20 hover:bg-gray-700/50 transition-all duration-300 flex items-center justify-center"
+              size="icon"
+            >
+              {currentTrackUrl === '/Once-In-A-lifetime (Remix).mp3' && isPlaying ? (
+                <Pause className="h-6 w-6 text-white" />
+              ) : (
+                <Play className="h-6 w-6 text-white ml-1" />
+              )}
+            </Button>
           </div>
         </motion.div>
 
@@ -132,10 +146,10 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.7 }}
-          className="mb-16 w-full"
+          className="mb-16 w-full overflow-visible"
         >
-          <div className="bg-transparent backdrop-blur-xl border border-white/10 h-full flex flex-col w-full rounded-lg">
-            <div className="p-8 flex-1 flex flex-col w-full">
+          <div className="bg-transparent backdrop-blur-xl border border-white/10 h-full flex flex-col w-full rounded-lg overflow-visible">
+            <div className="p-8 flex-1 flex flex-col w-full overflow-visible">
               <FeaturedProducer />
             </div>
           </div>

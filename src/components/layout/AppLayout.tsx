@@ -26,10 +26,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <MobileNavigation />
 
       {/* Main Content with Chat Panel */}
-      <div className="flex min-h-[calc(100vh-80px)]">
+      <div className="flex min-h-[calc(100vh-80px)] overflow-visible">
         {/* Main Content Area */}
         <main 
-          className="flex-1 transition-all duration-300 pt-[130px] md:pt-[80px] w-full" 
+          className="flex-1 transition-all duration-300 pt-[130px] md:pt-[80px] w-full overflow-visible" 
           style={{ 
             paddingRight: isChatOpen ? 'var(--chat-width)' : '0',
             paddingBottom: currentTrack ? '80px' : '0'
@@ -73,7 +73,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             <div className="space-y-4">
               <h3 className="text-white font-semibold">Quick Links</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="/arena" className="text-gray-400 hover:text-white transition-colors">Battle Arena</a></li>
+                <li><a href="/arena" className="text-gray-400 hover:text-white transition-colors">Battles</a></li>
                 <li><a href="/leaderboard" className="text-gray-400 hover:text-white transition-colors">Leaderboard</a></li>
                 <li><a href="/store" className="text-gray-400 hover:text-white transition-colors">Store</a></li>
                 <li><a href="/blog" className="text-gray-400 hover:text-white transition-colors">Blog</a></li>

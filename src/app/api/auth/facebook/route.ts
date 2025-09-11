@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth')
     authUrl.searchParams.set('client_id', FACEBOOK_CLIENT_ID!)
     authUrl.searchParams.set('redirect_uri', REDIRECT_URI)
-    authUrl.searchParams.set('scope', 'email,public_profile')
+    authUrl.searchParams.set('scope', 'public_profile')
     authUrl.searchParams.set('response_type', 'code')
     authUrl.searchParams.set('state', 'flame_battles_auth')
 
@@ -36,13 +36,6 @@ export async function GET(request: NextRequest) {
   // Handle OAuth callback
   try {
     // Exchange code for access token
-    const tokenResponse = await fetch('https://graph.facebook.com/v18.0/oauth/access_token', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-
     const tokenUrl = new URL('https://graph.facebook.com/v18.0/oauth/access_token')
     tokenUrl.searchParams.set('client_id', FACEBOOK_CLIENT_ID!)
     tokenUrl.searchParams.set('client_secret', FACEBOOK_CLIENT_SECRET!)
@@ -60,7 +53,7 @@ export async function GET(request: NextRequest) {
 
     // Get user profile from Facebook
     const profileUrl = new URL('https://graph.facebook.com/v18.0/me')
-    profileUrl.searchParams.set('fields', 'id,name,email')
+    profileUrl.searchParams.set('fields', 'id,name')
     profileUrl.searchParams.set('access_token', access_token)
 
     const profileResponse = await fetch(profileUrl.toString())
@@ -70,7 +63,7 @@ export async function GET(request: NextRequest) {
     }
 
     const profileData = await profileResponse.json()
-    const { id: facebook_id, name, email } = profileData
+    const { id: facebook_id, name } = profileData
 
     // Create Supabase client
     const cookieStore = await cookies()
@@ -105,25 +98,15 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (existingUser) {
-      // User exists, sign them in
-      const { data: sessionData, error: sessionError } = await supabase.auth.signInWithPassword({
-        email: existingUser.email,
-        password: 'facebook_oauth_' + facebook_id // This won't work, we need to use a different approach
-      })
-
-      if (sessionError) {
-        console.error('Session error:', sessionError)
-        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co'}/auth?error=session_failed`)
-      }
-
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co'}/`)
+      // User exists, redirect to home (they're already logged in via Facebook)
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co'}/?auth=success&username=${existingUser.username}`)
     }
 
     // Create new user
     const username = name.toLowerCase().replace(/\s+/g, '') + Math.floor(Math.random() * 1000)
     
     const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: email || `${facebook_id}@facebook.com`,
+      email: `${facebook_id}@facebook.com`,
       password: 'facebook_oauth_' + facebook_id + '_' + Date.now(),
       options: {
         data: {
@@ -146,7 +129,7 @@ export async function GET(request: NextRequest) {
           {
             id: authData.user.id,
             username: username,
-            email: email || `${facebook_id}@facebook.com`,
+            email: `${facebook_id}@facebook.com`,
             facebook_id: facebook_id,
             flames: 100, // Starting flames
             rank: 'Rising'

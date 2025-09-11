@@ -192,13 +192,13 @@ export async function GET(request: NextRequest) {
 
     // Redirect to success page or home
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/?auth=success&username=${username}`
+      `${process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co'}/?auth=success&username=${username}`
     )
 
   } catch (error) {
     console.error('Instagram OAuth error:', error)
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/auth?error=authentication_failed&message=${encodeURIComponent(error instanceof Error ? error.message : 'Unknown error')}`
+      `${process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co'}/auth?error=authentication_failed&message=${encodeURIComponent(error instanceof Error ? error.message : 'Unknown error')}`
     )
   }
 }

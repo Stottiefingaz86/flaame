@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://flaame.co'),
+  metadataBase: new URL('https://www.flaame.co'),
   alternates: {
     canonical: '/',
   },
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Flaame - Hip-Hop Battle Platform',
     description: 'The ultimate hip-hop battle platform where rappers compete in epic battles, earn flames, and climb the leaderboard.',
-    url: 'https://flaame.co',
+    url: 'https://www.flaame.co',
     siteName: 'Flaame',
     images: [
       {
@@ -100,10 +100,10 @@ export default function RootLayout({
               "@type": "WebSite",
               "name": "Flaame",
               "description": "The ultimate hip-hop battle platform where rappers compete in epic battles, earn flames, and climb the leaderboard.",
-              "url": "https://flaame.co",
+              "url": "https://www.flaame.co",
               "potentialAction": {
                 "@type": "SearchAction",
-                "target": "https://flaame.co/search?q={search_term_string}",
+                "target": "https://www.flaame.co/search?q={search_term_string}",
                 "query-input": "required name=search_term_string"
               },
               "sameAs": [

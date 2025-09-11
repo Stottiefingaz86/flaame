@@ -14,6 +14,6 @@ export default function robots(): MetadataRoute.Robots {
         '/dashboard/',
       ],
     },
-    sitemap: 'https://flaame.co/sitemap.xml',
+    sitemap: 'https://www.flaame.co/sitemap.xml',
   }
 }

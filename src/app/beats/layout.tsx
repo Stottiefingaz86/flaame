@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Beats | Flaame',
     description: 'Discover and download amazing beats from talented producers. Find the perfect sound for your next track or battle.',
-    url: 'https://flaame.co/beats',
+    url: 'https://www.flaame.co/beats',
   },
 }
 

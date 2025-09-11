@@ -61,7 +61,7 @@ function AuthPageContent() {
             data: {
               username: username
             },
-            emailRedirectTo: 'https://www.flaame.co/auth/callback'
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co'}/auth/callback`
           }
         })
         
@@ -123,7 +123,7 @@ function AuthPageContent() {
     try {
       console.log('Attempting to send reset email to:', email)
       const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://www.flaame.co/auth/reset-password'
+        redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co'}/auth/reset-password`
       })
       
       console.log('Reset email response:', { data, error })
@@ -149,7 +149,7 @@ function AuthPageContent() {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: 'https://www.flaame.co/auth/callback',
+          redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co'}/auth/callback`,
           scopes: 'public_profile' // Only request public_profile, not email
         }
       })

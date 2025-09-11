@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Battles | Flaame',
     description: 'Compete in epic rap battles, earn flames, and climb the leaderboard. Create battles, challenge other rappers, and showcase your skills.',
-    url: 'https://flaame.co/arena',
+    url: 'https://www.flaame.co/arena',
   },
 }
 

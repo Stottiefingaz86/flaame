@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Leaderboard | Flaame',
     description: 'See the top rappers and producers on Flaame. Climb the leaderboard by winning battles and earning flames.',
-    url: 'https://flaame.co/leaderboard',
+    url: 'https://www.flaame.co/leaderboard',
   },
 }
 

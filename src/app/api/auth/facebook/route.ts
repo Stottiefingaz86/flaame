@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 
 const FACEBOOK_CLIENT_ID = process.env.FACEBOOK_CLIENT_ID || process.env.INSTAGRAM_CLIENT_ID
 const FACEBOOK_CLIENT_SECRET = process.env.FACEBOOK_CLIENT_SECRET || process.env.INSTAGRAM_CLIENT_SECRET
-const REDIRECT_URI = process.env.NEXT_PUBLIC_BASE_URL + '/api/auth/facebook/callback'
+const REDIRECT_URI = (process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co') + '/api/auth/facebook/callback'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   if (error) {
     console.error('Facebook OAuth error:', { error, error_reason, error_description })
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/auth?error=facebook_oauth_failed&reason=${error_reason || 'unknown'}`
+      `${process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co'}/auth?error=facebook_oauth_failed&reason=${error_reason || 'unknown'}`
     )
   }
 
@@ -113,10 +113,10 @@ export async function GET(request: NextRequest) {
 
       if (sessionError) {
         console.error('Session error:', sessionError)
-        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/auth?error=session_failed`)
+        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co'}/auth?error=session_failed`)
       }
 
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/`)
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co'}/`)
     }
 
     // Create new user
@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
 
     if (authError) {
       console.error('Auth error:', authError)
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/auth?error=auth_failed`)
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co'}/auth?error=auth_failed`)
     }
 
     if (authData.user) {
@@ -155,15 +155,15 @@ export async function GET(request: NextRequest) {
 
       if (profileError) {
         console.error('Profile error:', profileError)
-        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/auth?error=profile_failed`)
+        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co'}/auth?error=profile_failed`)
       }
     }
 
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/`)
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co'}/`)
 
   } catch (error) {
     console.error('Facebook OAuth error:', error)
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/auth?error=oauth_failed`)
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co'}/auth?error=oauth_failed`)
   }
 }
 

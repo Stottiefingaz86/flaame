@@ -143,24 +143,6 @@ function AuthPageContent() {
     }
   }
 
-  const handleSocialLogin = async (provider: 'facebook') => {
-    setIsLoading(true)
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co'}/auth/callback`,
-          scopes: 'public_profile' // Only request public_profile, not email
-        }
-      })
-      
-      if (error) throw error
-    } catch (error) {
-      console.error(`${provider} login error:`, error)
-      setError(`${provider} login failed. Please try again.`)
-      setIsLoading(false)
-    }
-  }
 
   return (
     <div className={`min-h-screen flex items-start justify-center pt-20 ${isForgotPassword ? 'bg-gradient-to-br from-blue-900 via-black to-blue-900' : 'bg-gradient-to-br from-gray-900 via-black to-gray-900'}`}>
@@ -305,42 +287,6 @@ function AuthPageContent() {
             </Button>
           </motion.form>
 
-          {/* Social Login */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.25 }}
-            className="mb-6"
-          >
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/20" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-black text-gray-400">Or continue with</span>
-              </div>
-            </div>
-            
-            <div className="mt-4">
-              <Button
-                type="button"
-                onClick={() => handleSocialLogin('facebook')}
-                disabled={isLoading}
-                className="w-full bg-[#1877F2] hover:bg-[#166FE5] text-white py-3 text-lg font-semibold rounded-xl shadow-lg flex items-center justify-center gap-3"
-              >
-                {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                    Continue with Facebook
-                  </>
-                )}
-              </Button>
-            </div>
-          </motion.div>
 
           {/* Toggle Sign Up/Sign In or Back to Sign In */}
           <motion.div

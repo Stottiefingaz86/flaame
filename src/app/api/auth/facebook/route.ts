@@ -102,16 +102,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://flaame.co'}/?auth=success&username=${existingUser.username}`)
     }
 
-    // Create new user
-    const username = name.toLowerCase().replace(/\s+/g, '') + Math.floor(Math.random() * 1000)
+    // Create new user with temporary username (user will set their own later)
+    const tempUsername = 'user_' + facebook_id.substring(0, 8)
     
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: `${facebook_id}@facebook.com`,
       password: 'facebook_oauth_' + facebook_id + '_' + Date.now(),
       options: {
         data: {
-          username: username,
-          facebook_id: facebook_id
+          username: tempUsername,
+          facebook_id: facebook_id,
+          display_name: name,
+          needs_username_setup: true
         }
       }
     })
@@ -128,11 +130,13 @@ export async function GET(request: NextRequest) {
         .insert([
           {
             id: authData.user.id,
-            username: username,
+            username: tempUsername,
             email: `${facebook_id}@facebook.com`,
             facebook_id: facebook_id,
+            display_name: name,
             flames: 100, // Starting flames
-            rank: 'Rising'
+            rank: 'Rising',
+            needs_username_setup: true
           }
         ])
 

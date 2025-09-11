@@ -129,6 +129,12 @@ const helpSections: HelpSection[] = [
         title: 'Leaderboard & Rankings',
         content: '• Newcomer: 0-9 points\n• Rookie: 10-99 points\n• Rising: 100-499 points\n• Veteran: 500-999 points\n• Legendary: 1000+ points\n\nPoints are earned by winning battles (3 points per win, 1 point per draw).',
         category: 'community'
+      },
+      {
+        id: 'data-deletion',
+        title: 'Data Deletion Instructions',
+        content: 'To request deletion of your personal data from Flaame:\n\n1. Send an email to flaameco@gmail.com with the subject "Data Deletion Request"\n2. Include your username and email address associated with your account\n3. Specify which data you want deleted (account, battles, messages, etc.)\n4. We will process your request within 30 days\n\nNote: Some data may be retained for legal or business purposes as required by law.',
+        category: 'community'
       }
     ]
   }

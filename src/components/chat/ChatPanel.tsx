@@ -642,6 +642,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                   userId={msg.user?.id || ''}
                   className="text-xs font-medium text-white"
                 />
+                                <span className="text-xs text-gray-500">{formatTime(msg.created_at)}</span>
                                 {msg.user?.is_verified && (
                                   <span className="text-yellow-400 text-sm">👑</span>
                                 )}
@@ -649,9 +650,8 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                                 {msg.user?.rank && msg.user.rank !== 'Newcomer' && (
                                   <span className={`text-xs ${getRankColor(msg.user.rank)}`}>{msg.user.rank}</span>
                                 )}
-                                <span className="text-xs text-gray-500">{formatTime(msg.created_at)}</span>
                               </div>
-
+                              
                               {msg.message_type === 'message' && (
                                 <p className="text-xs text-gray-300 break-words">{msg.message}</p>
                               )}

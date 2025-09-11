@@ -80,7 +80,7 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
 
   // Expose chat state to parent components via CSS custom properties
   useEffect(() => {
-    const chatWidth = !isOpen ? '0px' : '400px'
+    const chatWidth = !isOpen ? '0px' : window.innerWidth < 768 ? '100vw' : '400px'
     document.documentElement.style.setProperty('--chat-width', chatWidth)
   }, [isOpen])
 
@@ -620,13 +620,13 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                   {activeTab === 'chat' ? (
                     /* Chat Messages */
                     <div className="h-full flex flex-col">
-                      <div className="flex-1 overflow-y-auto p-4 space-y-3 h-[calc(100vh-120px)]">
+                      <div className="flex-1 overflow-y-auto p-3 space-y-2 h-[calc(100vh-120px)]">
                         {messages.map((msg) => (
                           <motion.div 
                             key={msg.id} 
                             initial={{ opacity: 0, y: 10 }} 
                             animate={{ opacity: 1, y: 0 }} 
-                            className="flex gap-2"
+                            className="flex gap-2 items-start"
                           >
                             <Avatar className="h-6 w-6 flex-shrink-0">
                               <AvatarImage src={msg.user?.avatar_id ? `/api/avatars/${encodeURIComponent(msg.user.avatar_id)}` : undefined} />
@@ -645,7 +645,10 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                                 {msg.user?.is_verified && (
                                   <span className="text-yellow-400 text-sm">👑</span>
                                 )}
-                                <span className={`text-xs ${getRankColor(msg.user?.rank || '')}`}>{msg.user?.rank}</span>
+                                {/* Only show rank if it's not Newcomer */}
+                                {msg.user?.rank && msg.user.rank !== 'Newcomer' && (
+                                  <span className={`text-xs ${getRankColor(msg.user.rank)}`}>{msg.user.rank}</span>
+                                )}
                                 <span className="text-xs text-gray-500">{formatTime(msg.created_at)}</span>
                               </div>
 
@@ -832,9 +835,11 @@ export default function ChatPanel({ isOpen = true, onToggle }: ChatPanelProps = 
                                           {onlineUser.is_verified && (
                                             <span className="text-yellow-400 text-sm">👑</span>
                                           )}
-                                          <Badge className="text-xs bg-orange-500/20 text-orange-300 border-orange-500/30">
-                                            {onlineUser.rank || 'Newcomer'}
-                                          </Badge>
+                                          {onlineUser.rank && onlineUser.rank !== 'Newcomer' && (
+                                            <Badge className="text-xs bg-orange-500/20 text-orange-300 border-orange-500/30">
+                                              {onlineUser.rank}
+                                            </Badge>
+                                          )}
                                         </div>
                                       </div>
                                     </div>

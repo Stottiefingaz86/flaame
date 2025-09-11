@@ -107,8 +107,9 @@ export default function RootLayout({
                 "query-input": "required name=search_term_string"
               },
               "sameAs": [
-                "https://twitter.com/flaame",
-                "https://instagram.com/flaame"
+                "https://x.com/FlaameCo",
+                "https://instagram.com/flaame",
+                "https://tiktok.com/@flaame.co"
               ]
             })
           }}

@@ -1088,6 +1088,19 @@ export default function BattleDetailPage() {
                           </div>
                         </div>
                       )}
+
+                      {/* Accept Battle Button - Show for open battles or if user is the challenged opponent */}
+                      {shouldShowAcceptButton && (
+                        <div className="text-center mt-4">
+                          <Button
+                            onClick={handleAcceptBattle}
+                            size="sm"
+                            className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                          >
+                            Accept Battle
+                          </Button>
+                        </div>
+                      )}
                     </>
                   ) : (
                     <div className="text-center py-8">

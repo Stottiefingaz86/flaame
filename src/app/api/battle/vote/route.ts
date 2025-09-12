@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { BattleSystem } from '@/lib/battle-system'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -48,41 +49,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // For now, we'll allow multiple votes (we can add vote tracking later)
-    // TODO: Implement proper vote tracking to prevent duplicate votes
-
-    // For now, let's skip the votes table and just update the vote counts directly
-    // This is simpler and works with the current database structure
-    const targetUserId = votedFor === 'challenger' ? battle.challenger_id : battle.opponent_id
+    // Use the existing BattleSystem method which handles all the logic
+    const result = await BattleSystem.voteForBattle(battleId, votedFor, userId)
     
-    if (!targetUserId) {
+    if (!result.success) {
       return NextResponse.json(
-        { error: 'Invalid vote target' },
+        { error: result.error || 'Failed to vote' },
         { status: 400 }
       )
     }
 
-    // We'll create a simple vote record in a custom way
-    // For now, let's just update the vote counts and skip the votes table
-    console.log('Voting for:', votedFor, 'Target user:', targetUserId)
-
-    // Update vote counts
-    const newChallengerVotes = votedFor === 'challenger' ? battle.challenger_votes + 1 : battle.challenger_votes
-    const newOpponentVotes = votedFor === 'opponent' ? battle.opponent_votes + 1 : battle.opponent_votes
-
-    const { error: updateError } = await supabase
+    // Get updated battle data to return current vote counts
+    const { data: updatedBattle, error: fetchError } = await supabase
       .from('battles')
-      .update({
-        challenger_votes: newChallengerVotes,
-        opponent_votes: newOpponentVotes,
-        updated_at: new Date().toISOString()
-      })
+      .select('challenger_votes, opponent_votes')
       .eq('id', battleId)
+      .single()
 
-    if (updateError) {
-      console.error('Error updating vote counts:', updateError)
+    if (fetchError) {
+      console.error('Error fetching updated battle:', fetchError)
       return NextResponse.json(
-        { error: 'Failed to update vote counts' },
+        { error: 'Vote recorded but failed to get updated counts' },
         { status: 500 }
       )
     }
@@ -90,8 +77,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       success: true, 
       message: 'Vote recorded successfully',
-      challenger_votes: newChallengerVotes,
-      opponent_votes: newOpponentVotes
+      challenger_votes: updatedBattle.challenger_votes,
+      opponent_votes: updatedBattle.opponent_votes
     })
 
   } catch (error) {

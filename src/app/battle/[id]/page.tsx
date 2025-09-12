@@ -97,6 +97,12 @@ export default function BattleDetailPage() {
 
   const battleId = params.id as string
 
+  // Computed value for whether to show accept button
+  const shouldShowAcceptButton = battle && (
+    battle.status === 'pending' || 
+    (battle.status === 'challenge' && battle.opponent_id && user && user.id === battle.opponent_id)
+  )
+
   useEffect(() => {
     if (battleId) {
       loadBattle()
@@ -104,7 +110,7 @@ export default function BattleDetailPage() {
     }
   }, [battleId])
 
-  // Debug user context changes and force re-render when user loads
+  // Debug user context changes
   useEffect(() => {
     console.log('User context changed:', {
       user_id: user?.id,
@@ -114,12 +120,6 @@ export default function BattleDetailPage() {
       battle_opponent_id: battle?.opponent_id,
       battle_challenger_id: battle?.challenger_id
     })
-    
-    // Force re-render when user context becomes available
-    if (user && battle && !battle.opponent_track) {
-      // Only force re-render if this is a pending/challenge battle
-      setBattle({...battle})
-    }
   }, [user, battle])
 
   useEffect(() => {
@@ -1089,7 +1089,7 @@ export default function BattleDetailPage() {
                         </p>
                       )}
                       {/* Accept Battle Button - Show for open battles or if user is the challenged opponent */}
-                      {battle.status === 'pending' ? (
+                      {shouldShowAcceptButton && (
                         <Button
                           onClick={handleAcceptBattle}
                           size="sm"
@@ -1097,15 +1097,7 @@ export default function BattleDetailPage() {
                         >
                           Accept Battle
                         </Button>
-                      ) : battle.status === 'challenge' && battle.opponent_id && user && user.id === battle.opponent_id ? (
-                        <Button
-                          onClick={handleAcceptBattle}
-                          size="sm"
-                          className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-                        >
-                          Accept Battle
-                        </Button>
-                      ) : null}
+                      )}
                     </div>
                   )}
                 </CardContent>

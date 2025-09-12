@@ -14,15 +14,25 @@ export async function GET(
     }
 
     // Get the file from Supabase Storage
-    // The filename parameter contains the full path (avatars/filename.ext)
+    // The filename parameter can be either:
+    // 1. Just the filename (for purchased avatars): "avatar-uuid.jpg"
+    // 2. Full path (for uploaded avatars): "avatars/userId-timestamp.ext"
+    let filePath = filename
+    
+    // If filename already includes the "avatars/" prefix, use it as-is
+    // Otherwise, add the "avatars/" prefix
+    if (!filename.startsWith('avatars/')) {
+      filePath = `avatars/${filename}`
+    }
+    
     const { data, error } = await supabase.storage
       .from('avatars')
-      .download(filename)
+      .download(filePath)
 
     if (error) {
       // Only log errors for valid-looking filenames to reduce noise
       if (filename.length > 10) {
-        console.error('Error downloading avatar:', error)
+        console.error('Error downloading avatar:', { filename, filePath, error })
       }
       return new NextResponse('Avatar not found', { status: 404 })
     }

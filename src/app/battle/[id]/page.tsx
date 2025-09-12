@@ -1029,8 +1029,8 @@ export default function BattleDetailPage() {
                         </div>
                       )}
 
-                      {/* Lyrics - Only show when opponent has accepted */}
-                      {battle.opponent && (
+                      {/* Lyrics - Only show when opponent has accepted and uploaded track */}
+                      {battle.opponent && battle.opponent_track && (
                         <div className="mb-6">
                           <div className="mb-3">
                             <h4 className="text-white font-semibold">Lyrics</h4>

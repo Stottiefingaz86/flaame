@@ -171,6 +171,8 @@ export default function BattleDetailPage() {
         challenger_id: battleData.challenger_id,
         opponent_id: battleData.opponent_id,
         current_user_id: user?.id,
+        challenger_avatar_id: battleData.challenger?.avatar_id,
+        opponent_avatar_id: battleData.opponent?.avatar_id,
         user_username: user?.username,
         opponent: battleData.opponent,
         isUserChallenger: user?.id === battleData.challenger_id,
@@ -585,7 +587,7 @@ export default function BattleDetailPage() {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
+            className="mb-8 pb-8"
           >
             <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border-orange-500/20 backdrop-blur-xl">
               <CardContent className="p-6">
@@ -919,7 +921,7 @@ export default function BattleDetailPage() {
                           <Avatar className="h-10 w-10 md:h-12 md:w-12">
                             <AvatarImage 
                               src={battle.opponent?.avatar_id ? `/api/avatars/${battle.opponent.avatar_id}` : undefined} 
-                              onError={() => console.log('Avatar failed to load for:', battle.opponent?.avatar_id)}
+                              onError={() => console.log('Avatar failed to load for:', battle.opponent?.avatar_id, 'URL:', `/api/avatars/${battle.opponent.avatar_id}`)}
                               onLoad={() => console.log('Avatar loaded successfully for:', battle.opponent?.avatar_id)}
                             />
                             <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm md:text-lg">

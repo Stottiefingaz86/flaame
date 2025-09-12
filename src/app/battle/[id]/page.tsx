@@ -103,6 +103,19 @@ export default function BattleDetailPage() {
     (battle.status === 'challenge' && battle.opponent_id && user && user.id === battle.opponent_id)
   )
 
+  // Debug the computed value
+  console.log('Accept button debug:', {
+    battle: !!battle,
+    battleStatus: battle?.status,
+    battleOpponentId: battle?.opponent_id,
+    user: !!user,
+    userId: user?.id,
+    shouldShowAcceptButton,
+    isPending: battle?.status === 'pending',
+    isChallenge: battle?.status === 'challenge',
+    isOpponent: user && battle?.opponent_id && user.id === battle?.opponent_id
+  })
+
   useEffect(() => {
     if (battleId) {
       loadBattle()

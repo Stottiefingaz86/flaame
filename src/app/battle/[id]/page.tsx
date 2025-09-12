@@ -104,6 +104,18 @@ export default function BattleDetailPage() {
     }
   }, [battleId])
 
+  // Debug user context changes
+  useEffect(() => {
+    console.log('User context changed:', {
+      user_id: user?.id,
+      user_username: user?.username,
+      battle_id: battle?.id,
+      battle_status: battle?.status,
+      battle_opponent_id: battle?.opponent_id,
+      battle_challenger_id: battle?.challenger_id
+    })
+  }, [user, battle])
+
   useEffect(() => {
     if (battle) {
       const timer = setInterval(() => {
@@ -134,7 +146,12 @@ export default function BattleDetailPage() {
         challenger_id: battleData.challenger_id,
         opponent_id: battleData.opponent_id,
         current_user_id: user?.id,
+        user_username: user?.username,
         opponent: battleData.opponent,
+        isUserChallenger: user?.id === battleData.challenger_id,
+        isUserOpponent: user?.id === battleData.opponent_id,
+        isChallengeBattle: battleData.status === 'challenge',
+        isPendingBattle: battleData.status === 'pending',
         shouldShowAcceptButton: user && user.id !== battleData.challenger_id && (
           battleData.status === 'pending' || 
           (battleData.status === 'challenge' && battleData.opponent_id === user.id)

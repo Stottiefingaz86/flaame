@@ -13,14 +13,6 @@ export async function GET(
   try {
     const { filename } = await params
 
-    // Debug environment variables
-    console.log('Avatar API Environment Check:', {
-      hasUrl: !!supabaseUrl,
-      hasKey: !!supabaseServiceKey,
-      url: supabaseUrl,
-      keyLength: supabaseServiceKey?.length
-    })
-
     // Validate filename - should not be empty or too short
     if (!filename || filename.length < 3) {
       return new NextResponse('Invalid filename', { status: 400 })
@@ -42,8 +34,6 @@ export async function GET(
     if (filePath.startsWith('avatars/')) {
       filePath = filePath.substring(8) // Remove "avatars/" (8 characters)
     }
-    
-    console.log('Avatar API Debug:', { filename, filePath })
     
     const { data, error } = await supabase.storage
       .from('avatars')

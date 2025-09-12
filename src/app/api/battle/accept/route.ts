@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { ChatService } from '@/lib/chat'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -99,6 +100,27 @@ export async function POST(request: NextRequest) {
         { error: 'Failed to accept battle' },
         { status: 500 }
       )
+    }
+
+    // Send chat notification
+    try {
+      const chatService = new ChatService()
+      const battleUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/battle/${battleId}`
+      
+      // Get user details for the notification
+      const { data: userData } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', userId)
+        .single()
+      
+      if (userData) {
+        const message = `✅ ${userData.username} accepted the battle! [View Battle](${battleUrl})`
+        await chatService.sendSystemMessage(message, battleId)
+      }
+    } catch (chatError) {
+      console.error('Failed to send chat notification:', chatError)
+      // Don't fail the battle acceptance if chat fails
     }
 
     return NextResponse.json({ 

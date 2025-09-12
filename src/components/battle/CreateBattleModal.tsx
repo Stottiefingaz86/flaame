@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
 import { supabase } from '@/lib/supabase/client'
+import { ChatService } from '@/lib/chat'
 
 interface Beat {
   id: string
@@ -361,6 +362,25 @@ export default function CreateBattleModal({ isOpen, onClose, onBattleCreated }: 
       console.log('Battle created successfully:', data)
       setCreationProgress(100)
       setCreationStep('Battle created successfully!')
+
+      // Send chat notification
+      try {
+        const chatService = new ChatService()
+        const battle = data[0]
+        const battleUrl = `${window.location.origin}/battle/${battle.id}`
+        
+        let message = ''
+        if (selectedOpponent) {
+          message = `🔥 ${user.username} challenged ${selectedOpponent.username} to a battle! [View Battle](${battleUrl})`
+        } else {
+          message = `🔥 ${user.username} created an open battle! [Join Battle](${battleUrl})`
+        }
+        
+        await chatService.sendSystemMessage(message, battle.id)
+      } catch (chatError) {
+        console.error('Failed to send chat notification:', chatError)
+        // Don't fail the battle creation if chat fails
+      }
 
       // Small delay to show success
       await new Promise(resolve => setTimeout(resolve, 1000))

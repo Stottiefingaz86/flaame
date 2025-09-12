@@ -154,6 +154,27 @@ export class ChatService {
     return data
   }
 
+  // Send a system message (for battle notifications, etc.)
+  async sendSystemMessage(message: string, battleId?: string) {
+    const { data, error } = await this.supabase
+      .from('chat_messages')
+      .insert({
+        user_id: '00000000-0000-0000-0000-000000000000', // System user ID
+        message,
+        message_type: 'system',
+        battle_id: battleId || null
+      })
+      .select(`
+        *,
+        user:profiles(username, avatar_id, is_verified, rank, flames),
+        emoji:emojis(emoji, name, cost)
+      `)
+      .single()
+
+    if (error) throw error
+    return data
+  }
+
   // Create a battle challenge
   async createBattleChallenge(opponentId: string, beatId?: string, stakes: number = 0) {
     const { data: { user } } = await this.supabase.auth.getUser()

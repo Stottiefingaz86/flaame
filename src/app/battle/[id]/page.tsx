@@ -674,8 +674,8 @@ export default function BattleDetailPage() {
                       <Avatar className="h-16 w-16 border-4 border-yellow-400">
                         <AvatarImage 
                           src={battle.winner_id === battle.challenger_id 
-                            ? (battle.challenger?.avatar_id ? `/api/avatars/${battle.challenger.avatar_id}` : undefined)
-                            : (battle.opponent?.avatar_id ? `/api/avatars/${battle.opponent.avatar_id}` : undefined)
+                            ? (battle.challenger?.avatar_id ? `/api/avatars/${encodeURIComponent(battle.challenger.avatar_id)}` : undefined)
+                            : (battle.opponent?.avatar_id ? `/api/avatars/${encodeURIComponent(battle.opponent.avatar_id)}` : undefined)
                           } 
                         />
                         <AvatarFallback className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xl">
@@ -757,7 +757,7 @@ export default function BattleDetailPage() {
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10 md:h-12 md:w-12">
-                        <AvatarImage src={battle.challenger?.avatar_id ? `/api/avatars/${battle.challenger.avatar_id}` : undefined} />
+                        <AvatarImage src={battle.challenger?.avatar_id ? `/api/avatars/${encodeURIComponent(battle.challenger.avatar_id)}` : undefined} />
                         <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm md:text-lg">
                           {battle.challenger?.username?.charAt(0).toUpperCase() || 'C'}
                         </AvatarFallback>
@@ -920,8 +920,8 @@ export default function BattleDetailPage() {
                         <>
                           <Avatar className="h-10 w-10 md:h-12 md:w-12">
                             <AvatarImage 
-                              src={battle.opponent?.avatar_id ? `/api/avatars/${battle.opponent.avatar_id}` : undefined} 
-                              onError={() => console.log('Avatar failed to load for:', battle.opponent?.avatar_id, 'URL:', `/api/avatars/${battle.opponent.avatar_id}`)}
+                              src={battle.opponent?.avatar_id ? `/api/avatars/${encodeURIComponent(battle.opponent.avatar_id)}` : undefined} 
+                              onError={() => console.log('Avatar failed to load for:', battle.opponent?.avatar_id, 'URL:', `/api/avatars/${encodeURIComponent(battle.opponent.avatar_id)}`)}
                               onLoad={() => console.log('Avatar loaded successfully for:', battle.opponent?.avatar_id)}
                             />
                             <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm md:text-lg">

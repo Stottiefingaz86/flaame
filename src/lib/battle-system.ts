@@ -211,13 +211,16 @@ export class BattleSystem {
       if (userId) {
         const { data: vote } = await supabase
           .from('votes')
-          .select('voted_for')
+          .select('id')
           .eq('battle_id', battleId)
           .eq('voter_id', userId)
           .single()
 
         if (vote) {
-          userVote = vote.voted_for === battle.challenger_id ? 'challenger' : 'opponent'
+          // For now, we'll just mark that the user has voted
+          // The actual vote direction isn't stored in the current schema
+          // This is a temporary solution until we run the migration
+          userVote = 'voted' // Generic indicator that user has voted
         }
       }
 

@@ -99,10 +99,14 @@ export default function BattleDetailPage() {
 
   // Computed value for whether to show accept button
   const shouldShowAcceptButton = battle && user && (
-    // Open battle (no opponent_id) - anyone can accept
-    !battle.opponent_id ||
-    // Challenge battle (has opponent_id) - only the opponent can accept
-    (battle.opponent_id && user.id === battle.opponent_id)
+    // Only show for pending or challenge battles (not active/closed)
+    (battle.status === 'pending' || battle.status === 'challenge') &&
+    (
+      // Open battle (no opponent_id) - anyone can accept
+      !battle.opponent_id ||
+      // Challenge battle (has opponent_id) - only the opponent can accept
+      (battle.opponent_id && user.id === battle.opponent_id)
+    )
   )
 
   // Debug the computed value
@@ -881,11 +885,11 @@ export default function BattleDetailPage() {
                     </Button>
                   )}
 
-                  {hasVoted && userVote === 'challenger' && (
+                  {hasVoted && (userVote === 'challenger' || userVote === 'voted') && (
                     <div className="w-full bg-green-500/20 border border-green-500/30 rounded-lg p-4 text-center">
                       <div className="flex items-center justify-center gap-2 text-green-400">
                         <Vote className="w-4 h-4" />
-                        <span>You voted for {battle.challenger?.username}</span>
+                        <span>{userVote === 'challenger' ? `You voted for ${battle.challenger?.username}` : 'You have voted in this battle'}</span>
                       </div>
                     </div>
                   )}
@@ -1078,11 +1082,11 @@ export default function BattleDetailPage() {
                         </Button>
                       )}
 
-                      {hasVoted && userVote === 'opponent' && (
+                      {hasVoted && (userVote === 'opponent' || userVote === 'voted') && (
                         <div className="w-full bg-green-500/20 border border-green-500/30 rounded-lg p-4 text-center">
                           <div className="flex items-center justify-center gap-2 text-green-400">
                             <Vote className="w-4 h-4" />
-                            <span>You voted for {battle.opponent?.username}</span>
+                            <span>{userVote === 'opponent' ? `You voted for ${battle.opponent?.username}` : 'You have voted in this battle'}</span>
                           </div>
                         </div>
                       )}

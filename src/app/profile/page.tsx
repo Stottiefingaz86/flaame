@@ -732,7 +732,7 @@ export default function ProfilePage() {
                                 <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center text-white font-bold text-sm">
                                   {battle.challenger?.avatar_id ? (
                                     <img
-                                      src={`/api/avatars/${battle.challenger.avatar_id}`}
+                                      src={`/api/avatars/${encodeURIComponent(battle.challenger.avatar_id)}`}
                                       alt={battle.challenger.username}
                                       className="w-8 h-8 rounded-full object-cover"
                                     />
@@ -755,7 +755,7 @@ export default function ProfilePage() {
                                 <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
                                   {battle.opponent?.avatar_id ? (
                                     <img
-                                      src={`/api/avatars/${battle.opponent.avatar_id}`}
+                                      src={`/api/avatars/${encodeURIComponent(battle.opponent.avatar_id)}`}
                                       alt={battle.opponent.username}
                                       className="w-8 h-8 rounded-full object-cover"
                                     />
@@ -906,7 +906,7 @@ export default function ProfilePage() {
                                 <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center text-white font-bold text-sm">
                                   {battle.challenger?.avatar_id ? (
                                     <img
-                                      src={`/api/avatars/${battle.challenger.avatar_id}`}
+                                      src={`/api/avatars/${encodeURIComponent(battle.challenger.avatar_id)}`}
                                       alt={battle.challenger.username}
                                       className="w-8 h-8 rounded-full object-cover"
                                     />
@@ -929,7 +929,7 @@ export default function ProfilePage() {
                                 <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
                                   {battle.opponent?.avatar_id ? (
                                     <img
-                                      src={`/api/avatars/${battle.opponent.avatar_id}`}
+                                      src={`/api/avatars/${encodeURIComponent(battle.opponent.avatar_id)}`}
                                       alt={battle.opponent.username}
                                       className="w-8 h-8 rounded-full object-cover"
                                     />

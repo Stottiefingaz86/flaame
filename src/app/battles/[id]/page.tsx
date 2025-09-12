@@ -258,14 +258,14 @@ export default function BattlePage() {
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={battle.challenger.avatar_id ? `/api/avatars/${battle.challenger.avatar_id}` : undefined} />
+                        <AvatarImage src={battle.challenger.avatar_id ? `/api/avatars/${encodeURIComponent(battle.challenger.avatar_id)}` : undefined} />
                         <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
                           {battle.challenger.username.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <span className="text-white font-semibold">VS</span>
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={battle.opponent.avatar_id ? `/api/avatars/${battle.opponent.avatar_id}` : undefined} />
+                        <AvatarImage src={battle.opponent.avatar_id ? `/api/avatars/${encodeURIComponent(battle.opponent.avatar_id)}` : undefined} />
                         <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
                           {battle.opponent.username.charAt(0).toUpperCase()}
                         </AvatarFallback>
@@ -327,7 +327,7 @@ export default function BattlePage() {
                     {/* Challenger Votes */}
                     <div className="flex items-center gap-3">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={battle.challenger.avatar_id ? `/api/avatars/${battle.challenger.avatar_id}` : undefined} />
+                        <AvatarImage src={battle.challenger.avatar_id ? `/api/avatars/${encodeURIComponent(battle.challenger.avatar_id)}` : undefined} />
                         <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs">
                           {battle.challenger.username.charAt(0).toUpperCase()}
                         </AvatarFallback>
@@ -350,7 +350,7 @@ export default function BattlePage() {
                     {/* Opponent Votes */}
                     <div className="flex items-center gap-3">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={battle.opponent.avatar_id ? `/api/avatars/${battle.opponent.avatar_id}` : undefined} />
+                        <AvatarImage src={battle.opponent.avatar_id ? `/api/avatars/${encodeURIComponent(battle.opponent.avatar_id)}` : undefined} />
                         <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
                           {battle.opponent.username.charAt(0).toUpperCase()}
                         </AvatarFallback>
@@ -458,7 +458,7 @@ export default function BattlePage() {
                 {/* Challenger */}
                 <div className="flex items-center gap-3 p-3 bg-black/30 rounded-lg">
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={battle.challenger.avatar_id ? `/api/avatars/${battle.challenger.avatar_id}` : undefined} />
+                    <AvatarImage src={battle.challenger.avatar_id ? `/api/avatars/${encodeURIComponent(battle.challenger.avatar_id)}` : undefined} />
                     <AvatarFallback className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
                       {battle.challenger.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
@@ -479,7 +479,7 @@ export default function BattlePage() {
                 {/* Opponent */}
                 <div className="flex items-center gap-3 p-3 bg-black/30 rounded-lg">
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={battle.opponent.avatar_id ? `/api/avatars/${battle.opponent.avatar_id}` : undefined} />
+                    <AvatarImage src={battle.opponent.avatar_id ? `/api/avatars/${encodeURIComponent(battle.opponent.avatar_id)}` : undefined} />
                     <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
                       {battle.opponent.username.charAt(0).toUpperCase()}
                     </AvatarFallback>

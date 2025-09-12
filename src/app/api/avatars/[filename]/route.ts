@@ -13,6 +13,14 @@ export async function GET(
   try {
     const { filename } = await params
 
+    // Debug environment variables
+    console.log('Avatar API Environment Check:', {
+      hasUrl: !!supabaseUrl,
+      hasKey: !!supabaseServiceKey,
+      url: supabaseUrl,
+      keyLength: supabaseServiceKey?.length
+    })
+
     // Validate filename - should not be empty or too short
     if (!filename || filename.length < 3) {
       return new NextResponse('Invalid filename', { status: 400 })

@@ -98,9 +98,11 @@ export default function BattleDetailPage() {
   const battleId = params.id as string
 
   // Computed value for whether to show accept button
-  const shouldShowAcceptButton = battle && (
-    battle.status === 'pending' || 
-    (battle.status === 'challenge' && battle.opponent_id && user && user.id === battle.opponent_id)
+  const shouldShowAcceptButton = battle && user && (
+    // Open battle (no opponent_id) - anyone can accept
+    !battle.opponent_id ||
+    // Challenge battle (has opponent_id) - only the opponent can accept
+    (battle.opponent_id && user.id === battle.opponent_id)
   )
 
   // Debug the computed value

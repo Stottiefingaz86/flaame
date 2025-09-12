@@ -582,8 +582,9 @@ export default function BattleDetailPage() {
           </div>
         </motion.div>
 
-        {/* Vote Poll Display - Show for finished battles OR active battles where user has voted */}
-        {(battle.challenger_votes > 0 || battle.opponent_votes > 0) && (
+        {/* Vote Poll Display - Show for finished battles OR when logged in user has voted */}
+        {((battle.status === 'closed' || battle.status === 'finished') || 
+          (user && hasVoted && (battle.challenger_votes > 0 || battle.opponent_votes > 0))) && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}

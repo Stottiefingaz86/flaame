@@ -110,14 +110,35 @@ export async function POST(request: NextRequest) {
         .single()
       
       if (entryError) {
-        console.error('Error creating battle entry:', entryError)
-        return NextResponse.json(
-          { error: 'Failed to create vote entry' },
-          { status: 500 }
-        )
+        // If it's a unique constraint violation, the entry already exists
+        if (entryError.code === '23505') {
+          // Try to get the existing entry again
+          const { data: retryEntry, error: retryError } = await supabase
+            .from('battle_entries')
+            .select('id')
+            .eq('battle_id', battleId)
+            .eq('user_id', targetUserId)
+            .single()
+          
+          if (retryError || !retryEntry) {
+            console.error('Error getting existing battle entry:', retryError)
+            return NextResponse.json(
+              { error: 'Failed to get vote entry' },
+              { status: 500 }
+            )
+          }
+          
+          targetEntryId = retryEntry.id
+        } else {
+          console.error('Error creating battle entry:', entryError)
+          return NextResponse.json(
+            { error: 'Failed to create vote entry' },
+            { status: 500 }
+          )
+        }
+      } else {
+        targetEntryId = newEntry.id
       }
-      
-      targetEntryId = newEntry.id
     }
     
     // Create the vote record

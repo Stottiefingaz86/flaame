@@ -104,7 +104,14 @@ export default function BattleDetailPage() {
     }
   }, [battleId])
 
-  // Debug user context changes
+  // Reload battle when user context becomes available
+  useEffect(() => {
+    if (battleId && user && !battle) {
+      loadBattle()
+    }
+  }, [battleId, user])
+
+  // Debug user context changes and trigger re-render when user loads
   useEffect(() => {
     console.log('User context changed:', {
       user_id: user?.id,
@@ -114,6 +121,11 @@ export default function BattleDetailPage() {
       battle_opponent_id: battle?.opponent_id,
       battle_challenger_id: battle?.challenger_id
     })
+    
+    // Force re-render when user context becomes available
+    if (user && battle) {
+      setBattle({...battle}) // Trigger re-render
+    }
   }, [user, battle])
 
   useEffect(() => {

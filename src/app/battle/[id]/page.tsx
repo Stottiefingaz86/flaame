@@ -104,14 +104,7 @@ export default function BattleDetailPage() {
     }
   }, [battleId])
 
-  // Reload battle when user context becomes available
-  useEffect(() => {
-    if (battleId && user && !battle) {
-      loadBattle()
-    }
-  }, [battleId, user])
-
-  // Debug user context changes and trigger re-render when user loads
+  // Debug user context changes
   useEffect(() => {
     console.log('User context changed:', {
       user_id: user?.id,
@@ -121,11 +114,6 @@ export default function BattleDetailPage() {
       battle_opponent_id: battle?.opponent_id,
       battle_challenger_id: battle?.challenger_id
     })
-    
-    // Force re-render when user context becomes available
-    if (user && battle) {
-      setBattle({...battle}) // Trigger re-render
-    }
   }, [user, battle])
 
   useEffect(() => {
@@ -1095,10 +1083,8 @@ export default function BattleDetailPage() {
                         </p>
                       )}
                       {/* Accept Battle Button - Show for open battles or if user is the challenged opponent */}
-                      {user && user.id !== battle.challenger_id && (
-                        battle.status === 'pending' || 
-                        (battle.status === 'challenge' && battle.opponent_id === user.id)
-                      ) && (
+                      {battle.status === 'pending' || 
+                       (battle.status === 'challenge' && battle.opponent_id && (!user || user.id === battle.opponent_id)) ? (
                         <Button
                           onClick={handleAcceptBattle}
                           size="sm"
@@ -1106,7 +1092,7 @@ export default function BattleDetailPage() {
                         >
                           Accept Battle
                         </Button>
-                      )}
+                      ) : null}
                     </div>
                   )}
                 </CardContent>

@@ -49,27 +49,111 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Use the existing BattleSystem method which handles all the logic
-    const result = await BattleSystem.voteForBattle(battleId, votedFor, userId)
-    
-    if (!result.success) {
+    // Check if user has already voted in this battle
+    const { data: existingVote, error: voteCheckError } = await supabase
+      .from('votes')
+      .select('id')
+      .eq('battle_id', battleId)
+      .eq('voter_id', userId)
+      .single()
+      
+    if (voteCheckError && voteCheckError.code !== 'PGRST116') {
+      console.error('Error checking vote status:', voteCheckError)
       return NextResponse.json(
-        { error: result.error || 'Failed to vote' },
+        { error: 'Error checking vote status' },
+        { status: 500 }
+      )
+    }
+    
+    if (existingVote) {
+      return NextResponse.json(
+        { error: 'You have already voted in this battle' },
         { status: 400 }
       )
     }
 
-    // Get updated battle data to return current vote counts
-    const { data: updatedBattle, error: fetchError } = await supabase
-      .from('battles')
-      .select('challenger_votes, opponent_votes')
-      .eq('id', battleId)
-      .single()
-
-    if (fetchError) {
-      console.error('Error fetching updated battle:', fetchError)
+    const targetUserId = votedFor === 'challenger' ? battle.challenger_id : battle.opponent_id
+    
+    if (!targetUserId) {
       return NextResponse.json(
-        { error: 'Vote recorded but failed to get updated counts' },
+        { error: 'Invalid vote target' },
+        { status: 400 }
+      )
+    }
+
+    // For now, we'll use a simple approach that works with the current schema
+    // We'll create a temporary battle entry for the user we're voting for, then vote for that entry
+    // This is a temporary solution until the migration is run
+    
+    // First, check if there's already a battle entry for the target user
+    let targetEntryId: string
+    const { data: existingEntry, error: entryCheckError } = await supabase
+      .from('battle_entries')
+      .select('id')
+      .eq('battle_id', battleId)
+      .eq('user_id', targetUserId)
+      .single()
+    
+    if (existingEntry) {
+      targetEntryId = existingEntry.id
+    } else {
+      // Create a temporary battle entry for the target user
+      const { data: newEntry, error: entryError } = await supabase
+        .from('battle_entries')
+        .insert({
+          battle_id: battleId,
+          user_id: targetUserId,
+          audio_file_path: null, // No actual audio file for direct voting
+          lyrics: null
+        })
+        .select('id')
+        .single()
+      
+      if (entryError) {
+        console.error('Error creating battle entry:', entryError)
+        return NextResponse.json(
+          { error: 'Failed to create vote entry' },
+          { status: 500 }
+        )
+      }
+      
+      targetEntryId = newEntry.id
+    }
+    
+    // Create the vote record
+    const { error: voteError } = await supabase
+      .from('votes')
+      .insert({
+        battle_id: battleId,
+        voter_id: userId,
+        entry_id: targetEntryId
+      })
+
+    if (voteError) {
+      console.error('Error recording vote:', voteError)
+      return NextResponse.json(
+        { error: 'Failed to record vote' },
+        { status: 500 }
+      )
+    }
+
+    // Update vote counts
+    const newChallengerVotes = votedFor === 'challenger' ? battle.challenger_votes + 1 : battle.challenger_votes
+    const newOpponentVotes = votedFor === 'opponent' ? battle.opponent_votes + 1 : battle.opponent_votes
+
+    const { error: updateError } = await supabase
+      .from('battles')
+      .update({
+        challenger_votes: newChallengerVotes,
+        opponent_votes: newOpponentVotes,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', battleId)
+
+    if (updateError) {
+      console.error('Error updating vote counts:', updateError)
+      return NextResponse.json(
+        { error: 'Failed to update vote counts' },
         { status: 500 }
       )
     }
@@ -77,8 +161,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       success: true, 
       message: 'Vote recorded successfully',
-      challenger_votes: updatedBattle.challenger_votes,
-      opponent_votes: updatedBattle.opponent_votes
+      challenger_votes: newChallengerVotes,
+      opponent_votes: newOpponentVotes
     })
 
   } catch (error) {

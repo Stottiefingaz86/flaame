@@ -1071,11 +1071,11 @@ export default function BattleDetailPage() {
                         <Button
                           onClick={() => handleVote('opponent')}
                           disabled={isVoting}
-                          className={`w-full bg-white/10 hover:bg-white/20 text-white border border-white/20 ${
-                            voteAnimation === 'opponent' ? 'animate-pulse' : ''
-                          }`}
-                        >
-                          <Vote className="w-4 h-4 mr-2" />
+                      className={`w-full bg-white/10 hover:bg-white/20 text-white border border-white/20 text-sm md:text-base ${
+                        voteAnimation === 'opponent' ? 'animate-pulse' : ''
+                      }`}
+                    >
+                      <Vote className="w-3 h-3 md:w-4 md:h-4 mr-2" />
                           Vote for {battle.opponent?.username}
                         </Button>
                       )}

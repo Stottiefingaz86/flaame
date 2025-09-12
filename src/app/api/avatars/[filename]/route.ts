@@ -35,6 +35,8 @@ export async function GET(
       filePath = filePath.substring(8) // Remove "avatars/" (8 characters)
     }
     
+    console.log('Avatar API Debug:', { filename, filePath })
+    
     const { data, error } = await supabase.storage
       .from('avatars')
       .download(filePath)

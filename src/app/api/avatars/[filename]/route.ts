@@ -30,10 +30,7 @@ export async function GET(
       filePath = `avatars/${filename}`
     }
     
-    // Remove the "avatars/" prefix from the beginning since we're already in the avatars bucket
-    if (filePath.startsWith('avatars/')) {
-      filePath = filePath.substring(8) // Remove "avatars/" (8 characters)
-    }
+    // Note: We keep the "avatars/" prefix if it exists because some files are stored in the avatars subfolder
     
     const { data, error } = await supabase.storage
       .from('avatars')

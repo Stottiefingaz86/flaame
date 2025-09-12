@@ -81,82 +81,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // For now, we'll use a simple approach that works with the current schema
-    // We'll create a temporary battle entry for the user we're voting for, then vote for that entry
-    // This is a temporary solution until the migration is run
-    
-    // First, check if there's already a battle entry for the target user
-    let targetEntryId: string
-    const { data: existingEntry, error: entryCheckError } = await supabase
-      .from('battle_entries')
-      .select('id')
-      .eq('battle_id', battleId)
-      .eq('user_id', targetUserId)
-      .single()
-    
-    if (existingEntry) {
-      targetEntryId = existingEntry.id
-    } else {
-      // Create a temporary battle entry for the target user
-      const { data: newEntry, error: entryError } = await supabase
-        .from('battle_entries')
-        .insert({
-          battle_id: battleId,
-          user_id: targetUserId,
-          audio_file_path: null, // No actual audio file for direct voting
-          lyrics: null
-        })
-        .select('id')
-        .single()
-      
-      if (entryError) {
-        // If it's a unique constraint violation, the entry already exists
-        if (entryError.code === '23505') {
-          // Try to get the existing entry again
-          const { data: retryEntry, error: retryError } = await supabase
-            .from('battle_entries')
-            .select('id')
-            .eq('battle_id', battleId)
-            .eq('user_id', targetUserId)
-            .single()
-          
-          if (retryError || !retryEntry) {
-            console.error('Error getting existing battle entry:', retryError)
-            return NextResponse.json(
-              { error: 'Failed to get vote entry' },
-              { status: 500 }
-            )
-          }
-          
-          targetEntryId = retryEntry.id
-        } else {
-          console.error('Error creating battle entry:', entryError)
-          return NextResponse.json(
-            { error: 'Failed to create vote entry' },
-            { status: 500 }
-          )
-        }
-      } else {
-        targetEntryId = newEntry.id
-      }
-    }
-    
-    // Create the vote record
-    const { error: voteError } = await supabase
-      .from('votes')
-      .insert({
-        battle_id: battleId,
-        voter_id: userId,
-        entry_id: targetEntryId
-      })
-
-    if (voteError) {
-      console.error('Error recording vote:', voteError)
-      return NextResponse.json(
-        { error: 'Failed to record vote' },
-        { status: 500 }
-      )
-    }
+    // Simple approach: Just update the vote counts directly
+    // We'll skip the complex battle entries system for now
+    // This is a temporary solution until we can run the proper migration
 
     // Update vote counts
     const newChallengerVotes = votedFor === 'challenger' ? battle.challenger_votes + 1 : battle.challenger_votes

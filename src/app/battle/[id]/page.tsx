@@ -1083,8 +1083,8 @@ export default function BattleDetailPage() {
                         </p>
                       )}
                       {/* Accept Battle Button - Show for open battles or if user is the challenged opponent */}
-                      {battle.status === 'pending' || 
-                       (battle.status === 'challenge' && battle.opponent_id && (!user || user.id === battle.opponent_id)) ? (
+                      {(battle.status === 'pending') || 
+                       (battle.status === 'challenge' && battle.opponent_id && user && user.id === battle.opponent_id) ? (
                         <Button
                           onClick={handleAcceptBattle}
                           size="sm"

@@ -81,9 +81,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Simple approach: Just update the vote counts directly
-    // We'll skip the complex battle entries system for now
-    // This is a temporary solution until we can run the proper migration
+    // Record the vote in the votes table to prevent multiple votes
+    const { error: voteRecordError } = await supabase
+      .from('votes')
+      .insert({
+        battle_id: battleId,
+        voter_id: userId,
+        entry_id: null // We'll use null for now since we're not using battle entries
+      })
+
+    if (voteRecordError) {
+      console.error('Error recording vote:', voteRecordError)
+      return NextResponse.json(
+        { error: 'Failed to record vote' },
+        { status: 500 }
+      )
+    }
 
     // Update vote counts
     const newChallengerVotes = votedFor === 'challenger' ? battle.challenger_votes + 1 : battle.challenger_votes

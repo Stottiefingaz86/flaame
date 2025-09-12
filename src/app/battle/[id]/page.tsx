@@ -127,6 +127,20 @@ export default function BattleDetailPage() {
       setHasVoted(!!battleData.user_voted_for)
       setUserVote(battleData.user_voted_for || null)
       
+      // Debug logging
+      console.log('Battle data loaded:', {
+        battleId: battleData.id,
+        status: battleData.status,
+        challenger_id: battleData.challenger_id,
+        opponent_id: battleData.opponent_id,
+        current_user_id: user?.id,
+        opponent: battleData.opponent,
+        shouldShowAcceptButton: user && user.id !== battleData.challenger_id && (
+          battleData.status === 'pending' || 
+          (battleData.status === 'challenge' && battleData.opponent_id === user.id)
+        )
+      })
+      
       // Load recent flame gifts
       const flames = await BattleSystem.getBattleFlames(battleId, 5)
       setRecentFlameGifts(flames)
@@ -863,7 +877,11 @@ export default function BattleDetailPage() {
                       {battle.opponent ? (
                         <>
                           <Avatar className="h-10 w-10 md:h-12 md:w-12">
-                            <AvatarImage src={battle.opponent?.avatar_id ? `/api/avatars/${battle.opponent.avatar_id}` : undefined} />
+                            <AvatarImage 
+                              src={battle.opponent?.avatar_id ? `/api/avatars/${battle.opponent.avatar_id}` : undefined} 
+                              onError={() => console.log('Avatar failed to load for:', battle.opponent?.avatar_id)}
+                              onLoad={() => console.log('Avatar loaded successfully for:', battle.opponent?.avatar_id)}
+                            />
                             <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm md:text-lg">
                               {battle.opponent?.username?.charAt(0).toUpperCase() || 'O'}
                             </AvatarFallback>
@@ -1047,8 +1065,11 @@ export default function BattleDetailPage() {
                           Anyone can accept this open battle
                         </p>
                       )}
-                      {/* Accept Battle Button - Only show for open battles or if user is the challenged opponent */}
-                      {user && user.id !== battle.challenger_id && battle.status !== 'challenge' && (
+                      {/* Accept Battle Button - Show for open battles or if user is the challenged opponent */}
+                      {user && user.id !== battle.challenger_id && (
+                        battle.status === 'pending' || 
+                        (battle.status === 'challenge' && battle.opponent_id === user.id)
+                      ) && (
                         <Button
                           onClick={handleAcceptBattle}
                           size="sm"

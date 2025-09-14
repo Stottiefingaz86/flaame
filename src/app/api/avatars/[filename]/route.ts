@@ -24,13 +24,11 @@ export async function GET(
     // 2. Full path (for uploaded avatars): "avatars/userId-timestamp.ext"
     let filePath = filename
     
-    // If filename already includes the "avatars/" prefix, use it as-is
-    // Otherwise, add the "avatars/" prefix
-    if (!filename.startsWith('avatars/')) {
-      filePath = `avatars/${filename}`
+    // If filename already includes the "avatars/" prefix, remove it to avoid double prefix
+    // The Supabase storage bucket is already "avatars", so we don't need the prefix
+    if (filename.startsWith('avatars/')) {
+      filePath = filename.substring(7) // Remove "avatars/" prefix
     }
-    
-    // Note: We keep the "avatars/" prefix if it exists because some files are stored in the avatars subfolder
     
     const { data, error } = await supabase.storage
       .from('avatars')

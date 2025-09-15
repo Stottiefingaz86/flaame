@@ -42,7 +42,23 @@ export async function GET(
       if (filename.length > 10) {
         console.error('Error downloading avatar:', { filename, filePath, error })
       }
-      return new NextResponse('Avatar not found', { status: 404 })
+      
+      // Return a default avatar instead of 404
+      // This prevents broken image icons from showing
+      const defaultAvatar = `
+        <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="50" fill="#374151"/>
+          <circle cx="50" cy="35" r="15" fill="#6B7280"/>
+          <path d="M20 85 Q20 70 50 70 Q80 70 80 85" fill="#6B7280"/>
+        </svg>
+      `
+      return new NextResponse(defaultAvatar, { 
+        status: 200,
+        headers: {
+          'Content-Type': 'image/svg+xml',
+          'Cache-Control': 'public, max-age=3600',
+        }
+      })
     }
 
     // Convert blob to buffer

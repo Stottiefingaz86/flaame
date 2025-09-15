@@ -30,6 +30,9 @@ export async function GET(
       filePath = filename.substring(7) // Remove "avatars/" prefix
     }
     
+    // Debug logging
+    console.log('Avatar request:', { originalFilename: filename, filePath })
+    
     const { data, error } = await supabase.storage
       .from('avatars')
       .download(filePath)
@@ -49,7 +52,8 @@ export async function GET(
     return new NextResponse(buffer, {
       headers: {
         'Content-Type': 'image/jpeg',
-        'Cache-Control': 'public, max-age=31536000, immutable',
+        'Cache-Control': 'public, max-age=3600', // 1 hour cache instead of 1 year
+        'Access-Control-Allow-Origin': '*', // Allow cross-origin access
       },
     })
   } catch (error) {

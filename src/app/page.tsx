@@ -1,3 +1,33 @@
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Flaame - Hip-Hop Battle Platform | Rap Battles & Beat Downloads',
+  description: 'Join the ultimate hip-hop battle platform! Compete in rap battles, download exclusive beats, earn flames, and climb the leaderboard. Free registration for rappers and producers.',
+  keywords: [
+    'hip hop battles', 'rap battles', 'freestyle battles', 'battle rap platform',
+    'hip hop competition', 'rap contest', 'beat downloads', 'hip hop beats',
+    'rap community', 'music battles', 'freestyle rap', 'hip hop platform',
+    'rap battle arena', 'hip hop leaderboard', 'rap skills', 'beat marketplace'
+  ],
+  openGraph: {
+    title: 'Flaame - Hip-Hop Battle Platform | Rap Battles & Beat Downloads',
+    description: 'Join the ultimate hip-hop battle platform! Compete in rap battles, download exclusive beats, earn flames, and climb the leaderboard.',
+    type: 'website',
+    url: 'https://www.flaame.co',
+    images: [
+      {
+        url: 'https://www.flaame.co/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Flaame Hip-Hop Battle Platform'
+      }
+    ]
+  },
+  alternates: {
+    canonical: 'https://www.flaame.co'
+  }
+}
+
 'use client'
 
 // Force deployment - trigger new build
@@ -50,6 +80,39 @@ export default function HomePage() {
 
   return (
     <div className="w-full flex justify-center overflow-visible">
+      {/* SEO Content - Hidden but crawlable */}
+      <div className="sr-only">
+        <h1>Flaame - Hip-Hop Battle Platform</h1>
+        <p>
+          Flaame is the ultimate hip-hop battle platform where rappers compete in epic rap battles, 
+          producers share exclusive beats, and fans decide the winners. Join our vibrant hip-hop 
+          community and showcase your rap skills in freestyle battles and organized competitions.
+        </p>
+        <h2>Features</h2>
+        <ul>
+          <li>Rap Battle Arena - Compete against other rappers</li>
+          <li>Beat Marketplace - Download exclusive hip-hop beats</li>
+          <li>Leaderboard System - Climb the ranks and earn flames</li>
+          <li>Community Voting - Fans decide battle winners</li>
+          <li>Producer Spotlight - Featured beat makers</li>
+          <li>Artist Profiles - Build your hip-hop reputation</li>
+        </ul>
+        <h2>How It Works</h2>
+        <p>
+          1. Register as a rapper or producer on Flaame
+          2. Create or join hip-hop battles
+          3. Upload your rap tracks or beats
+          4. Community votes on battle winners
+          5. Earn flames and climb the leaderboard
+        </p>
+        <h2>Join the Hip-Hop Community</h2>
+        <p>
+          Whether you're a seasoned battle rapper, emerging freestyle artist, or beat producer, 
+          Flaame provides the platform to showcase your talent, compete with peers, and grow 
+          your hip-hop career. Start your journey today!
+        </p>
+      </div>
+
       {/* Hero Section */}
       <div className="w-full max-w-4xl px-4 py-16 flex flex-col items-center justify-center min-h-[calc(100vh-130px)] md:min-h-[calc(100vh-80px)]">
         <motion.div

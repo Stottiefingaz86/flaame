@@ -71,9 +71,10 @@ export default function BattleCard({ battle, onAcceptBattle, onVote, hasVoted, u
   }, [battle.ends_at, battle.status])
 
   const battleStyle = getBattleStyle(battle.title)
-  const isActive = battle.status === 'active'
+  const hasExpired = battle.ends_at && new Date(battle.ends_at) <= new Date()
+  const isActive = battle.status === 'active' && !hasExpired
   const isOpen = battle.status === 'pending'
-  const isFinished = battle.status === 'closed'
+  const isFinished = battle.status === 'closed' || hasExpired
 
   return (
     <motion.div
@@ -158,7 +159,7 @@ export default function BattleCard({ battle, onAcceptBattle, onVote, hasVoted, u
         )}
         {isFinished && (
           <Badge variant="ghost" className="bg-gray-500/10 text-gray-300 border-gray-500/20 text-xs">
-            Finished
+            {battle.status === 'closed' ? 'Finished' : 'Ended'}
           </Badge>
         )}
       </div>

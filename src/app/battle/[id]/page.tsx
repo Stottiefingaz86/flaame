@@ -160,6 +160,36 @@ export default function BattleDetailPage() {
         return
       }
       
+      // Check if battle has expired and should be marked as closed
+      const now = new Date()
+      const endTime = new Date(battleData.ends_at)
+      const hasExpired = endTime <= now
+      
+      // If battle has expired but isn't marked as closed, update the local state
+      if (hasExpired && battleData.status !== 'closed') {
+        console.log('Battle has expired, marking as closed locally')
+        
+        // Determine winner based on votes
+        let winnerId = null
+        if (battleData.challenger_votes > battleData.opponent_votes) {
+          winnerId = battleData.challenger_id
+        } else if (battleData.opponent_votes > battleData.challenger_votes) {
+          winnerId = battleData.opponent_id
+        }
+        
+        // Update local battle data to show as closed
+        battleData.status = 'closed'
+        battleData.winner_id = winnerId
+        battleData.completed_at = endTime.toISOString()
+        
+        // Try to complete the battle on the server (fire and forget)
+        fetch('/api/battle/complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ battleId: battleId })
+        }).catch(err => console.log('Failed to complete battle on server:', err))
+      }
+      
       setBattle(battleData)
       setHasVoted(!!battleData.user_voted_for)
       setUserVote(battleData.user_voted_for || null)

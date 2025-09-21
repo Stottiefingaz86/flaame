@@ -23,12 +23,18 @@ export default function HomePage() {
   const { playAudio, pauseAudio, currentTrackUrl, isPlaying } = useAudio()
 
   const handlePlayDemoTrack = () => {
-    const demoTrackUrl = '/Once-In-A-lifetime (Remix).mp3'
+    const demoTrackUrl = '/Once-In-A-lifetime%20(Remix).mp3' // URL encoded for spaces
     const trackName = 'Once-In-A-lifetime (Remix)'
     
+    console.log('Play button clicked! URL:', demoTrackUrl)
+    console.log('Current track URL:', currentTrackUrl)
+    console.log('Is playing:', isPlaying)
+    
     if (currentTrackUrl === demoTrackUrl && isPlaying) {
+      console.log('Pausing audio')
       pauseAudio()
     } else {
+      console.log('Playing audio')
       playAudio(demoTrackUrl, trackName, 'Flaame')
     }
   }
@@ -58,7 +64,7 @@ export default function HomePage() {
               onClick={handlePlayDemoTrack}
               className="h-16 w-16 rounded-full bg-gray-800/50 border border-white/20 hover:bg-gray-700/50 transition-all duration-300 flex items-center justify-center"
             >
-              {currentTrackUrl === '/Once-In-A-lifetime (Remix).mp3' && isPlaying ? (
+              {currentTrackUrl === '/Once-In-A-lifetime%20(Remix).mp3' && isPlaying ? (
                 <Pause className="h-6 w-6 text-white" />
               ) : (
                 <Play className="h-6 w-6 text-white ml-1" />

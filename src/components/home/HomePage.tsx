@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { 
   Play,
+  Pause,
   Download,
   Mic,
   Swords,
@@ -16,8 +17,22 @@ import {
 } from 'lucide-react'
 import FeaturedBattlesCarousel from '@/components/home/FeaturedBattlesCarousel'
 import FeaturedProducer from '@/components/home/FeaturedProducer'
+import { useAudio } from '@/contexts/AudioContext'
 
 export default function HomePage() {
+  const { playAudio, pauseAudio, currentTrackUrl, isPlaying } = useAudio()
+
+  const handlePlayDemoTrack = () => {
+    const demoTrackUrl = '/Once-In-A-lifetime (Remix).mp3'
+    const trackName = 'Once-In-A-lifetime (Remix)'
+    
+    if (currentTrackUrl === demoTrackUrl && isPlaying) {
+      pauseAudio()
+    } else {
+      playAudio(demoTrackUrl, trackName, 'Flaame')
+    }
+  }
+
   return (
     <div className="w-full flex justify-center overflow-visible">
       <div className="w-full max-w-4xl px-4 py-16 flex flex-col items-center justify-center min-h-[calc(100vh-130px)] md:min-h-[calc(100vh-80px)]">
@@ -40,9 +55,14 @@ export default function HomePage() {
           <div className="flex items-center justify-center gap-4">
             <Button
               size="icon"
+              onClick={handlePlayDemoTrack}
               className="h-16 w-16 rounded-full bg-gray-800/50 border border-white/20 hover:bg-gray-700/50 transition-all duration-300 flex items-center justify-center"
             >
-              <Play className="h-6 w-6 text-white ml-1" />
+              {currentTrackUrl === '/Once-In-A-lifetime (Remix).mp3' && isPlaying ? (
+                <Pause className="h-6 w-6 text-white" />
+              ) : (
+                <Play className="h-6 w-6 text-white ml-1" />
+              )}
             </Button>
           </div>
         </motion.div>

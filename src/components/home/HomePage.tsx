@@ -39,8 +39,34 @@ export default function HomePage() {
     }
   }
 
+  // Structured data for SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Flaame",
+    "description": "The ultimate hip-hop battle platform where rappers compete in epic battles, earn flames, and climb the leaderboard.",
+    "url": "https://www.flaame.co",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://www.flaame.co/arena?search={search_term_string}",
+      "query-input": "required name=search_term_string"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Flaame",
+      "url": "https://www.flaame.co"
+    }
+  }
+
   return (
-    <div className="w-full flex justify-center overflow-visible">
+    <>
+      {/* Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      
+      <div className="w-full flex justify-center overflow-visible">
       <div className="w-full max-w-4xl px-4 py-16 flex flex-col items-center justify-center min-h-[calc(100vh-130px)] md:min-h-[calc(100vh-80px)]">
         {/* Hero Section */}
         <motion.div
@@ -239,6 +265,7 @@ export default function HomePage() {
         
         <p>Whether you're a seasoned battle rapper or just starting your hip-hop journey, Flaame provides the perfect platform to showcase your skills, connect with other artists, and grow your reputation in the hip-hop community.</p>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

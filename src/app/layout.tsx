@@ -9,7 +9,7 @@ import { UserProvider } from '@/contexts/UserContext'
 import { LoadingProvider } from '@/contexts/LoadingContext'
 import { ChatProvider } from '@/contexts/ChatContext'
 import PersistentPlayer from '@/components/audio/PersistentPlayer'
-// import MobileRedirect from '@/components/MobileRedirect'
+// MobileRedirect removed to fix Google Search Console redirect errors
 import { Analytics } from '@vercel/analytics/react'
 
 const inter = Inter({ subsets: ['latin'] })

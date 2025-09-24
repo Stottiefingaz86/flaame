@@ -168,7 +168,7 @@ export default function MobileNavigation() {
                 <Link href="/auth?mode=signup">
                   <Button
                     size="sm"
-                    className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-sm px-4"
+                    className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-sm px-4"
                   >
                     Create Account
                   </Button>

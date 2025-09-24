@@ -96,7 +96,7 @@ export default function Navigation() {
             const Icon = item.icon
             return (
               <Link key={item.href} href={item.href}>
-                <div className={`relative px-4 py-2 flex items-center gap-2 rounded-xl transition-all duration-200 ${
+                <div className={`relative px-4 py-3 flex items-center gap-2 rounded-xl transition-all duration-300 ${
                   isActive(item.href)
                     ? "text-orange-400"
                     : "text-gray-300 hover:text-white hover:bg-white/10"
@@ -105,12 +105,13 @@ export default function Navigation() {
                   <span>{item.label}</span>
                   {isActive(item.href) && (
                     <motion.div
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500 rounded-full"
+                      className="absolute bottom-1 left-2 right-2 h-[1px] bg-orange-500"
                       layoutId="activeTab"
                       transition={{
                         type: "spring",
-                        stiffness: 300,
-                        damping: 30
+                        stiffness: 400,
+                        damping: 25,
+                        mass: 0.8
                       }}
                     />
                   )}
@@ -210,7 +211,7 @@ export default function Navigation() {
                          </Button>
                        </Link>
                        <Link href="/auth?mode=signup">
-                         <Button className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white">
+                         <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white">
                            Create Account
                          </Button>
                        </Link>

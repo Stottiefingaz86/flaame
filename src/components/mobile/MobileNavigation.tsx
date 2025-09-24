@@ -168,7 +168,7 @@ export default function MobileNavigation() {
                 <Link href="/auth?mode=signup">
                   <Button
                     size="sm"
-                    className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-sm px-4"
+                    className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-sm px-4"
                   >
                     Create Account
                   </Button>
@@ -189,7 +189,7 @@ export default function MobileNavigation() {
               const Icon = item.icon
               return (
                 <Link key={item.href} href={item.href} className="flex-1">
-                  <div className={`relative px-2 py-2 whitespace-nowrap flex items-center justify-center ${
+                  <div className={`relative px-2 py-3 whitespace-nowrap flex items-center justify-center ${
                     isActive(item.href)
                       ? "text-orange-400"
                       : "text-gray-300 hover:text-white"
@@ -198,12 +198,13 @@ export default function MobileNavigation() {
                     <span className="text-sm">{item.label}</span>
                     {isActive(item.href) && (
                       <motion.div
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500 rounded-full"
+                        className="absolute bottom-1 left-1 right-1 h-[1px] bg-orange-500"
                         layoutId="activeTab"
                         transition={{
                           type: "spring",
-                          stiffness: 300,
-                          damping: 30
+                          stiffness: 400,
+                          damping: 25,
+                          mass: 0.8
                         }}
                       />
                     )}

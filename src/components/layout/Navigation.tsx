@@ -9,7 +9,7 @@ import {
   Flame,
   Mic,
   Crown,
-  Music,
+  Disc3,
   Home,
   Menu,
   X,
@@ -46,7 +46,7 @@ export default function Navigation() {
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/arena', label: 'Battles', icon: Mic },
-    { href: '/beats', label: 'Beats', icon: Music },
+    { href: '/beats', label: 'Beats', icon: Disc3 },
     { href: '/leaderboard', label: 'Leaderboard', icon: Crown },
   ]
 

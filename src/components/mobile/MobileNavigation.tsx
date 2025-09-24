@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { 
   Home,
   Mic,
-  Music,
+  Disc3,
   Crown as CrownIcon,
   Trophy,
   MessageCircle,
@@ -26,7 +26,7 @@ import ChatPanel from '@/components/chat/ChatPanel'
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/arena', label: 'Battles', icon: Mic },
-  { href: '/beats', label: 'Beats', icon: Music },
+  { href: '/beats', label: 'Beats', icon: Disc3 },
   { href: '/leaderboard', label: 'Leaderboard', icon: CrownIcon },
 ]
 

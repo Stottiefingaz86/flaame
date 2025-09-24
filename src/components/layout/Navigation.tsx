@@ -104,16 +104,7 @@ export default function Navigation() {
                   <Icon className="w-4 h-4" />
                   <span>{item.label}</span>
                   {isActive(item.href) && (
-                    <motion.div
-                      className="absolute bottom-1 left-2 right-2 h-[1px] bg-orange-500"
-                      layoutId="activeTab"
-                      transition={{
-                        type: "spring",
-                        stiffness: 400,
-                        damping: 25,
-                        mass: 0.8
-                      }}
-                    />
+                    <div className="absolute bottom-1 left-2 right-2 h-[1px] bg-orange-500" />
                   )}
                 </div>
               </Link>

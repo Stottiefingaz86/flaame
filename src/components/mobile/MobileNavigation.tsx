@@ -197,16 +197,7 @@ export default function MobileNavigation() {
                     <Icon className="w-4 h-4 mr-1 flex-shrink-0" />
                     <span className="text-sm">{item.label}</span>
                     {isActive(item.href) && (
-                      <motion.div
-                        className="absolute bottom-1 left-1 right-1 h-[1px] bg-orange-500"
-                        layoutId="activeTab"
-                        transition={{
-                          type: "spring",
-                          stiffness: 400,
-                          damping: 25,
-                          mass: 0.8
-                        }}
-                      />
+                      <div className="absolute bottom-1 left-1 right-1 h-[1px] bg-orange-500" />
                     )}
                   </div>
                 </Link>

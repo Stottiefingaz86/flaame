@@ -20,14 +20,11 @@ interface BeatUploadProps {
 interface FormData {
   title: string
   description: string
-  isFree: boolean
-  flaamesPrice: number
 }
 
 interface Errors {
   file?: string
   title?: string
-  flaamesPrice?: string
   submit?: string
 }
 
@@ -38,9 +35,7 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
   const [isUploading, setIsUploading] = useState(false)
   const [formData, setFormData] = useState<FormData>({
     title: '',
-    description: '',
-    isFree: true,
-    flaamesPrice: 0
+    description: ''
   })
   const [errors, setErrors] = useState<Errors>({})
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -186,8 +181,6 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
       console.log('Uploading beat:', {
         title: formData.title,
         description: formData.description,
-        isFree: formData.isFree,
-        flaamesPrice: formData.flaamesPrice,
         fileName: selectedFile?.name,
         fileSize: selectedFile?.size
       })
@@ -259,8 +252,8 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
         file_path: uploadPath,
         file_size: selectedFile!.size,
         duration: duration,
-        is_free: formData.isFree,
-        cost_flames: formData.isFree ? 0 : formData.flaamesPrice,
+        is_free: true,
+        cost_flames: 0,
         uploader_id: user.id,
         created_at: new Date().toISOString()
       }
@@ -457,39 +450,6 @@ export default function BeatUpload({ onUploadSuccess, onCancel }: BeatUploadProp
               </div>
             </div>
 
-            {/* Pricing */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 text-white">
-                  <input
-                    type="checkbox"
-                    checked={formData.isFree}
-                    onChange={(e) => handleInputChange('isFree', e.target.checked)}
-                    disabled={isUploading}
-                    className="rounded"
-                  />
-                  Free Beat
-                </label>
-              </div>
-
-              {!formData.isFree && (
-                <div className="space-y-2">
-                  <Label htmlFor="flaamesPrice" className="text-white">Cost (Flames)</Label>
-                  <Input
-                    id="flaamesPrice"
-                    type="number"
-                    value={formData.flaamesPrice}
-                    onChange={(e) => handleInputChange('flaamesPrice', parseInt(e.target.value) || 0)}
-                    placeholder="50"
-                    className="bg-black/20 border-white/10 text-white"
-                    disabled={isUploading}
-                  />
-                  {errors.flaamesPrice && (
-                    <div className="text-red-400 text-sm">{errors.flaamesPrice}</div>
-                  )}
-                </div>
-              )}
-            </div>
 
             {/* Submit Error */}
             {errors.submit && (
